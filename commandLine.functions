@@ -112,9 +112,29 @@ core_commandLine_processOptionWithoutArgument()
 		v|verbose)
 			core_init_verbosity=$((core_init_verbosity+1))
 		;;
+		
+		@)
+			echo "DO NOTHING FOR @"
+		;;
 	
 		*)
 			_program_commandLine_processOptionWithoutArgument
+		;;
+		
+	esac
+}
+
+core_commandLine_processOptionWithArgument()
+{
+	case "$optionName" in
+		
+		v|verbose)
+			core_TODO Check value is an unsigned integer
+			core_init_verbosity="$optionValue"
+		;;
+		
+		*)
+			_program_commandLine_processOptionWithArgument
 		;;
 		
 	esac
@@ -160,22 +180,6 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 		esac
 		
 	done
-}
-
-core_commandLine_processOptionWithArgument()
-{
-	case "$optionName" in
-		
-		v|verbose)
-			core_TODO Check value is an unsigned integer
-			core_init_verbosity="$optionValue"
-		;;
-		
-		*)
-			_program_commandLine_processOptionWithArgument
-		;;
-		
-	esac
 }
 
 # POSIX: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
