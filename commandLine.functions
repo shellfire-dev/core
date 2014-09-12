@@ -1,3 +1,59 @@
+# Based on sysexits.h (refer to FreeBSD man pages at http://www.gsp.com/cgi-bin/man.cgi?topic=sysexits)
+
+# successful termination (aka EXIT_SUCCESS in stdlib.h)
+readonly core_commandLine_exitCode_OK=0
+
+# Not in sysexit, but so commonly used (aka EXIT_FAILURE in stdlib.h)
+readonly core_commandLine_exitCode_FAILURE=1
+
+# Not in sysexit, misuse of builtin
+readonly core_commandLine_exitCode_MISUSEBUILTIN=2
+
+# command line usage error
+readonly core_commandLine_exitCode_USAGE=64
+
+# data format error
+readonly core_commandLine_exitCode_DATAERR=65
+
+# cannot open input
+readonly core_commandLine_exitCode_NOINPUT=66
+
+# addressee unknown
+readonly core_commandLine_exitCode_NOUSER=67
+
+# host name unknown
+readonly core_commandLine_exitCode_NOHOST=68
+
+# service unavailable
+readonly core_commandLine_exitCode_UNAVAILABLE=69
+
+# internal software error
+readonly core_commandLine_exitCode_SOFTWARE=70
+
+# system error (e.g., can't fork)
+readonly core_commandLine_exitCode_OSERR=71
+
+# critical OS file missing
+readonly core_commandLine_exitCode_OSFILE=72
+
+# can't create (user) output file
+readonly core_commandLine_exitCode_CANTCREAT=73
+
+# input/output error
+readonly core_commandLine_exitCode_IOERR=74
+
+# temp failure; user is invited to retry
+readonly core_commandLine_exitCode_TEMPFAIL=75
+
+# remote error in protocol
+readonly core_commandLine_exitCode_PROTOCOL=76
+
+# permission denied
+readonly core_commandLine_exitCode_NOPERM=77
+
+# configuration error
+readonly core_commandLine_exitCode_CONFIG=78
+
 core_commandLine_helpMessage()
 {
 	_program_commandLine_helpMessage
@@ -46,10 +102,23 @@ to automatically install any missing dependencies.
 "
 }
 
+core_commandLine_exitVersion()
+{
+	core_commandLine_versionMessage 1>&2
+	exit $core_commandLine_exitCode_OK
+}
+
 core_commandLine_exitHelp()
 {
 	core_commandLine_helpMessage 1>&2
-	exit 2
+	exit $core_commandLine_exitCode_OK
+}
+
+core_commandLine_exitBadCommandLine()
+{
+	core_message FAIL "$1"
+	core_commandLine_helpMessage 1>&2
+	exit $core_commandLine_exitCode_USAGE
 }
 
 core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogicIsReliable()
@@ -94,7 +163,7 @@ core_commandLine_optionExists()
 			echo yes-optionally-argumented
 		;;
 		
-		x)
+		version)
 			echo yes-argumentless
 		;;
 		
@@ -117,8 +186,8 @@ core_commandLine_processOptionWithoutArgument()
 			core_init_verbosity=$((core_init_verbosity+1))
 		;;
 		
-		x)
-			echo "DO NOTHING FOR x"
+		version)
+			core_commandLine_exitVersion
 		;;
 	
 		*)
@@ -166,7 +235,7 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 		case "$(core_commandLine_optionExists)" in
 			
 			no)
-				core_exitError "The option '${optionNameIncludingHyphens}' is not known"
+				core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
 			;;
 			
 			yes-argumentless|yes-optionally-argumented)
@@ -174,7 +243,7 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 			;;
 			
 			yes-argumented)
-				core_exitError "The option '${optionNameIncludingHyphens}' requires an argument which could not be specified"
+				core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which could not be specified"
 			;;
 			
 			*)
@@ -219,11 +288,11 @@ core_commandLine_parse()
 					case "$(core_commandLine_optionExists)" in
 						
 						no)
-							core_exitError "The option '${optionNameIncludingHyphens}' does not exist"
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not exist"
 						;;
 						
 						yes-argumentless)
-							core_exitError "The option '${optionNameIncludingHyphens}' does not take values (such as '$optionValue')"
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not take values (such as '$optionValue')"
 						;;
 						
 						yes-argumented|yes-optionally-argumented)
@@ -244,7 +313,7 @@ core_commandLine_parse()
 					case "$(core_commandLine_optionExists)" in
 						
 						no)
-							core_exitError "The option '${optionNameIncludingHyphens}' is not known"
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
 						;;
 						
 						yes-argumentless)
@@ -253,7 +322,7 @@ core_commandLine_parse()
 						
 						yes-argumented)
 							if [ $# -eq 0]; then
-								core_exitError "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
+								core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
 							fi
 							local optionValue="$1"
 							shift 1
@@ -306,11 +375,11 @@ core_commandLine_parse()
 					case "$(core_commandLine_optionExists)" in
 						
 						no)
-							core_exitError "The option '$optionNameIncludingHyphens' is not known"
+							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' is not known"
 						;;
 						
 						yes-argumentless)
-							core_exitError "The option '$optionNameIncludingHyphens' does not take values (such as '$optionValue')"
+							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' does not take values (such as '$optionValue')"
 						;;
 						
 						yes-argumented|yes-optionally-argumented)
@@ -337,7 +406,7 @@ core_commandLine_parse()
 					case "$(core_commandLine_optionExists)" in
 						
 						no)
-							core_exitError "The option '${optionNameIncludingHyphens}' is not known"
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
 						;;
 						
 						yes-argumentless)
@@ -346,7 +415,7 @@ core_commandLine_parse()
 						
 						yes-argumented)
 							if [ $# -eq 0]; then
-								core_exitError "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
+								core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
 							fi
 							local optionValue="$1"
 							shift 1
