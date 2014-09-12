@@ -78,51 +78,6 @@ core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogic
 	# export LANGUAGE=sv:de  for swedish then german
 }
 
-core_commandLine_parse_longOption()
-{
-	longOptionValue="$(core_compatibility_indirectVariableValue $OPTIND)"
-	#longOptionValue="${!OPTIND}"
-	
-	OPTIND=$((OPTIND+1))
-	longOptionName="$OPTARG"
-}
-
-core_commandLine_parse_longOption_noValue()
-{
-	core_commandLine_parse_longOption
-	if [ -n "$longOptionValue" ]; then
-		core_exitError "The --${longOptionName} option does not take arguments (eg '${longOptionValue}')"
-	fi
-}
-
-core_commandLine_parse_longOptionEquals()
-{
-	longOptionValue="${OPTARG#*=}"
-	longOptionName="${OPTARG%=$longOptionValue}"
-}
-
-core_commandLine_parse_longOptionEquals_noValue()
-{
-	core_commandLine_parse_longOptionEquals
-	if [ -n "$longOptionValue" ]; then
-		core_commandLine_exitError "The --${longOptionName} option does not take arguments (eg '${longOptionValue}')"
-	fi
-}
-
-core_commandLine_parse_longOptionUnknown()
-{
-	if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
-		core_commandLine_exitError "Invalid option --${OPTARG}"
-	fi
-}
-
-
-
-
-
-
-
-
 # yes-argumentless
 # yes-argumented
 # yes-optionally-argumented
@@ -151,8 +106,7 @@ core_commandLine_processOptionWithoutArgument()
 	case "$optionName" in
 		
 		h|help)
-			set -v
-			echo core_commandLine_exitHelp
+			core_commandLine_exitHelp
 		;;
 	
 		v|verbose)
@@ -366,7 +320,7 @@ core_commandLine_parse()
 				-*)
 					local optionNameIncludingHyphens="$argument"
 					local optionName="${argument##-}"
-					if [ ${#optionNameIncludingHyphens} -gt 1 ]; then
+					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
 						# When this returns, all options will have been consumed apart from the last one, and optionName/optionNameIncludingHyphens will be a single option
 						core_commandLine_parseConcatenatedOptionsWithoutEquals
 					fi
