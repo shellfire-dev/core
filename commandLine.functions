@@ -102,6 +102,16 @@ to automatically install any missing dependencies.
 "
 }
 
+core_commandLine_versionMessage()
+{
+	printf '%s' \
+"
+$_program_name ($_program_package) $_program_version
+Copyright $_program_copyright
+License ${_program_licence}: $_program_licence_description
+"
+}
+
 core_commandLine_exitVersion()
 {
 	core_commandLine_versionMessage 1>&2
