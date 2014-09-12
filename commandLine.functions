@@ -222,10 +222,16 @@ _core_commandLine_versionMessageLookup()
 
 core_commandLine_versionMessage()
 {
+	if [ -z "$_program_package_or_build" ]; then
+		local __program_package_or_build=' '
+	else
+		local _program_package_or_build='($_program_package_or_build) '
+	fi
+	
 	_core_commandLine_versionMessageLookup
 	
 	printf '%s' \
-"$_program_name ($_program_package) $_program_version
+"$_program_name ${_program_package_or_build}$_program_version
 Copyright $_program_copyright
 Licence ${_program_licence}: $_program_licence_description
 ${_program_permission}
