@@ -225,14 +225,13 @@ core_commandLine_versionMessage()
 	_core_commandLine_versionMessageLookup
 	
 	printf '%s' \
-"
-$_program_name ($_program_package) $_program_version
+"$_program_name ($_program_package) $_program_version
 Copyright $_program_copyright
 Licence ${_program_licence}: $_program_licence_description
 ${_program_permission}
 ${_program_warranty}
 
-Written by ${_program_written_by} and others, see <AUTHORS>.
+Written by ${_program_written_by}, see <AUTHORS>.
 "
 }
 
