@@ -78,7 +78,9 @@ core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogic
 
 core_commandLine_parse_longOption()
 {
-	longOptionValue="${!OPTIND}"
+	longOptionValue="$(core_compatibility_indirectVariableValue OPTIND)"
+	#longOptionValue="${!OPTIND}"
+	
 	OPTIND=$((OPTIND+1))
 	longOptionName="$OPTARG"
 }
