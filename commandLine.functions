@@ -93,7 +93,11 @@ core_commandLine_optionExists()
 		v|verbose)
 			echo yes-optionally-argumented
 		;;
-	
+		
+		x)
+			echo yes-argumentless
+		;;
+		
 		*)
 			_program_commandLine_optionExists
 		;;
@@ -113,8 +117,8 @@ core_commandLine_processOptionWithoutArgument()
 			core_init_verbosity=$((core_init_verbosity+1))
 		;;
 		
-		@)
-			echo "DO NOTHING FOR @"
+		x)
+			echo "DO NOTHING FOR x"
 		;;
 	
 		*)
