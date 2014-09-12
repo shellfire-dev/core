@@ -175,6 +175,7 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 	local OPTIND=1
 	
 	while getopts "$optstring" optionName "$@"
+	do
 		optionNameIncludingHyphens="-${optionName}"
 		
 		if [ $OPTIND -eq $lastOption ]; then
@@ -203,35 +204,6 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 			
 		esac
 		
-	done
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	do
-		case "$optionName" in
-			
-			
-			
-			'?')
-				core_exitError "The concatenated option '${optionNameIncludingHyphens}' could not be parsed by core_commandLine_parseConcatenatedOptions (why missing)?"
-			;;
-			
-			*)
-				core_exitError "The concatenated option '${optionNameIncludingHyphens}' could not be parsed by core_commandLine_parseConcatenatedOptions (should be impossible)?"
-			;;
-			
-		esac
 	done
 }
 
