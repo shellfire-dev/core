@@ -120,52 +120,6 @@ to automatically install any missing dependencies.
 "
 }
 
-core_commandLine_helpMessage()
-{
-	_program_commandLine_helpMessage
-	
-	printf '%s' "${global_ourName}
-$_program_commandLine_helpMessage_description
-
-Usage 1: ${global_ourName} -h|--help
-Usage 2: ${global_ourName} [-v [verbosity]|--verbose [verbosity]]${_program_commandLine_helpMessage_optionsAndNonOptions}
-
-Usages
-    1       Show Help
-    2       $_program_commandLine_helpMessage_usageMessage
-
-Options without Argments
-    Switch  Long-Switch  Explanation            Default
-    -h      --help       show this help
-    -v      --verbose    be more verbose        ${core_init_verbosity}"
-
-	if [ -n "$_program_commandLine_helpMessage_argumentedOptions" ]; then
-		printf '%s' "$_program_commandLine_helpMessage_argumentedOptions"
-	else
-		printf '\n'
-	fi
-	
-	printf '%s\n' "We do not support concatenated short options (eg -hv) or arguments (eg -v4)"
-	
-	if [ -n "$_program_commandLine_helpMessage_argumentlessOptions" ]; then
-		printf '%s' "Options with Arguments
-Switch  Default
-$_program_commandLine_helpMessage_argumentlessOptions"
-	else
-		:
-	fi
-	
-	if [ -n "$_program_commandLine_helpMessage_nonOptionArguments" ]; then
-		printf '%s' "Non-Options
-$_program_commandLine_helpMessage_nonOptionArguments
-Specify -- before the non-options to separate them from option arguments"
-	fi
-
-	printf '%s' "
-
-"
-}
-
 _core_commandLine_versionMessageLookup()
 {
 	case "$_program_licence" in
