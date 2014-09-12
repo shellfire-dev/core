@@ -122,15 +122,6 @@ core_commandLine_parse_longOptionUnknown()
 
 
 
-core_compatibility_startsWith()
-{
-	[ "${1#${2}}" != "$1" ]
-}
-
-#_program_commandLine_optionExists()
-#{
-#	echo no
-#}
 
 # yes-argumentless
 # yes-argumented
@@ -174,6 +165,76 @@ core_commandLine_processOptionWithoutArgument()
 	esac
 }
 
+# This can be confused with XF86-style long options
+core_commandLine_parseConcatenatedOptionsWithoutEquals()
+{
+	local optstring=":${optionName}"
+	local lastOption=${#optionName}
+	local OPTARG
+	local OPTERR
+	local OPTIND=1
+	
+	while getopts "$optstring" optionName "$@"
+		optionNameIncludingHyphens="-${optionName}"
+		
+		if [ $OPTIND -eq $lastOption ]; then
+			return 0
+		fi
+
+		optionNameIncludingHyphens="-${argument}"
+
+		case "$(core_commandLine_optionExists)" in
+			
+			no)
+				core_exitError "The option '${optionNameIncludingHyphens}' is not known"
+			;;
+			
+			yes-argumentless|yes-optionally-argumented)
+				core_commandLine_processOptionWithoutArgument
+			;;
+			
+			yes-argumented)
+				core_exitError "The option '${optionNameIncludingHyphens}' requires an argument which could not be specified"
+			;;
+			
+			*)
+				core_exitError "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+			;;
+			
+		esac
+		
+	done
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	do
+		case "$optionName" in
+			
+			
+			
+			'?')
+				core_exitError "The concatenated option '${optionNameIncludingHyphens}' could not be parsed by core_commandLine_parseConcatenatedOptions (why missing)?"
+			;;
+			
+			*)
+				core_exitError "The concatenated option '${optionNameIncludingHyphens}' could not be parsed by core_commandLine_parseConcatenatedOptions (should be impossible)?"
+			;;
+			
+		esac
+	done
+}
+
 core_commandLine_processOptionWithArgument()
 {
 	case "$optionName" in
@@ -211,6 +272,7 @@ core_commandLine_parse()
 				break
 			fi
 			
+			# Parse GNU-style long options
 			case "$argument" in
 				
 				# eg --log-level=debug (handles spaces and multiple = signs correctly)
@@ -330,11 +392,11 @@ core_commandLine_parse()
 				# eg --help and --verbose [level]
 				-*)
 					local optionNameIncludingHyphens="$argument"
-					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
-						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
-					fi
 					local optionName="${argument##-}"
-
+					if [ ${#optionNameIncludingHyphens} -gt 1 ]; then
+						# When this returns, all options will have been consumed apart from the last one, and optionName/optionNameIncludingHyphens will be a single option
+						core_commandLine_parseConcatenatedOptionsWithoutEquals
+					fi
 	
 					case "$(core_commandLine_optionExists)" in
 						
