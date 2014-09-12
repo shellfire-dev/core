@@ -61,13 +61,13 @@ core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogic
 	unset LC_TIME
 	unset LC_ALL
 
-	export LANG="$core_commandLine_language"
-	export LC_COLLATE="$core_commandLine_language"
-	export LC_CTYPE="$core_commandLine_language"
-	export LC_MESSAGES="$core_commandLine_language"
-	export LC_MONETARY="$core_commandLine_language"
-	export LC_NUMERIC="$core_commandLine_language"
-	export LC_TIME="$core_commandLine_language"
+	export LANG="$core_init_language"
+	export LC_COLLATE="$core_init_language"
+	export LC_CTYPE="$core_init_language"
+	export LC_MESSAGES="$core_init_language"
+	export LC_MONETARY="$core_init_language"
+	export LC_NUMERIC="$core_init_language"
+	export LC_TIME="$core_init_language"
 	export LC_ALL=""
 	
 	# ? Also LANGUAGE, a GNU gettext extension?
