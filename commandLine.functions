@@ -168,13 +168,14 @@ core_commandLine_processOptionWithoutArgument()
 # This can be confused with XF86-style long options
 core_commandLine_parseConcatenatedOptionsWithoutEquals()
 {
+	local arguments="-${optionName}"
 	local optstring=":${optionName}"
 	local lastOption=${#optionName}
 	local OPTARG
 	local OPTERR
 	local OPTIND=1
 	
-	while getopts "$optstring" optionName "$@"
+	while getopts "$optstring" optionName "$arguments"
 	do
 		optionNameIncludingHyphens="-${optionName}"
 		
