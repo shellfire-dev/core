@@ -54,6 +54,72 @@ readonly core_commandLine_exitCode_NOPERM=77
 # configuration error
 readonly core_commandLine_exitCode_CONFIG=78
 
+# Width is 80 cols; standard Parallels VM is 100 cols
+core_commandLine_helpMessage()
+{
+	_program_commandLine_helpMessage
+	printf '%s' Usage: "${global_ourName} ${_program_commandLine_helpMessage_usage}
+${_program_commandLine_helpMessage_description}
+
+  -h, --help                 display this help and exit
+  -v, --verbose [level]      specify more than once to increate verbository or
+                             optionally set level to 0 - 2. Defaults to 0.
+      --version              output version information and exit
+${_program_commandLine_helpMessage_options}
+Notes
+Long options with values may also be specified with '=', eg --verbose=2 as well
+as --verbose 2. Separate options from operands (non-options) by using '--'.
+This prevents interpretation of non-options as options. Concatenating short
+options with arguments (eg -v2) is not supported.
+
+Configuration
+This program can be configured by creating files in the form 'key=value' at:-
+  
+  ${core_init_etcPath}/${core_libraryName}rc
+  ${core_init_etcPath}/${core_libraryName}rc.d
+  ${core_init_etcPath}/${global_ourName}rc
+  ${core_init_etcPath}/${global_ourName}rc.d
+  HOME/.${core_libraryName}rc
+  HOME/.${core_libraryName}rc.d
+  ${core_libraryName}_RC
+  ${core_libraryName}_RC_D
+  HOME/.${global_ourName}rc
+  HOME/.${global_ourName}rc.d
+  ${global_ourName}_RC
+  ${global_ourName}_RC_D
+
+Locations ending '.d' are folders which are searched for files. All files in a
+folder are used in shell glob-expansion order. Fields in UPPERCASE are
+environment variables. If the variable does not exist, the location is ignored.
+
+Files are used in the order above. If a file does not exist, it is ignored.
+Those under a 'etc' folder must have the following permissions set:-
+
+  * They are owned by root.
+  * They are not group writable.
+  * They are not world writable.
+  * They do not reside in a group writable directory.
+  * They do not reside in a world writable directory.
+  * They are not a symbolic link to a file residing in a group or world
+    writable directory. 
+
+If the permissions are not set, the file is ignored.
+
+Configuration Keys
+  
+  core_init_language   ${core_init_language}  Controls sort order language
+  core_init_verbosity  ${core_init_verbosity}  Controls message logging on stderr.
+${_program_commandLine_helpMessage_configurationKeys}
+Values should be single or double-quoted if they contain whitespace.
+
+Examples
+${_program_commandLine_helpMessage_examples}
+Path Files
+A path file is used to define the location of essential programs used during initial bootstrapping. It also defines a packageManager
+to automatically install any missing dependencies.
+"
+}
+
 core_commandLine_helpMessage()
 {
 	_program_commandLine_helpMessage
@@ -96,9 +162,7 @@ Specify -- before the non-options to separate them from option arguments"
 	fi
 
 	printf '%s' "
-Path Files
-A path file is used to define the location of essential programs used during initial bootstrapping. It also defines a packageManager
-to automatically install any missing dependencies.
+
 "
 }
 
