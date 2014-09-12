@@ -102,13 +102,137 @@ to automatically install any missing dependencies.
 "
 }
 
+_core_commandLine_versionMessageLookup()
+{
+	case "$_program_licence" in
+		
+		AGPLv3)
+			_program_licence_description='GNU Affero GPL version 3 <http://www.gnu.org/licenses/agpl-3.0.html>.'
+			_program_text=GNU
+		;;
+		
+		AGPLv3+)
+			_program_licence_description='GNU Affero GPL version 3 or later <http://www.gnu.org/licenses/agpl-3.0.html>.'
+			_program_text=GNU
+		;;
+		
+		Apache2)
+			_program_licence_description='Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0.html>.'
+			_program_text=Apache
+		;;
+		
+		# BSD 2-clause, newest of the BSD licenses
+		SimplifiedBSD)
+			_program_licence_description='Simplified BSD License (BSD 2-Clause) <http://opensource.org/licenses/BSD-2-Clause>.'
+			_program_text=BSD
+		;;
+		
+		# BSD 3-clause, middlin' of the BSD licenses
+		NewBSD)
+			_program_licence_description='New BSD License (BSD 3-Clause) <http://opensource.org/licenses/BSD-3-Clause>.'
+			_program_text=BSD
+		;;
+		
+		GPLv2)
+			_program_licence_description='GNU GPL version 2 <http://www.gnu.org/licenses/gpl-2.0.html>.'
+			_program_text=GNU
+		;;
+		
+		GPLv2+)
+			_program_licence_description='GNU GPL version 2 or later <http://www.gnu.org/licenses/gpl-2.0.html>.'
+			_program_text=GNU
+		;;
+		
+		GPLv3)
+			_program_licence_description='GNU GPL version 3 <http://www.gnu.org/licenses/gpl-3.0.html>.'
+			_program_text=GNU
+		;;
+		
+		GPLv3+)
+			_program_licence_description='GNU GPL version 3 or later <http://www.gnu.org/licenses/gpl-3.0.html>.'
+			_program_text=GNU
+		;;
+		
+		LGPLv2.1)
+			_program_licence_description='GNU Lesser GPL version 2.1 <http://www.gnu.org/licenses/lgpl-2.1.html>.'
+			_program_text=GNU
+		;;
+		
+		LGPLv2.1+)
+			_program_licence_description='GNU Lesser GPL version 2.1 or later <http://www.gnu.org/licenses/lgpl-2.1.html>.'
+			_program_text=GNU
+		;;
+		
+		LGPLv3)
+			_program_licence_description='GNU Lesser GPL version 3 <http://www.gnu.org/licenses/lgpl-3.0.html>.'
+			_program_text=GNU
+		;;
+		
+		LGPLv3+)
+			_program_licence_description='GNU Lesser GPL version 3 or later <http://www.gnu.org/licenses/lgpl-3.0.html>.'
+			_program_text=GNU
+		;;
+		
+		MIT)
+			_program_licence_description='The MIT License <http://opensource.org/licenses/MIT>'
+			_program_text=MIT
+		;;
+		
+		'Public Domain')
+			_program_license_description='This software is in the public domain.'
+			_program_text='Public Domain'
+		;;
+		
+		Unlicensed)
+			_program_license_description='All Rights Reserved.'
+			_program_text=Unlicensed
+		;;
+		
+		*)
+			_program_licence_description='Proprietary licence.'
+			_program_text="Closed Source"
+		;;
+		
+	esac
+	
+	case "$_program_text"
+		
+		GNU|MIT|Apache|BSD)
+			_program_permission='This is free software: you are free to change and redistribute it.'
+			_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
+		;;
+		
+		'Public Domain')
+			_program_permission='This software is in the public domain.'
+			_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
+		;;
+		
+		Unlicensed)
+			_program_permission='This software is unlicensed.'
+			_program_warranty='Refer to the copyright holders.'
+		;;
+		
+		*)
+			_program_permission='You may only make use of this software in accordance with the licence granted to you or your organisation.'
+			_program_warranty='Warranty, if any, is specified in the licence.'
+		;;
+		
+	esac
+}
+
 core_commandLine_versionMessage()
 {
+	_core_commandLine_versionMessageLookup
+	
 	printf '%s' \
 "
 $_program_name ($_program_package) $_program_version
 Copyright $_program_copyright
-License ${_program_licence}: $_program_licence_description
+Licence ${_program_licence}: $_program_licence_description
+${_program_permission}
+${_program_warranty}
+
+Written by ${_program_written_by} and others, see <AUTHORS>.
 "
 }
 
