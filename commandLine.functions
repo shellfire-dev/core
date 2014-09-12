@@ -329,7 +329,7 @@ core_commandLine_parse()
 				
 				# eg --help and --verbose [level]
 				-*)
-					local optionNameIncludingHyphens=="$argument"
+					local optionNameIncludingHyphens="$argument"
 					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
 						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
 					fi
