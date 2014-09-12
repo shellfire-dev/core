@@ -1,13 +1,12 @@
 # Consider breaking this out
 core_configuration_ifPathIsExtantCallCallback()
 {
-	local checkConfigurationSecurity=$1
-	local callback="$2"
-	if [ $# -eq 3 ]; then
-		local path="$3"
+	local callback="$1"
+	if [ $# -eq 2 ]; then
+		local path="$2"
 	else
-		local environmentVariable="$3"
-		local relativePath="$4"
+		local environmentVariable="$2"
+		local relativePath="$3"
 		
 		local blacklistedEnvironmentVariable
 		for blacklistedEnvironmentVariable in $core_configuration_defaultsBlacklistedEnvironmentVariables

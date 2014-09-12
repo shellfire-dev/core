@@ -326,27 +326,17 @@ core_init_rexecUnderCorrectShell()
 
 core_init_defaultEssentialPaths()
 {
-	# true if does not start with a slash
-	if [ "${_program_libPath##/}" = "$_program_libPath" ]; then
-		cd -P "$_program_libPath" 1>/dev/null
-		
-			core_init_libPath="$(pwd)"
-		
-		cd - 1>/dev/null
-	else
-		core_init_libPath="$_program_libPath"
-	fi
+	cd -P "$_program_libPath" 1>/dev/null
+	
+		core_init_libPath="$(pwd)"
+	
+	cd - 1>/dev/null
 
-	# true if does not start with a slash
-	if [ "${_program_etcPath##/}" = "$_program_etcPath" ]; then
-		cd -P "$_program_etcPath" 1>/dev/null
-		
-			core_init_etcPath="$(pwd)"
-		
-		cd - 1>/dev/null
-	else
-		core_init_etcPath="$_program_etcPath"
-	fi
+	cd -P "$_program_etcPath" 1>/dev/null
+	
+		core_init_etcPath="$(pwd)"
+	
+	cd - 1>/dev/null
 }
 
 core_init_main()
