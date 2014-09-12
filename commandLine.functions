@@ -296,11 +296,12 @@ core_commandLine_parse()
 				# eg -l='debug'
 				-*=*)
 					local optionNameIncludingHyphens="${argument%%=*}"
-					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
-						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
-					fi
 					local optionName="${optionNameIncludingHyphens##-}"
 					local optionValue="${argument#*=}"
+					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
+						# When this returns, all options will have been consumed apart from the last one, and optionName/optionNameIncludingHyphens will be a single option
+						core_commandLine_parseConcatenatedOptionsWithoutEquals
+					fi
 					
 					case "$(core_commandLine_optionExists)" in
 						
