@@ -155,7 +155,7 @@ core_commandLine_processOptionWithoutArgument()
 		;;
 	
 		v|verbose)
-			core_commandLine_verbosity=$((core_commandLine_verbosity+1))
+			core_init_verbosity=$((core_init_verbosity+1))
 		;;
 	
 		*)
@@ -213,7 +213,7 @@ core_commandLine_processOptionWithArgument()
 		
 		v|verbose)
 			core_TODO Check value is an unsigned integer
-			core_commandLine_verbosity="$optionValue"
+			core_init_verbosity="$optionValue"
 		;;
 		
 		*)
