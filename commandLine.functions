@@ -225,7 +225,7 @@ core_commandLine_versionMessage()
 	if [ -z "$_program_package_or_build" ]; then
 		local _program_package_or_build_x=' '
 	else
-		local _program_package_or_build_x='($_program_package_or_build) '
+		local _program_package_or_build_x="($_program_package_or_build) "
 	fi
 	
 	_core_commandLine_versionMessageLookup
