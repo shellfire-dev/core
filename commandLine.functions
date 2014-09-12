@@ -151,6 +151,7 @@ core_commandLine_processOptionWithoutArgument()
 	case "$optionName" in
 		
 		h|help)
+			set -v
 			echo core_commandLine_exitHelp
 		;;
 	
