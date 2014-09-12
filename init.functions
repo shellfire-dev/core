@@ -80,10 +80,10 @@ core_TODO()
 	core_message TODO "$*"
 }
 
+# A variation of this can be used to dynamically load plugins
 _core_usesAlreadySourced=''
 core_uses()
 {
-	local namespacedModules
 	local alreadySourcedNamespacedFunctions
 	local moduleName
 	local relativeFunctionsFileName
@@ -101,6 +101,7 @@ core_uses()
 		done
 		
 		_core_usesAlreadySourced="$_core_usesAlreadySourced $namespacedModule"
+		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
 		for relativeFunctionsFilePath in "$namespacedModule"."$global_preferredShell" "$namespacedModule" "$namespacedModule"/"$moduleName"."$global_preferredShell" "$namespacedModule"/"$moduleName"
@@ -116,6 +117,7 @@ core_uses()
 		fi
 	done
 }
+
 core_init_init()
 {
 	set -e
@@ -317,7 +319,31 @@ core_init_rexecUnderCorrectShell()
 	core_init_shell_rexecing=$$ exec "$shellPath" "$global_ourSymlinkExecutablePath" "$@"
 }
 
-# Could we pass shell type, min-max versions here, eg core_init_main bash 4 2 "$@"
+core_init_defaultEssentialPaths()
+{
+	# true if does not start with a slash
+	if [ "${_program_libPath##/}" = "$_program_libPath" ]; then
+		cd -P "$_program_libPath" 1>/dev/null
+		
+			core_init_functionsPath="$(pwd)"/"$core_libraryName"
+		
+		cd - 1>/dev/null
+	else
+		core_init_functionsPath="$_program_libPath"/"$core_libraryName"
+	fi
+
+	# true if does not start with a slash
+	if [ "${_program_etcPath##/}" = "$_program_etcPath" ]; then
+		cd -P "$_program_etcPath" 1>/dev/null
+		
+			core_init_etcPath="$(pwd)"
+		
+		cd - 1>/dev/null
+	else
+		core_init_etcPath="$_program_etcPath"
+	fi
+}
+
 core_init_main()
 {
 	core_init_init
@@ -326,7 +352,14 @@ core_init_main()
 	core_init_setTracing
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
+	core_init_defaultEssentialPaths
 	
-	core_uses core $_program_core_uses
+	if core_compatibility_testVariableIsSet _program_uses; then
+		core_uses core $_program_uses
+	else
+		core_uses core
+	fi
 	core_executeProgram "$@"
 }
+
+core_init_main "$@"
