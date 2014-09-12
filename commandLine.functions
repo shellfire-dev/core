@@ -6,7 +6,7 @@ core_commandLine_helpMessage()
 $_program_commandLine_helpMessage_description
 
 Usage 1: ${global_ourName} -h|--help
-Usage 2: ${global_ourName} [-v|--verbose]${_program_commandLine_helpMessage_optionsAndNonOptions}
+Usage 2: ${global_ourName} [-v [verbosity]|--verbose [verbosity]]${_program_commandLine_helpMessage_optionsAndNonOptions}
 
 Usages
     1       Show Help
@@ -22,6 +22,8 @@ Options without Argments
 	else
 		printf '\n'
 	fi
+	
+	printf '%s\n' "We do not support concatenated short options (eg -hv) or arguments (eg -v4)"
 	
 	if [ -n "$_program_commandLine_helpMessage_argumentlessOptions" ]; then
 		printf '%s' "Options with Arguments
@@ -114,71 +116,276 @@ core_commandLine_parse_longOptionUnknown()
 	fi
 }
 
+
+
+
+
+
+
+core_compatibility_startsWith()
+{
+	[ "${1#${2}}" != "$1" ]
+}
+
+#_program_commandLine_optionExists()
+#{
+#	echo no
+#}
+
+# yes-argumentless
+# yes-argumented
+# yes-optionally-argumented
+# no
+core_commandLine_optionExists()
+{
+	case "$optionName" in
+		
+		h|help)
+			echo yes-argumentless
+		;;
+	
+		v|verbose)
+			echo yes-optionally-argumented
+		;;
+	
+		*)
+			_program_commandLine_optionExists
+		;;
+		
+	esac
+}
+
+core_commandLine_processOptionWithoutArgument()
+{
+	case "$optionName" in
+		
+		h|help)
+			core_commandLine_exitHelp
+		;;
+	
+		v|verbose)
+			core_commandLine_verbosity=$((core_commandLine_verbosity+1))
+		;;
+	
+		*)
+			_program_commandLine_processOptionWithoutArgument
+		;;
+		
+	esac
+}
+
+core_commandLine_processOptionWithArgument()
+{
+	case "$optionName" in
+		
+		v|verbose)
+			core_TODO Check value is an unsigned integer
+			core_commandLine_verbosity="$optionValue"
+		;;
+		
+		*)
+			_program_commandLine_processOptionWithArgument
+		;;
+		
+	esac
+}
+
+# POSIX: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
+# We do not support concatenated arguments (ie instead -o arg, -oarg)
+# We do not support concatenated short options (ie -tvf vs -t -v -f)
 core_commandLine_parse()
 {
 	_program_commandLine_parseInitialise
 	
-	local getoptsString=":hv-:${_program_commandLine_getoptsStringExtra}"
-
-	local OPTERR=1
-	local OPTIND=1
-	local OPTARG
-	local option
-	local longOptionValue
-	local longOptionName
-	while getopts "$getoptsString" option
+	local argument
+	local parsingOptionArguments=0
+	while true
 	do
-		# https://stackoverflow.com/questions/402377/using-getopts-in-bash-shell-script-to-get-long-and-short-command-line-options/7680682
-		case "$option" in
+		local argument="$1"
 		
-			-)
-				case "$OPTARG" in
-				
-					help)
-						core_commandLine_parse_longOption_noValue
-						core_commandLine_exitHelp
-					;;
-				
-					help=*)
-						core_commandLine_parse_longOptionEquals_noValue
-					;;
-				
-					verbose)
-						core_commandLine_parse_longOption_noValue
-						core_commandLine_verbosity=$((core_commandLine_verbosity+1))
-					;;
-				
-					verbose=*)
-						core_commandLine_parse_longOptionEquals_noValue
-					;;
-				
-					*)
-						_program_commandLine_handleLongOption
-					;;
-				
-				esac
-			;;
+		if core_compatibility_startsWith "$argument" '--' ; then
+			
+			shift 1
 		
-			h)
-				core_commandLine_exitHelp
-			;;
-		
-			v)
-				core_commandLine_verbosity=$((core_commandLine_verbosity+1))
-			;;
-		
-			'?')
-				core_commandLine_exitError "Invalid option -${OPTARG}"
-			;;
-		
-			*)
-				_program_commandLine_handleShortOption
-			;;
-		
-		esac
+			if [ "$argument" = '--' ]; then
+				break
+			fi
+			
+			case "$argument" in
+				
+				# eg --log-level=debug (handles spaces and multiple = signs correctly)
+				--*=*)
+					local optionNameIncludingHyphens="${argument%%=*}"
+					local optionName="${optionNameIncludingHyphens##--}"
+					local optionValue="${argument#*=}"
+					
+					case "$(core_commandLine_optionExists)" in
+						
+						no)
+							core_exitError "The option '${optionNameIncludingHyphens}' does not exist"
+						;;
+						
+						yes-argumentless)
+							core_exitError "The option '${optionNameIncludingHyphens}' does not take values (such as '$optionValue')"
+						;;
+						
+						yes-argumented|yes-optionally-argumented)
+							core_commandLine_processOptionWithArgument
+						;;
+						
+						*)
+							core_exitError "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+						;;
+					esac
+				;;
+				
+				# eg --help and --verbose [level]
+				--*)
+					local optionNameIncludingHyphens=="$argument"
+					local optionName="${argument##--}"
+	
+					case "$(core_commandLine_optionExists)" in
+						
+						no)
+							core_exitError "The option '${optionNameIncludingHyphens}' is not known"
+						;;
+						
+						yes-argumentless)
+							core_commandLine_processOptionWithoutArgument
+						;;
+						
+						yes-argumented)
+							if [ $# -eq 0]; then
+								core_exitError "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
+							fi
+							local optionValue="$1"
+							shift 1
+							core_commandLine_processOptionWithArgument
+						;;
+						
+						yes-optionally-argumented)
+							if [ $# -eq 0 ]; then
+								break
+							fi
+							local optionValue="$1"
+							if core_compatibility_startsWith "$optionValue" '--' ; then
+								core_commandLine_processOptionWithoutArgument
+							else
+								shift 1
+								core_commandLine_processOptionWithArgument
+							fi
+						;;
+						
+						*)
+							core_exitError "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+						;;
+						
+					esac
+				;;
+				
+				*)
+					core_exitError "The function core_commandLine_parse failed on argument '$argument', the line was '$@'"
+				;;
+			esac
+			
+		elif core_compatibility_startsWith "$argument" '-' ; then
+			
+			shift 1
+			
+			# Processing short options (-t, -v, etc)
+			
+			case "$argument" in
+				
+				# eg -l='debug'
+				-*=*)
+					local optionNameIncludingHyphens="${argument%%=*}"
+					if [ ${#optionNameIncludingSingleHyphen} -gt 2 ]; then
+						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
+					fi
+					local optionName="${optionNameIncludingHyphens##-}"
+					local optionValue="${argument#*=}"
+					
+					case "$(core_commandLine_optionExists)" in
+						
+						no)
+							core_exitError "The option '$optionNameIncludingHyphens' is not known"
+						;;
+						
+						yes-argumentless)
+							core_exitError "The option '$optionNameIncludingHyphens' does not take values (such as '$optionValue')"
+						;;
+						
+						yes-argumented|yes-optionally-argumented)
+							core_commandLine_processOptionWithArgument
+						;;
+						
+						*)
+							core_exitError "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+						;;
+						
+					esac
+					
+				;;
+				
+				# eg --help and --verbose [level]
+				-*)
+					local optionNameIncludingHyphens=="$argument"
+					if [ ${#optionNameIncludingSingleHyphen} -gt 2 ]; then
+						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
+					fi
+					local optionName="${argument##-}"
+
+	
+					case "$(core_commandLine_optionExists)" in
+						
+						no)
+							core_exitError "The option '${optionNameIncludingHyphens}' is not known"
+						;;
+						
+						yes-argumentless)
+							core_commandLine_processOptionWithoutArgument
+						;;
+						
+						yes-argumented)
+							if [ $# -eq 0]; then
+								core_exitError "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
+							fi
+							local optionValue="$1"
+							shift 1
+							core_commandLine_processOptionWithArgument
+						;;
+						
+						yes-optionally-argumented)
+							if [ $# -eq 0 ]; then
+								break
+							fi
+							local optionValue="$1"
+							if core_compatibility_startsWith "$optionValue" '--' ; then
+								core_commandLine_processOptionWithoutArgument
+							else
+								shift 1
+								core_commandLine_processOptionWithArgument
+							fi
+						;;
+						
+						*)
+							core_exitError "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+						;;
+						
+					esac
+				;;
+				
+				*)
+					core_exitError "The function core_commandLine_parse failed on argument '$argument', the line was '$@'"
+				;;
+				
+			esac
+		else
+			# start of non-options
+			break
+		fi
 	done
 	
-	shift $((OPTIND - 1))
 	_program_commandLine_handleNonOptions "$@"
 	
 	_program_commandLine_validate
