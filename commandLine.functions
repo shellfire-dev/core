@@ -299,7 +299,7 @@ core_commandLine_parse()
 				# eg -l='debug'
 				-*=*)
 					local optionNameIncludingHyphens="${argument%%=*}"
-					if [ ${#optionNameIncludingSingleHyphen} -gt 2 ]; then
+					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
 						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
 					fi
 					local optionName="${optionNameIncludingHyphens##-}"
@@ -330,7 +330,7 @@ core_commandLine_parse()
 				# eg --help and --verbose [level]
 				-*)
 					local optionNameIncludingHyphens=="$argument"
-					if [ ${#optionNameIncludingSingleHyphen} -gt 2 ]; then
+					if [ ${#optionNameIncludingHyphens} -gt 2 ]; then
 						core_exitError "Concatenated options such as '${optionNameIncludingHyphens}' are not supported (it's just too hard in pure POSIX sh)"
 					fi
 					local optionName="${argument##-}"
