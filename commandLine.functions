@@ -66,6 +66,7 @@ ${_program_commandLine_helpMessage_description}
                              optionally set level to 0 - 2. Defaults to 0.
       --version              output version information and exit${_program_commandLine_helpMessage_options}
       --                     end of options
+
 Notes
 Long options with values may also be specified with '=', eg --verbose=2 as well
 as --verbose 2. Separate options from operands (non-options) by using '--'.
@@ -108,7 +109,7 @@ If the permissions are not set, the file is ignored.
 Configuration Keys
   
   core_init_language   ${core_init_language}  Controls sort order language
-  core_init_verbosity  ${core_init_verbosity}  Controls message logging on stderr.
+  core_init_verbosity  ${core_init_verbosity}  Controls message logging on stderr
 ${_program_commandLine_helpMessage_configurationKeys}
 Values should be single or double-quoted if they contain whitespace.
 
