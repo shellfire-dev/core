@@ -233,7 +233,7 @@ core_commandLine_parse()
 	
 	local argument
 	local parsingOptionArguments=0
-	while true
+	while [ $# -ne 0 ]
 	do
 		local argument="$1"
 		
