@@ -178,12 +178,11 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 	while getopts "$optstring" optionName "$arguments"
 	do
 		optionNameIncludingHyphens="-${optionName}"
+		argument="$optionNameIncludingHyphens"
 		
 		if [ $OPTIND -eq $lastOption ]; then
 			return 0
 		fi
-
-		optionNameIncludingHyphens="-${argument}"
 
 		case "$(core_commandLine_optionExists)" in
 			
