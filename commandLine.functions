@@ -89,7 +89,7 @@ core_commandLine_parse_longOption_noValue()
 {
 	core_commandLine_parse_longOption
 	if [ -n "$longOptionValue" ]; then
-		core_commandLine_exitError "The --${longOptionName} option does not take arguments (eg '${longOptionValue}')"
+		core_exitError "The --${longOptionName} option does not take arguments (eg '${longOptionValue}')"
 	fi
 }
 
