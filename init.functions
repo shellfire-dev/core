@@ -80,10 +80,14 @@ core_TODO()
 	core_message TODO "$*"
 }
 
-# A variation of this can be used to dynamically load plugins
+# By specifying $1 as not , say, /usr/lib, and $2 as something other than core_libraryName, this code can be used for plugins
 _core_usesAlreadySourced=''
 core_uses()
 {
+	local libPath="$1"
+	local libraryName="$2"
+	shift 2
+	
 	local alreadySourcedNamespacedFunctions
 	local moduleName
 	local relativeFunctionsFileName
@@ -91,6 +95,7 @@ core_uses()
 	local sourced
 	for namespacedModule in "$@"
 	do
+		namespacedModule="$libraryName"/"$namespacedModule"
 		# skip if already sourced
 		# Does not handle spaces in filenames, unfortunately
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
@@ -106,7 +111,7 @@ core_uses()
 		sourced=0
 		for relativeFunctionsFilePath in "$namespacedModule"."$global_preferredShell" "$namespacedModule" "$namespacedModule"/"$moduleName"."$global_preferredShell" "$namespacedModule"/"$moduleName"
 		do
-			functionsFilePath="$core_init_functionsPath"/"$core_libraryName"/"$relativeFunctionsFilePath".functions
+			functionsFilePath="$libPath"/"$relativeFunctionsFilePath".functions
 			if [ -f "$functionsFilePath" ]; then
 				. "$functionsFilePath" || core_exitError "Can not load functions '$functionsFilePath'"
 				sourced=1
@@ -325,11 +330,11 @@ core_init_defaultEssentialPaths()
 	if [ "${_program_libPath##/}" = "$_program_libPath" ]; then
 		cd -P "$_program_libPath" 1>/dev/null
 		
-			core_init_functionsPath="$(pwd)"/"$core_libraryName"
+			core_init_libPath="$(pwd)"
 		
 		cd - 1>/dev/null
 	else
-		core_init_functionsPath="$_program_libPath"/"$core_libraryName"
+		core_init_libPath="$_program_libPath"
 	fi
 
 	# true if does not start with a slash
@@ -354,11 +359,11 @@ core_init_main()
 	core_init_rexecUnderCorrectShell "$@"
 	core_init_defaultEssentialPaths
 	
+	local uses='core'
 	if core_compatibility_testVariableIsSet _program_uses; then
-		core_uses core $_program_uses
-	else
-		core_uses core
+		uses="$uses $_program_uses"
 	fi
+	core_uses "$core_init_libPath" "$core_libraryName" $uses
 	core_executeProgram "$@"
 }
 

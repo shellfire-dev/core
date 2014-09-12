@@ -5,7 +5,7 @@ core_usesIn()
 	local module
 	for module in "$@"
 	do
-		core_uses "$namespace"/"$module"
+		core_uses "$core_init_libPath" "$core_libraryName" "$namespace"/"$module"
 	done
 }
 
