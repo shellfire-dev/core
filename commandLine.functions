@@ -195,7 +195,7 @@ _core_commandLine_versionMessageLookup()
 		
 	esac
 	
-	case "$_program_text"
+	case "$_program_text" in
 		
 		GNU|MIT|Apache|BSD)
 			_program_permission='This is free software: you are free to change and redistribute it.'
