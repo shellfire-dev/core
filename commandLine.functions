@@ -90,8 +90,10 @@ This program can be configured by creating files in the form 'key=value' at:-
   ${global_ourName}_RC_D
 
 Locations ending '.d' are folders which are searched for files. All files in a
-folder are used in shell glob-expansion order. Fields in UPPERCASE are
-environment variables. If the variable does not exist, the location is ignored.
+folder are used in shell glob-expansion order. HOME, ${core_libraryName}_RC,
+${core_libraryName}_RC_D, ${global_ourName}_RC and ${global_ourName}_RC_D
+are environment variables. If the variable does not exist, the location is
+ignored.
 
 Files are used in the order above. If a file does not exist, it is ignored.
 Those under a 'etc' folder must have the following permissions set:-

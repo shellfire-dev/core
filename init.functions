@@ -32,6 +32,39 @@ core_compatibility_whichNoOutput()
 	core_compatibility_which "$1" 1>/dev/null 2>/dev/null
 }
 
+_core_dependency_requires=''
+core_dependency_requires()
+{
+	# Or '*' for all
+	local packageManager="$1"
+	if [ -z "$packageManager" ]; then
+		core_exitError "packageManager can not be empty"
+	fi
+	
+	local programName
+	for programName in "$@"
+	do
+		if [ -z "$programName" ]; then
+			core_exitError "programName can not be empty"
+		fi
+		_core_dependency_requires="${_core_dependency_requires}${packageManager} ${programName}
+"
+	done
+}
+
+# More for documentation than anything else for now
+core_dependency_fallback()
+{
+	# eg !bash
+	local condition="$1"
+	
+	local programNameOnPath
+	for programNameOnPath in "$@"
+	do
+		:
+	done
+}
+
 core_message()
 {
 	local messageKind="$1"
@@ -87,12 +120,15 @@ core_TODO()
 }
 
 # By specifying $1 as not , say, /usr/lib, and $2 as something other than core_libraryName, this code can be used for plugins
-_core_usesAlreadySourced=''
 core_uses()
 {
 	local libPath="$1"
 	local libraryName="$2"
 	shift 2
+	
+	if core_compatibility_testVariableIsUnset _core_usesAlreadySourced; then
+		_core_usesAlreadySourced=''
+	fi
 	
 	local alreadySourcedNamespacedFunctions
 	local moduleName
@@ -127,6 +163,11 @@ core_uses()
 			core_exitError "Can not load functions for namespace '$namespacedModule'"
 		fi
 	done
+}
+
+core_init_defines()
+{
+	:
 }
 
 core_init_init()
@@ -182,6 +223,8 @@ core_init_setSaneEnvironmentDefaults()
 # http://mywiki.wooledge.org/BashFAQ/028 on $0
 # http://mywiki.wooledge.org/Bashism?action=show&redirect=bashism
 # realpath vs readlink, and supported OS (comments): https://unix.stackexchange.com/questions/136494/whats-the-difference-between-realpath-and-readlink-f
+core_dependency_requires '*' readlink
+core_dependency_fallback '!readlink' realpath
 core_init_findOurNameAndPath()
 {
 	readonly global_ourSymlinkName="$(core_compatibility_basename "$0")"
@@ -205,9 +248,8 @@ core_init_findOurNameAndPath()
 		readonly global_ourPath="$(pwd)"
 	cd - >/dev/null
 	
-	# We can only follow symlinks with readlink (which doesn't work if $0 ends in \n)
-	# readlink is not on AIX, some Solaris
-	# realpath is quite rare, unfortunately, as it is perfectly suited (but it is in coreutils, so will become more common)
+	# realpath is quite rare, unfortunately, as it is perfectly suited (but it is in coreutils, so it will become more common)
+	# readlink is not on AIX, some Solaris, and doesn't work if $0 ends in \n. Only GNU versions are canonical
 	if core_compatibility_whichNoOutput readlink; then
 		local potentialSymlink="$0"
 		while readlink "$potentialSymlink"

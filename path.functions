@@ -1,0 +1,17 @@
+core_path_isReadableNonEmptyFilePath()
+{
+	local filePath="$1"
+	if [ ! -e "$filePath" ]; then
+		return 1
+	fi
+	if [ ! -f "$filePath" ]; then
+		return 1
+	fi
+	if [ ! -r "$filePath" ]; then
+		return 1
+	fi
+	if [ ! -s "$filePath" ]; then
+		return 1
+	fi
+	return 0
+}

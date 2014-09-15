@@ -2,10 +2,15 @@ core_dependency_check_SuSE_checkFunction()
 {
 	core_dependency_check_releaseFile SuSE-release SuSE
 }
-core_dependency_check_register core_dependency_check_SuSE_checkFunction
+core_functions_register core_dependency_check_functions core_dependency_check_SuSE_checkFunction
 
+core_dependency_requires SuSE sudo zypper
 core_dependency_check_SuSE_packageManager()
 {
+	if [ $# -eq 0 ]; then
+		return 0
+	fi
+	
 	# TODO: Probably wrong
-	core_dependency_check_CentOS_packageManager
+	sudo -p "Please enter your password for sudo to run zypper install: " zypper install "$@"
 }

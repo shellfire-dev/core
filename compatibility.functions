@@ -1,5 +1,12 @@
 core_usesIn core functions
 
+core_init_defines core_compatibility_basename
+core_init_defines core_compatibility_testVariableIsSet
+core_init_defines core_compatibility_testVariableIsUnset
+core_init_defines core_compatibility_indirectVariableValue
+core_init_defines core_compatibility_which
+core_init_defines core_compatibility_whichNoOutput
+
 core_compatibility_dirname()
 {
 	local converted="${1%/*}"
