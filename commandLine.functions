@@ -61,11 +61,11 @@ core_commandLine_helpMessage()
 	printf '%s' Usage: "${global_ourName} ${_program_commandLine_helpMessage_usage}
 ${_program_commandLine_helpMessage_description}
 
-  -h, --help                 display this help and exit
-  -v, --verbose [level]      specify more than once to increate verbository or
-                             optionally set level to 0 - 2. Defaults to 0.
-      --version              output version information and exit${_program_commandLine_helpMessage_options}
-      --                     end of options
+  -h, --help             ${_program_commandLine_helpMessage_optionsSpacing}display this help and exit
+  -v, --verbose [LEVEL]  ${_program_commandLine_helpMessage_optionsSpacing}specify more than once to increate verbositoy or
+                         ${_program_commandLine_helpMessage_optionsSpacing}optionally set LEVEL to 0 - 2. Defaults to 0.
+      --version          ${_program_commandLine_helpMessage_optionsSpacing}output version information and exit${_program_commandLine_helpMessage_options}
+      --                 ${_program_commandLine_helpMessage_optionsSpacing}end of options
 
 Notes
 Long options with values may also be specified with '=', eg --verbose=2 as well
