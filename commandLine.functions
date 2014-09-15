@@ -116,8 +116,9 @@ Values should be single or double-quoted if they contain whitespace.
 Examples
 ${_program_commandLine_helpMessage_examples}
 Path Files
-A path file is used to define the location of essential programs used during initial bootstrapping. It also defines a packageManager
-to automatically install any missing dependencies.
+A path file is used to define the location of essential programs used during
+initial bootstrapping. It also defines a packageManager to automatically
+install any missing dependencies.
 "
 }
 
