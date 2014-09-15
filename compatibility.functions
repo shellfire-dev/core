@@ -41,12 +41,6 @@ core_compatibility_setVariableIfUnset()
 	fi
 }
 
-core_compatibility_testVariableIsUnset()
-{
-	local variableName="$1"
-	eval "[ \"\${$variableName+unset}\" != 'unset' ]"
-}
-
 #if core_compatibility_startsWith "/etc/path/to/file" "/home/"; then
 #	echo 'yes'
 #fi
@@ -59,6 +53,7 @@ core_compatibility_startsWith()
 {
 	[ "${1#${2}}" != "$1" ]
 }
+
 core_compatibility_doesNotStartWith()
 {
 	[ "${1#${2}}" = "$1" ]

@@ -11,6 +11,12 @@ core_compatibility_testVariableIsSet()
 	eval "[ \"\${$variableName+set}\" = 'set' ]"
 }
 
+core_compatibility_testVariableIsUnset()
+{
+	local variableName="$1"
+	eval "[ \"\${$variableName+unset}\" != 'unset' ]"
+}
+
 core_compatibility_indirectVariableValue()
 {
 	eval "printf '%s' \"\$$1\""
