@@ -62,7 +62,7 @@ core_commandLine_helpMessage()
 ${_program_commandLine_helpMessage_description}
 
   -h, --help             ${_program_commandLine_helpMessage_optionsSpacing}display this help and exit
-  -v, --verbose [LEVEL]  ${_program_commandLine_helpMessage_optionsSpacing}specify more than once to increate verbositoy or
+  -v, --verbose [LEVEL]  ${_program_commandLine_helpMessage_optionsSpacing}specify more than once to increase verbosity or
                          ${_program_commandLine_helpMessage_optionsSpacing}optionally set LEVEL to 0 - 2. Defaults to 0.
       --version          ${_program_commandLine_helpMessage_optionsSpacing}output version information and exit${_program_commandLine_helpMessage_options}
       --                 ${_program_commandLine_helpMessage_optionsSpacing}end of options
