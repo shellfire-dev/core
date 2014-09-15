@@ -4,7 +4,7 @@ core_validate_pathNotEmpty()
 	local name="$2"
 	local value="$3"
 	
-	if [ -z "$optionValue" ]; then
+	if [ -z "$value" ]; then
 		core_exitError "The $category '$name' specifies a path '$value' which is empty"
 	fi
 }
