@@ -465,7 +465,7 @@ core_commandLine_parse()
 				
 				# eg --help and --verbose [level]
 				--*)
-					local optionNameIncludingHyphens=="$argument"
+					local optionNameIncludingHyphens="$argument"
 					local optionName="${argument##--}"
 	
 					case "$(core_commandLine_optionExists)" in
