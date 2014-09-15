@@ -200,6 +200,18 @@ core_dependency_determinePackageManager()
 }
 core_functions_register core_dependency_functions core_dependency_determinePackageManager
 
+_core_dependency_addToPackagesToInstallIfRequired()
+{
+	local existingPackage
+	IFS=' ' for existingPackage in "$packagesToInstall"
+	do
+		if [ "$existingPackage" = "$pathPackage" ]; then
+			return 0
+		fi
+	done
+	packagesToInstall="$packagesToInstall $pathPackage"
+}
+
 _core_dependency_addToReplacementPathIfRequired()
 {
 	local filePath="$1"
@@ -214,21 +226,34 @@ _core_dependency_addToReplacementPathIfRequired()
 	replacementPath="$folderPath:$replacementPath"
 }
 
-_core_dependency_addToPackagesToInstallIfRequired()
+_core_dependency_addFromInternalDataSource()
 {
-	local existingPackage
-	IFS=' ' for existingPackage in "$packagesToInstall"
-	do
-		if [ "$existingPackage" = "$pathPackage" ]; then
-			return 0
-		fi
-	done
-	packagesToInstall="$packagesToInstall $pathPackage"
+	local pathProgramName
+	local pathPackage
+	local pathAbsoluteFilePath
+	
+	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}_${programName}"
+	
+	if core_compatibility_testVariableIsUnset "$internalDataSourceName"; then
+		foundInternally=0
+	fi
+	foundInternally=1
+	
+	IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <<-EOF
+		$(core_compatibility_indirectVariableValue "$internalDataSourceName")
+	EOF
+	
+	# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
+	if [ ! -e "$pathAbsoluteFilePath" ]; then
+		_core_dependency_addToPackagesToInstallIfRequired
+		_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
+	fi
 }
 
 _core_dependency_addFromExternalDataSources()
 {
-	local externalDataSourcePath
+	local externalDataSourceFolderPath
+	local externalDataSourceFilePath
 	
 	local pathProgramName
 	local pathPackage
@@ -237,26 +262,33 @@ _core_dependency_addFromExternalDataSources()
 	# Use external, with preference to program-level, HOME-scoped?
 	# Use internal (so allowing external overrides)?
 	# Or use a weighting system?
-	for externalDataSourcePath in \
-		"$HOME"/."$global_ourName"/paths.d/"$packageManager"/"$programName".path \
-		"$HOME"/."$core_libraryName"/paths.d/"$packageManager"/"$programName".path \
-		"$core_init_etcPath"/"$global_ourName"/paths.d/"$packageManager"/"$programName".path \
-		"$core_init_etcPath"/"$core_libraryName"/paths.d/"$packageManager"/"$programName".path
+	
+	local foundInternally=0
+	_core_dependency_addFromInternalDataSource
+	if [ $foundInternally -eq 1 ]; then
+		return 0
+	fi
+	
+	# First encountered path wins
+	for externalDataSourceFolderPath in \
+		"$HOME"/."$global_ourName" \
+		"$HOME"/."$core_libraryName" \
+		"$core_init_etcPath"/"$global_ourName" \
+		"$core_init_etcPath"/"$core_libraryName"
 	do
-		if ! core_path_isReadableNonEmptyFilePath "$externalDataSourcePath"; then
+		externalDataSourceFilePath="$externalDataSourceFolderPath"/paths.d/"$packageManager"/"$programName".path
+		if ! core_path_isReadableNonEmptyFilePath "$externalDataSourceFilePath"; then
 			continue
 		fi
 		
-		# Ordinarily, one path is expected, but this design allows for more complex scenarios
-		while IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath
-		do
-			# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
-			if [ -e "$pathAbsoluteFilePath" ]; then
-				continue
-			fi
+		IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <"$externalDataSourceFilePath"
+		
+		# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
+		if [ ! -e "$pathAbsoluteFilePath" ]; then
 			_core_dependency_addToPackagesToInstallIfRequired
 			_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
-		done <"$externalDataSourcePath"
+			break
+		fi
 	done
 }
 
@@ -306,12 +338,13 @@ core_dependency_setUpPathAndInstallMissing()
 			;;
 			
 			*)
-				continue
+				_core_dependency_addFromInternalDataSource
+				_core_dependency_addFromExternalDataSources
 			;;
 			
 		esac
 		
-		_core_dependency_addFromExternalDataSources
+		
 	done <<-EOF
 		${_core_dependency_requires}
 	EOF
