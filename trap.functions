@@ -18,6 +18,8 @@ _core_trap_executeOnTrap()
 	done
 }
 
+core_TODO Fix definition of trap handlers to allow spaces in names
+
 core_trap_handlersEXIT=''
 
 core_trap_executeOnTrapEXIT()
