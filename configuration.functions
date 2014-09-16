@@ -25,8 +25,6 @@ _core_configuration_load()
 			core_message WARN "Configuration file '$actualPath' is executable and should not be; ignoring"
 			return 0
 		fi
-		
-		
 		. "$actualPath" || core_exitError "Could not load '$actualPath'"
 	elif [ -d "$actualPath" ]; then
 		if [ ! -r "$actualPath" ]; then

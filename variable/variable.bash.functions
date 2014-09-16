@@ -1,5 +1,6 @@
 # If captured, any trailing \n is removed
 core_variable_indirectValue()
 {
-	printf -v core_variable_indirectValue_result '%s' "${!1}"
+	local variableName="$1"
+	printf -v core_variable_indirectValue_result '%s' "${!variableName}"
 }

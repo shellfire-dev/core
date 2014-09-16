@@ -1,25 +1,29 @@
 core_usesIn core trap
-
-core_temporaryFiles_filesToRemoveOnExit=''
+core_usesIn core/variable array
 
 core_dependency_requires '*' rm
+_core_temporaryFiles_removeAll_callback()
+{
+	rm -r -f -- "$@"
+}
+
 core_temporaryFiles_removeAll()
 {
-	rm -rf -- $core_temporaryFiles_filesToRemoveOnExit
+	core_variable_array_passToFunctionAsArguments _core_temporaryFiles_filesToRemoveOnExit _core_temporaryFiles_removeAll_callback
 }
 
 core_dependency_requires '*' mktemp
 core_temporaryFiles_newFileToRemoveOnExit()
 {
 	TMP_FILE="$(mktemp -t "$ourName".XXXXXXXXXXXX)"
-	core_temporaryFiles_filesToRemoveOnExit="$core_temporaryFiles_filesToRemoveOnExit $TMP_FILE"
+	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
 }
 
 core_dependency_requires '*' mktemp
 core_temporaryFiles_newFolderToRemoveOnExit()
 {
 	TMP_FOLDER="$(mktemp -t "$ourName".XXXXXXXXXXXX -d)"
-	core_temporaryFiles_filesToRemoveOnExit="$core_temporaryFiles_filesToRemoveOnExit $TMP_FOLDER"
+	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
 }
 
 core_trap_addOnCleanUp core_temporaryFiles_removeAll
