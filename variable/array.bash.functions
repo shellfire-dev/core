@@ -6,14 +6,14 @@ core_variable_array_initialise()
 }
 
 # bash is weird when it comes to checking empty vs undeclared arrays: https://unix.stackexchange.com/questions/56837/how-to-test-if-a-variable-is-defined-at-all-in-bash-prior-to-version-4-2-with-th
-# this is pretty code expensive to run
+# this is pretty code expensive to run; an alternative might be to test that index 0 is set, but this isn't a 100% requirement for bash
 core_variable_array_isSet()
 {
 	local variableName="$1"
 	local declaration options definition
 	while IFS=' ' read -r declaration options definition
 	do
-		if core_compatibility_startsWith "$definition" "${variableName}='("; then
+		if core_variable_startsWith "$definition" "${variableName}='("; then
 			return 0
 		fi
 	done < <(declare -a -p)
