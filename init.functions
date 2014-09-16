@@ -155,13 +155,13 @@ core_uses()
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
 			if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
+				exit 50
 				continue 2
 			fi
 		done
 
 		_core_usesAlreadySourced="${_core_usesAlreadySourced}${IFS}${namespacedModule}"
 		local IFS="$originalIFS"
-		exit 50
 		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
