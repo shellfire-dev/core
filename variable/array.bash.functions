@@ -123,12 +123,15 @@ core_variable_array_iterateShortcut()
 	local variableName="$1"
 	local callback="$2"
 	shift 2
-	set -x
 	
+	# the 'trick' only works if the array isn't empty
+	set -x
 	if [ "$variableName" = "_core_configuration_blacklisted" ]; then
 		echo "${#_core_configuration_blacklisted[@]}"
+		echo "${#_core_configuration_blacklisted}"
 		set | grep -E '_core_configuration_blacklisted=()'
-		#_core_configuration_blacklisted=('hello')
+		_core_configuration_blacklisted=('hello')
+		echo "${#_core_configuration_blacklisted}"
 		tmp=${variableName}[@]
 		printf "<%s> " "${!tmp}"; echo
 		exit 60
