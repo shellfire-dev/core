@@ -145,7 +145,6 @@ core_variable_array_iterateShortcut()
 	shift 2
 	
 	# the 'trick' only works if the array isn't empty
-	set -x
 	if [ "$variableName" = "_core_configuration_blacklisted" ]; then
 		
 		# Problem with empty arrays
