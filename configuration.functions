@@ -51,7 +51,6 @@ core_configuration_loadPath()
 		return 0
 	fi
 	
-	set -x
 	if core_variable_array_isSet _core_configuration_blacklisted; then
 		if core_variable_array_contains _core_configuration_blacklisted "$environmentVariable"; then
 			core_message WARN "Configuration path '\$$environmentVariable/$folderOrFilePath' is blacklisted"
