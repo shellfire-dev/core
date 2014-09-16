@@ -168,6 +168,7 @@ core_uses()
 		do
 			functionsFilePath="$libPath"/"$relativeFunctionsFilePath".functions
 			if [ -f "$functionsFilePath" ]; then
+				core_message WARN "Sourcing $functionsFilePath"
 				. "$functionsFilePath" || core_exitError "Can not load functions '$functionsFilePath'"
 				sourced=1
 			fi
