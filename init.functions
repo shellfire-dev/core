@@ -134,10 +134,13 @@ core_uses()
 	fi
 	
 	if core_variable_isSet _core_usesRunning; then
-		echo "recursive core_uses"
-		echo "${BASH_SOURCE[@]}"
+		if [ $_core_usesRunning -eq 8 ]; then
+			echo "BANG"
+			exit 50
+		fi
+		_core_usesRunning=$((_core_usesRunning+1))
 	else
-		_core_usesRunning='SET'
+		_core_usesRunning=0
 	fi
 	
 	local alreadySourcedNamespacedFunctions
