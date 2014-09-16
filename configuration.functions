@@ -8,11 +8,11 @@ core_configuration_blacklist()
 
 # Rules taken from GNU rush
 core_dependency_requires '*' ls
-_core_configuration_validateConfigurationFileIsSecurelyOwned()
+_core_configuration_validateConfigurationFileIsInsecurelyOwned()
 {
 	# We do not do checks for /usr/local/etc (as this can be user-owned in Homebrew) or /opt/etc
 	if core_variable_doesNotStartWith "$actualPath" '/etc'; then
-		return 0
+		return 1
 	fi
 	
 	# We rely on ls as stat varies widely (GNU new vs GNU old vs BSD), and feature checking is painful
@@ -63,6 +63,8 @@ _core_configuration_validateConfigurationFileIsSecurelyOwned()
 			fi
 		break
 	done
+	
+	return 1
 }
 
 _core_configuration_load()
@@ -85,9 +87,9 @@ _core_configuration_load()
 			return 0
 		fi
 		
-		
-		
-		
+		if _core_configuration_validateConfigurationFileIsInsecurelyOwned; then
+			return 0
+		fi
 		
 		. "$actualPath" || core_exitError "Could not load '$actualPath'"
 	elif [ -d "$actualPath" ]; then
@@ -143,12 +145,7 @@ core_configuration_loadPath()
 
 core_configuration_defaultsBlacklistedEnvironmentVariables=''
 core_configuration_load()
-{	
-	core_TODO Security checks to be done for any "${core_init_etcPath}" / '/etc' files
-
-	
-	# Other might be best done by feature-checking stat (look at the lines of output)
-
+{
 	core_variable_array_initialise _core_configuration_blacklisted
 	core_variable_array_initialise _core_configuration_alreadyLoaded
 	
