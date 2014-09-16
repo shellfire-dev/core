@@ -125,6 +125,11 @@ core_variable_array_iterateShortcut()
 	shift 2
 	set -x
 	
+	if [ "$variableName" = "_core_configuration_blacklisted" ]; then
+		echo "${#_core_configuration_blacklisted[@]}"
+		exit 50
+	fi
+	
 	tmp=${variableName}[@]
 	printf "<%s> " "${!tmp}"; echo
 	
