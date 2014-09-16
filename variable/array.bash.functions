@@ -11,9 +11,11 @@ core_variable_array_isSet()
 {
 	local variableName="$1"
 	local declaration options definition
+	local declarationName declarationBody
 	while IFS=' ' read -r declaration options definition
 	do
-		if core_variable_startsWith "$definition" "${variableName}='("; then
+		IFS="=" read -r declarationName declarationBody <<<"$definition"
+		if [ "$declarationName" = "$variableName" ]; then
 			return 0
 		fi
 	done < <(declare -a -p)
