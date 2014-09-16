@@ -161,6 +161,7 @@ core_uses()
 
 		_core_usesAlreadySourced="${_core_usesAlreadySourced}${IFS}${namespacedModule}"
 		local IFS="$originalIFS"
+		exit 50
 		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
