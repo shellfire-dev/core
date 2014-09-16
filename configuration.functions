@@ -1,62 +1,76 @@
 # Consider breaking this out
-core_configuration_ifPathIsExtantCallCallback()
+core_uses core path
+
+core_configuration_blacklist()
 {
-	local callback="$1"
-	if [ $# -eq 2 ]; then
-		local path="$2"
-	else
-		local environmentVariable="$2"
-		local relativePath="$3"
+	core_variable_array_append _core_configuration_blacklisted "$@"
+}
+
+_core_configuration_load()
+{
+	local actualPath="$1"
+	if [ ! -e "$actualPath" ]; then
+		core_message INFO "Configuration file '$actualPath' does not exist; ignoring"
+		return 0
+	elif [ -f "$actualPath" ]; then
+		if [ ! -r "$actualPath" ]; then
+			core_message WARN "Configuration file '$actualPath' is not readable; ignoring"
+			return 0
+		fi
+		if [ ! -s "$actualPath" ]; then
+			core_message WARN "Configuration file '$actualPath' is empty; ignoring"
+			return 0
+		fi
+		if [ -x "$actualPath" ]; then
+			core_message WARN "Configuration file '$actualPath' is executable and should not be; ignoring"
+			return 0
+		fi
 		
-		local blacklistedEnvironmentVariable
-		for blacklistedEnvironmentVariable in $core_configuration_defaultsBlacklistedEnvironmentVariables
-		do
-			if [ "$blacklistedEnvironmentVariable" = "$environmentVariablePrefixingPath" ]; then
-				return 0
-			fi
-		done
+		
+		. "$actualPath" || core_exitError "Could not load '$actualPath'"
+	elif [ -d "$actualPath" ]; then
+		if [ ! -r "$actualPath" ]; then
+			core_message WARN "Configuration folder '$actualPath' is not readable; ignoring"
+			return 0
+		fi
+		if [ ! -x "$actualPath" ]; then
+			core_message WARN "Configuration folder '$actualPath' is not searchable; ignoring"
+			return 0
+		fi
+		core_path_iterateOverFolderPath "$actualPath" _core_configuration_load
+	else
+		core_message WARN "Configuration path '$actualPath' resolves to neither a file or folder; ignoring"
+		return 0
+	fi
+}
+
+core_configuration_loadPath()
+{
+	local environmentVariable="$1"
+	local folderOrFilePath="$2"
 	
-		if core_compatibility_testVariableIsUnset "$environmentVariable"; then
-			return 0
-		fi
-		local parentPath="$(core_compatibility_indirectVariableValue "$environmentVariable")"
-		if [ -z "$parentPath" ]; then
-			return 0
-		fi
-		local path="${parentPath}${relativePath}"
+	if core_variable_array_contains _core_configuration_blacklisted "$environmentVariable"; then
+		core_message WARN "Configuration path '\$$environmentVariable/$folderOrFilePath' is blacklisted"
+		return 0
 	fi
 
-	if [ -e "$path" ]; then
-		if [ -r "$path" ]; then
-			$callback "$path"
-		fi
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$environmentVariable"
+	local parentPath="$core_variable_indirectValue_result"
+	
+	if [ -z "$folderOrFilePath" ]; then
+		local actualPath="$parentPath"
+	else
+		local actualPath="$parentPath"/"$folderOrFilePath"
 	fi
-}
 
-core_configuration_callbackLoadFile()
-{
-	local filePath="$1"
-	if [ -f "$filePath" ]; then
-		if [ -x "$filePath" ]; then
-			core_message WARN "File '$filePath' is executable and should not be; ignoring"
-			return 0
-		fi
-		. "$filePath" || core_exitError "Could not load '$filePath'"
+	if core_variable_array_contains _core_configuration_alreadyLoaded "$actualPath"; then
+		return 0
 	fi
-}
-
-core_configuration_callbackLoadFolder()
-{
-	local folderPath="$1"
-	if [ -d "$folderPath" ]; then
-		if [ -x "$folderPath" ]; then
-			local filePath
-			for filePath in "$folderPath"/*
-			do
-				core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile "$filePath"
-			done
-		fi
-	fi
+	
+	core_variable_array_append _core_configuration_alreadyLoaded "$actualPath"
+	
+	_core_configuration_load "$actualPath"
 }
 
 core_configuration_defaultsBlacklistedEnvironmentVariables=''
@@ -72,26 +86,25 @@ core_configuration_load()
 	# Some of these needs can be accompolished by parsing  ls -a -l -L -n "$folderPath" | while IFS=' ' read -r permissions uid gid size month day file
 	# Other might be best done by feature-checking stat (look at the lines of output)
 	
-	core_TODO Need to make sure we do not load config files more than once
-	# This is problematic if they contain spaces - could we use an eval?
+	core_variable_array_initialise _core_configuration_alreadyLoaded
 	
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile "${core_init_etcPath}"/"${core_libraryName}"rc
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFolder "${core_init_etcPath}"/"${core_libraryName}"rc.d
+	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc
+	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc.d
 	
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile "${core_init_etcPath}"/"${global_ourName}"rc
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFolder "${core_init_etcPath}"/"${global_ourName}"rc.d
+	core_configuration_loadPath core_init_etcPath "${global_ourName}"/rc
+	core_configuration_loadPath core_init_etcPath "${global_ourName}"/rc.d
 	
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile HOME /."${core_libraryName}"rc
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFolder HOME /."${core_libraryName}"rc.d
+	core_configuration_loadPath HOME ."${core_libraryName}"/rc
+	core_configuration_loadPath HOME ."${core_libraryName}"/rc.d
 	
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile ${core_libraryName}_RC ''
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFolder ${core_libraryName}_RC_D ''
+	core_configuration_loadPath ${core_libraryName}_RC ''
+	core_configuration_loadPath ${core_libraryName}_RC_D ''
 	
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile HOME /."${global_ourName}"rc
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFolder HOME /."${global_ourName}"rc.d
+	core_configuration_loadPath HOME ."${global_ourName}"/rc
+	core_configuration_loadPath HOME ."${global_ourName}"/rc.d
 	
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFile ${global_ourName}_RC ''
-	core_configuration_ifPathIsExtantCallCallback core_configuration_callbackLoadFolder ${global_ourName}_RC_D ''
+	core_configuration_loadPath ${global_ourName}_RC ''
+	core_configuration_loadPath ${global_ourName}_RC_D ''
 }
 
 core_usesIn core compatibility
@@ -99,6 +112,6 @@ core_configuration_defaults()
 {
 	# A more sophisticated scheme would use locale -a and hunt for an UTF-8 locale, but language needs to be stable over multiple invocations if data is persistent
 	# Can also be 'en_GB.UTF-8' or 'C' (but that's not unicode aware) or ?C.UTF-8?
-	core_compatibility_setVariableIfUnset core_init_language 'en_US.UTF-8'
-	core_compatibility_setVariableIfUnset core_init_verbosity 0
+	core_variable_setVariableIfUnset core_init_language 'en_US.UTF-8'
+	core_variable_setVariableIfUnset core_init_verbosity 0
 }

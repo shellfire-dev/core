@@ -1,5 +1,6 @@
 core_usesIn core functions path compatibility
 core_usesIn core/dependency check
+core_usesIn core/variable array
 
 core_init_defines core_dependency_requires
 core_init_defines core_dependency_fallback
@@ -12,7 +13,7 @@ core_dependency_fallback !bash uname
 core_dependency_determineOsFamily()
 {
 	# supported by bash, might be set externally or in configuration; the most reliable way to detect OS as it's built in
-	if core_compatibility_testVariableIsSet OSTYPE; then
+	if core_variable_isSet OSTYPE; then
 		case "$OSTYPE" in
 		
 			cygwin)
@@ -139,7 +140,7 @@ core_dependency_determineOsFamily()
 		fi
 	fi
 }
-core_functions_register core_dependency_functions core_dependency_determineOsFamily
+core_functions_register _core_dependency_functions core_dependency_determineOsFamily
 
 # We need to think about bash 3.1, 3.2, 4.1 and 4.2 support; supporting Mac OS X and msys out-of-the-box is advantageous
 core_dependency_ensureWeAreRunningBash4()
@@ -173,18 +174,14 @@ core_dependency_ensureWeAreRunningBash4()
 		fi
 	fi
 }
-core_functions_register core_dependency_functions core_dependency_ensureWeAreRunningBash4
+core_functions_register _core_dependency_functions core_dependency_ensureWeAreRunningBash4
 
 core_dependency_fallback !'*' lsb_release
 core_dependency_determinePackageManager()
 {
-	local core_dependency_check_function
-	for core_dependency_check_function in $core_dependency_check_functions
-	do
-		if $core_dependency_check_function; then
-			return 0
-		fi
-	done
+	if core_variable_array_iterateAsCallbacksShortcut core_dependency_check_functions; then
+		return 0
+	fi
 	
 	# Alternatively, we can use /etc/debian_version's presence in a check above
 	# Or parse /etc/lsb-release for DISTRIB_ID
@@ -198,19 +195,14 @@ core_dependency_determinePackageManager()
 	
 	core_dependency_packageManager='Unknown'
 }
-core_functions_register core_dependency_functions core_dependency_determinePackageManager
+core_functions_register _core_dependency_functions core_dependency_determinePackageManager
 
 _core_dependency_addToPackagesToInstallIfRequired()
 {
-	local existingPackage
-	local IFS=' '
-	for existingPackage in $packagesToInstall
-	do
-		if [ "$existingPackage" = "$pathPackage" ]; then
-			return 0
-		fi
-	done
-	packagesToInstall="$packagesToInstall $pathPackage"
+	if core_variable_array_contains packagesToInstall "$pathPackage"; then
+		return 0
+	fi
+	core_variable_array_append packagesToInstall "$pathPackage"
 }
 
 _core_dependency_addToReplacementPathIfRequired()
@@ -236,14 +228,16 @@ _core_dependency_addFromInternalDataSource()
 	
 	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}_${programName}"
 	
-	if core_compatibility_testVariableIsUnset "$internalDataSourceName"; then
+	if core_variable_isUnset "$internalDataSourceName"; then
 		foundInternally=0
 		return 0
 	fi
 	foundInternally=1
-	
+
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$internalDataSourceName"
 	IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <<-EOF
-		$(core_compatibility_indirectVariableValue "$internalDataSourceName")
+		$core_variable_indirectValue_result
 	EOF
 	
 	# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
@@ -314,25 +308,29 @@ core_dependency_setUpPathAndInstallMissing()
 		core_message INFO 'Could not determine package manager for your system, located binaries may be incorrect'
 	fi
 	
-	local alreadyInstalledProgramNames=''
+	local alreadyHandledProgramNames
+	core_variable_array_initialise alreadyHandledProgramNames
 	
 	local packageManager
 	local programName
 	local alreadyInstalledProgramName
 	
-	local packagesToInstall=''
+	local packagesToInstall
+	core_variable_array_initialise packagesToInstall
+	
+	xxxxx IFS= malarky needs to go - space delimited
 	
 	while IFS=' ' read -r packageManager programName
 	do
 		case "$packageManager" in
 			
 			'*'|"$core_dependency_packageManager")
-				for alreadyInstalledProgramName in $alreadyInstalledProgramNames
-				do
-					if [ "$alreadyInstalledProgramName" = "$programName" ]; then
-						continue 2
-					fi
-				done
+				if core_variable_array_contains alreadyHandledProgramNames "$programName"; then
+					continue
+				fi
+				core_variable_array_append alreadyHandledProgramNames "$programName"
+				_core_dependency_addFromInternalDataSource
+				_core_dependency_addFromExternalDataSources
 			;;
 
 			# Because of the heredoc, there's an extra blank line. A messy alternative is https://unix.stackexchange.com/questions/102891/posix-compliant-way-to-work-with-a-list-of-filenames-possibly-with-whitespace
@@ -341,20 +339,17 @@ core_dependency_setUpPathAndInstallMissing()
 			;;
 			
 			*)
-				_core_dependency_addFromInternalDataSource
-				_core_dependency_addFromExternalDataSources
+				continue
 			;;
 			
 		esac
-		
-		
 	done <<-EOF
 		${_core_dependency_requires}
 	EOF
 	
-	if [ -n "$packagesToInstall" ]; then
-		core_message WARN "Installing missing packages '$packagesToInstall'"
-		IFS=' ' core_dependency_check_${core_dependency_packageManager}_packageManager $packagesToInstall
+	if [ $(core_variable_array_length packagesToInstall) -ne 0 ]; then
+		core_message WARN "Installing missing packages '$(core_variable_array_string packagesToInstall " ")'"
+		core_variable_array_passToFunctionAsArguments packagesToInstall core_dependency_check_${core_dependency_packageManager}_packageManager
 	fi
 	
 	# Alternative: The only trully defensive measure is to create a tmp folder, then symlink binaries from it. This requires mktemp
@@ -363,9 +358,9 @@ core_dependency_setUpPathAndInstallMissing()
 	export PATH="$replacementPath"
 	hash -r
 }
-core_functions_register core_dependency_functions core_dependency_setUpPathAndInstallMissing
+core_functions_register _core_dependency_functions core_dependency_setUpPathAndInstallMissing
 
 core_dependency_installDependencies()
 {
-	core_functions_execute core_dependency_functions "$@"
+	core_functions_execute _core_dependency_functions "$@"
 }

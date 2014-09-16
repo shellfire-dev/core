@@ -1,15 +1,12 @@
 core_usesIn core compatibility
+core_usesIn core/variable array
 
 core_functions_register()
 {
 	local functionsVariableName="$1"
 	shift 1
 	
-	if core_compatibility_testVariableIsSet "${functionsVariableName}"; then
-		core_compatibility_setVariable "${functionsVariableName}" "$(core_compatibility_indirectVariableValue "${functionsVariableName}") $*"
-	else
-		core_compatibility_setVariable "${functionsVariableName}" "$*"
-	fi
+	core_variable_array_append "$functionsVariableName" "$@"
 }
 
 core_functions_execute()
@@ -17,10 +14,7 @@ core_functions_execute()
 	local functionsVariableName="$1"
 	shift 1
 	
-	local functionsToExecute="$(core_compatibility_indirectVariableValue "${functionsVariableName}")"
-	local functionToExecute
-	for functionToExecute in $functionsToExecute
-	do
-		$functionToExecute "$@"
-	done
+	if core_variable_isSet "$functionsVariableName"; then
+		core_variable_array_iterateAsCallbacks "$functionsVariableName" "$@"
+	fi
 }

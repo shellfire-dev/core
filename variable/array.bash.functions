@@ -1,0 +1,136 @@
+# bash forms do not have a \1 restriction
+core_variable_array_initialise()
+{
+	local variableName="$1"
+	eval "${variableName}=()"
+}
+
+core_variable_array_append()
+{
+	local variableName="$1"
+	shift 1
+	
+	local argument
+	for argument in "$@"
+	do
+		if core_variable_isUnset "$variableName"; then
+			eval "${variableName}=('$argument')"
+		else
+			eval "${variableName}+=('$argument')"
+		fi
+	done
+}
+
+core_variable_array_length()
+{
+	local variableName="$1"
+	shift 1
+	
+	declare -a tempArray=${variableName}[@]
+	printf '%s' ${#tempArray[@]}
+}
+
+# Idea from http://mywiki.wooledge.org/BashFAQ/006
+core_variable_array_at()
+{
+	local variableName="$1"
+	local -i index=$2
+	local temporary=${variableName}[$index]
+	printf -v core_variable_array_element '%s' "${!temporary}"
+}
+
+core_variable_array_string()
+{
+	local variableName="$1"
+	local separator="$2"
+	
+	core_variable_array_string_result=''
+	
+	local count=0
+	local core_variable_array_element
+	declare -a tempArray=${variableName}[@]
+	for core_variable_array_element in "${!tempArray}"
+	do
+		if [ $count -eq 0 ]; then
+			core_variable_array_string_result="$core_variable_array_element"
+		else
+			core_variable_array_string_result="${core_variable_array_string_result}${separator}${core_variable_array_element}"
+			count=$((count+1))
+		fi
+	done
+}
+
+# Does not allow passing any other arguments, though
+core_variable_array_passToFunctionAsArguments()
+{
+	local variableName="$1"
+	local function="$2"
+	shift 2
+	if [ $# -ne 0 ]; then
+		global_exitError "Only varargs from array are allowed"
+	fi
+	
+	declare -a tempArray=${variableName}[@]
+	"$function" "${!tempArray}"
+}
+
+# Idea from http://mywiki.wooledge.org/BashFAQ/006
+core_variable_array_iterate()
+{
+	local variableName="$1"
+	local callback="$2"
+	shift 2
+	
+	local core_variable_array_element
+	declare -a tempArray=${variableName}[@]
+	for core_variable_array_element in "${!tempArray}"
+	do
+		$callback "$@"
+	done
+}
+
+core_variable_array_iterateAsCallbacks()
+{
+	local variableName="$1"
+	shift 1
+	
+	local callback
+	declare -a tempArray=${variableName}[@]
+	for callback in "${!tempArray}"
+	do
+		"$callback" "$@"
+	done
+}
+
+core_variable_array_iterateAsCallbacksShortcut()
+{
+	local variableName="$1"
+	shift 1
+	
+	local callback
+	declare -a tempArray=${variableName}[@]
+	for callback in "${!tempArray}"
+	do
+		if $callback "$@"; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+core_variable_array_iterateShortcut()
+{
+	local variableName="$1"
+	local callback="$2"
+	shift 2
+	
+	local core_variable_array_element
+	declare -a tempArray=${variableName}[@]
+	for core_variable_array_element in "${!tempArray}"
+	do
+		if $callback "$@"; then
+			return 0
+		fi
+	done
+	return 1
+}

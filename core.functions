@@ -14,7 +14,7 @@ core_usesIn()
 	done
 }
 
-core_usesIn core configuration commandLine compatibility dependency functions path trap temporaryFiles umask validate
+core_usesIn core configuration commandLine compatibility dependency functions path trap temporaryFiles umask validate variable
 
 core_functions_register core_functions \
 	core_configuration_load \

@@ -1,0 +1,50 @@
+core_init_defines core_variable_isSet
+core_init_defines core_variable_isUnset
+core_init_defines core_variable_indirectValue
+
+core_variable_setVariable()
+{
+	eval "$1='$2'"
+}
+
+core_variable_setWithoutQuotesVariable()
+{
+	eval "$1=$2"
+}
+
+core_variable_setVariableIfUnset()
+{
+	local variableName="$1"
+	local variableDefaultValue="$2"
+	
+	# This is not whitespace-safe: eval "$variableName=\"\${$variableName-$variableDefaultValue}\""
+	if core_variable_isUnset "$variableName"; then
+		eval "$variableName='$variableDefaultValue'"
+	fi
+}
+
+#if core_variable_startsWith "/etc/path/to/file" "/home/"; then
+#	echo 'yes'
+#fi
+core_variable_startsWith()
+{
+	[ "${1#${2}}" != "$1" ]
+}
+
+core_variable_doesNotStartWith()
+{
+	[ "${1#${2}}" = "$1" ]
+}
+
+#if core_variable_endsWith "/etc/path/to/file" "/file"; then
+#	echo 'yes'
+#fi
+core_variable_endsWith()
+{
+	[ "${1%${2}}" != "$1" ]
+}
+
+core_variable_doesNotEndWith()
+{
+	[ "${1%${2}}" = "$1" ]
+}

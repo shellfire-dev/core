@@ -13,9 +13,3 @@ core_compatibility_setSaneShellOptions()
 	set +o pipefail
 	set +o posix
 }
-
-core_compatibility_indirectVariableValue()
-{
-	local variable="$1"
-	echo "${!1}"
-}

@@ -5,23 +5,6 @@ core_compatibility_basename()
 	printf '%s' "${1##*/}"
 }
 
-core_compatibility_testVariableIsSet()
-{
-	local variableName="$1"
-	eval "[ \"\${$variableName+set}\" = 'set' ]"
-}
-
-core_compatibility_testVariableIsUnset()
-{
-	local variableName="$1"
-	eval "[ \"\${$variableName+unset}\" != 'unset' ]"
-}
-
-core_compatibility_indirectVariableValue()
-{
-	eval "printf '%s' \"\$$1\""
-}
-
 core_compatibility_which()
 {
 	command -v "$1"
@@ -30,6 +13,24 @@ core_compatibility_which()
 core_compatibility_whichNoOutput()
 {
 	core_compatibility_which "$1" 1>/dev/null 2>/dev/null
+}
+
+core_variable_isSet()
+{
+	local variableName="$1"
+	eval "[ \"\${$variableName+set}\" = 'set' ]"
+}
+
+core_variable_isUnset()
+{
+	local variableName="$1"
+	eval "[ \"\${$variableName+unset}\" != 'unset' ]"
+}
+
+core_variable_indirectValue()
+{
+	local variableName="$1"
+	eval "core_variable_indirectValue_result=\"\$${variableName}\""
 }
 
 _core_dependency_requires=''
@@ -119,6 +120,8 @@ core_TODO()
 	core_message TODO "$*"
 }
 
+# Duplicates logic in core/variable/array, but that is a hefty piece to pull in and breaks code (as the bash overrides handle arrays differently)
+# Has a defect such that function paths containing '0x01' can be loaded more than once [highly unlikely except as a potential security defect]
 # By specifying $1 as not , say, /usr/lib, and $2 as something other than core_libraryName, this code can be used for plugins
 core_uses()
 {
@@ -126,7 +129,7 @@ core_uses()
 	local libraryName="$2"
 	shift 2
 	
-	if core_compatibility_testVariableIsUnset _core_usesAlreadySourced; then
+	if core_variable_isUnset _core_usesAlreadySourced; then
 		_core_usesAlreadySourced=''
 	fi
 	
@@ -140,14 +143,17 @@ core_uses()
 		namespacedModule="$libraryName"/"$namespacedModule"
 		# skip if already sourced
 		# Does not handle spaces in filenames, unfortunately
+		local originalIFS="$IFS"
+		local IFS="$(printf '\001')"
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
 			if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
 				continue 2
 			fi
 		done
-		
-		_core_usesAlreadySourced="$_core_usesAlreadySourced $namespacedModule"
+
+		_core_usesAlreadySourced="${_core_usesAlreadySourced}${IFS}${namespacedModule}"
+		local IFS="$originalIFS"
 		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
@@ -185,7 +191,8 @@ core_init_setSaneEnvironmentDefaults()
 	set +o monitor
 	set +o noclobber
 	set +o noexec
-	set +o noglob
+	# aka set -f; disable globbing by default. Note that this is the opposite of usual behaviour
+	set -o noglob
 	set +o nolog
 	set +o notify
 	set -o nounset
@@ -302,7 +309,7 @@ core_init_setTracing()
 	case "$-" in
 		
 		*x*)
-			if core_compatibility_testVariableIsSet shellfire_trace; then
+			if core_variable_isSet shellfire_trace; then
 				export shellfire_trace="$shellfire_trace $global_ourSymlinkName"
 			else
 				export shellfire_trace="$global_ourSymlinkName"
@@ -310,7 +317,8 @@ core_init_setTracing()
 		;;
 		
 		*)
-			if core_compatibility_testVariableIsSet shellfire_trace; then
+			# Known to not be correct for space-delimited program names
+			if core_variable_isSet shellfire_trace; then
 				local program
 				for program in $shellfire_trace
 				do
@@ -355,7 +363,7 @@ core_init_determinePreferredShell()
 # This works around packaging tools that want '#!/bin/bash', but point to an old version. Needs to be coupled into loading new shell versions.
 core_init_rexecUnderCorrectShell()
 {
-	if core_compatibility_testVariableIsSet core_init_shell_rexecing; then
+	if core_variable_isSet core_init_shell_rexecing; then
 		if [ "$core_init_shell_rexecing" = "$$" ]; then
 			# we've been successfully re-exec'd
 			unset core_init_shell_rexecing
@@ -398,7 +406,7 @@ core_init_main()
 	core_init_defaultEssentialPaths
 	
 	local uses='core'
-	if core_compatibility_testVariableIsSet _program_uses; then
+	if core_variable_isSet _program_uses; then
 		uses="$uses $_program_uses"
 	fi
 	core_uses "$core_init_libPath" "$core_libraryName" $uses

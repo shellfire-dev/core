@@ -1,17 +1,44 @@
 core_path_isReadableNonEmptyFilePath()
 {
 	local filePath="$1"
+	
 	if [ ! -e "$filePath" ]; then
 		return 1
 	fi
+	
 	if [ ! -f "$filePath" ]; then
 		return 1
 	fi
+	
 	if [ ! -r "$filePath" ]; then
 		return 1
 	fi
+	
 	if [ ! -s "$filePath" ]; then
 		return 1
 	fi
+	
 	return 0
+}
+
+core_path_iterateOverFolderPath()
+{
+	local folderPath="$1"
+	local callback="$2"
+	shift 2
+	
+	local filePath
+	pushd "$folderPath"
+		set +o noglob
+		for filePath in *
+		do
+			set -o noglob
+			# occurs when there are no folder contents at all
+			if [ ! -e "$filePath" ]; then
+				continue
+			fi
+			$callback "$filePath" "$@"
+		done
+		set -o noglob
+	popd
 }

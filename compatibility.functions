@@ -1,9 +1,6 @@
 core_usesIn core functions
 
 core_init_defines core_compatibility_basename
-core_init_defines core_compatibility_testVariableIsSet
-core_init_defines core_compatibility_testVariableIsUnset
-core_init_defines core_compatibility_indirectVariableValue
 core_init_defines core_compatibility_which
 core_init_defines core_compatibility_whichNoOutput
 
@@ -27,56 +24,10 @@ _core_compatibility_builtInDoesNotExist()
 	return 0
 }
 
-core_compatibility_setVariable()
-{
-	eval "$1='$2'"
-}
 
-core_compatibility_setWithoutQuotesVariable()
-{
-	eval "$1=$2"
-}
 
-core_compatibility_setVariableIfUnset()
-{
-	local variableName="$1"
-	local variableDefaultValue="$2"
-	
-	# This is not whitespace-safe: eval "$variableName=\"\${$variableName-$variableDefaultValue}\""
-	if core_compatibility_testVariableIsUnset "$variableName"; then
-		eval "$variableName='$variableDefaultValue'"
-	fi
-}
 
-#if core_compatibility_startsWith "/etc/path/to/file" "/home/"; then
-#	echo 'yes'
-#fi
-core_compatibility_startsWith()
-{
-	[ "${1#${2}}" != "$1" ]
-}
 
-core_compatibility_startsWith()
-{
-	[ "${1#${2}}" != "$1" ]
-}
-
-core_compatibility_doesNotStartWith()
-{
-	[ "${1#${2}}" = "$1" ]
-}
-
-#if core_compatibility_endsWith "/etc/path/to/file" "/file"; then
-#	echo 'yes'
-#fi
-core_compatibility_endsWith()
-{
-	[ "${1%${2}}" != "$1" ]
-}
-core_compatibility_doesNotEndWith()
-{
-	[ "${1%${2}}" = "$1" ]
-}
 
 # dash by default escapes backslashes, other echos behave differently. This way is defensive.
 core_compatibility_echo()

@@ -1,0 +1,192 @@
+core_usesIn core variable
+
+core_variable_array_initialise()
+{
+	local variableName="$1"
+	core_variable_setVariable "$variableName" ''
+}
+
+# A \1 separated array; \1 is still file-system special, but is so rare that it only constitutes a security risk, nothing else
+core_variable_array_append()
+{
+	local variableName="$1"
+	shift 1
+	
+	local count=0	
+	local argument
+	for argument in "$@"
+	do
+		if core_variable_isUnset "$variableName"; then
+			core_variable_setVariable "$variableName" "$argument"
+		else
+			local core_variable_indirectValue_result
+			core_variable_indirectValue "$variableName"
+			core_variable_setVariable "${core_variable_indirectValue_result}$(printf '\001')${argument}"
+		fi
+	done
+}
+
+core_variable_array_length()
+{
+	local variableName="$1"
+	shift 1
+	
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	core_variable_indirectValue "$variableName"
+	set -- $core_variable_indirectValue_result
+	printf '%s' $#
+}
+
+core_variable_array_at()
+{
+	local variableName="$1"
+	local index=$2
+
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	set -- $core_variable_indirectValue_result
+	eval "core_variable_array_index_element=\"\$${index}\""
+}
+
+core_variable_array_string()
+{
+	local variableName="$1"
+	local separator="$2"
+	
+	core_variable_array_string_result=''
+	
+	local count=0
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	local core_variable_array_element
+	for core_variable_array_element in $core_variable_indirectValue_result
+	do
+		local IFS="$originalIFS"
+		if [ $count -eq 0 ]; then
+			core_variable_array_string_result="$core_variable_array_element"
+		else
+			core_variable_array_string_result="${core_variable_array_string_result}${separator}${core_variable_array_element}"
+			count=$((count+1))
+		fi
+	done
+}
+
+# Does not allow passing any other arguments, though
+core_variable_array_passToFunctionAsArguments()
+{
+	local variableName="$1"
+	local function="$2"
+	shift 2
+	if [ $# -ne 0 ]; then
+		global_exitError "Only varargs from array are allowed"
+	fi
+	
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	core_variable_indirectValue "$variableName"
+	set -- $core_variable_indirectValue_result
+	
+	"$function" "$@"
+}
+
+core_variable_array_iterate()
+{
+	local variableName="$1"
+	local callback="$2"
+	shift 2
+	
+	local core_variable_array_element
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	for core_variable_array_element in $core_variable_indirectValue_result
+	do
+		local IFS="$originalIFS"
+		$callback "$@"
+	done
+}
+
+core_variable_array_iterateAsCallbacks()
+{
+	local variableName="$1"
+	shift 1
+	
+	local callback
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	for callback in $core_variable_indirectValue_result
+	do
+		local IFS="$originalIFS"
+		"$callback" "$@"
+	done
+}
+
+core_variable_array_iterateAsCallbacksShortcut()
+{
+	local variableName="$1"
+	shift 1
+	
+	local callback
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	for callback in $core_variable_indirectValue_result
+	do
+		local IFS="$originalIFS"
+		if "$callback" "$@"; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+core_variable_array_iterateShortcut()
+{
+	local variableName="$1"
+	local callback="$2"
+	shift 2
+	
+	local core_variable_array_element
+	local originalIFS="$IFS"
+	local IFS="$(printf '\001')"
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	for core_variable_array_element in $core_variable_indirectValue_result
+	do
+		local IFS="$originalIFS"
+		
+		if $callback "$@"; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+_core_variable_array_contains_check()
+{
+	# return 0 for shortcut
+	if [ "$core_variable_array_element" = "$containsValue" ]; then
+		return 0
+	fi
+	return 1
+}
+
+core_variable_array_contains()
+{
+	local variableName="$1"
+	local containsValue="$2"
+	
+	if core_variable_array_iterateShortcut "$variableName" _core_variable_array_contains_check; then
+		return 0
+	fi
+	return 1
+}

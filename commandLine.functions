@@ -74,26 +74,32 @@ This prevents interpretation of non-options as options. Concatenating short
 options with arguments (eg -v2) is not supported.
 
 Configuration
-This program can be configured by creating files in the form 'key=value' at:-
+This program can be configured by creating files in the form 'key=value' in the
+files and folders:-
   
-  ${core_init_etcPath}/${core_libraryName}rc
-  ${core_init_etcPath}/${core_libraryName}rc.d
-  ${core_init_etcPath}/${global_ourName}rc
-  ${core_init_etcPath}/${global_ourName}rc.d
-  HOME/.${core_libraryName}rc
-  HOME/.${core_libraryName}rc.d
+  ${core_init_etcPath}/${core_libraryName}/rc
+  ${core_init_etcPath}/${core_libraryName}/rc.d
+  ${core_init_etcPath}/${global_ourName}/rc
+  ${core_init_etcPath}/${global_ourName}/rc.d
+  HOME/.${core_libraryName}/rc
+  HOME/.${core_libraryName}/rc.d
   ${core_libraryName}_RC
   ${core_libraryName}_RC_D
-  HOME/.${global_ourName}rc
-  HOME/.${global_ourName}rc.d
+  HOME/.${global_ourName}/rc
+  HOME/.${global_ourName}/rc.d
   ${global_ourName}_RC
   ${global_ourName}_RC_D
 
 Locations ending '.d' are folders which are searched for files. All files in a
 folder are used in shell glob-expansion order. HOME, ${core_libraryName}_RC,
 ${core_libraryName}_RC_D, ${global_ourName}_RC and ${global_ourName}_RC_D
-are environment variables. If the variable does not exist, the location is
-ignored.
+are environment variables. If the variable does not exist, or is blacklisted,
+the location is ignored. Blacklisting is done by specifying:-
+
+  core_configuration_blacklist  VARIABLE_NAME
+  
+in a configuration file. This allows the system administrator to prevent
+overridding.
 
 Files are used in the order above. If a file does not exist, it is ignored.
 Those under a 'etc' folder must have the following permissions set:-
@@ -428,7 +434,7 @@ core_commandLine_parse()
 	do
 		local argument="$1"
 		
-		if core_compatibility_startsWith "$argument" '--' ; then
+		if core_variable_startsWith "$argument" '--' ; then
 			
 			shift 1
 		
@@ -494,7 +500,7 @@ core_commandLine_parse()
 								break
 							fi
 							local optionValue="$1"
-							if core_compatibility_startsWith "$optionValue" '--' ; then
+							if core_variable_startsWith "$optionValue" '--' ; then
 								core_commandLine_processOptionWithoutArgument
 							else
 								shift 1
@@ -514,7 +520,7 @@ core_commandLine_parse()
 				;;
 			esac
 			
-		elif core_compatibility_startsWith "$argument" '-' ; then
+		elif core_variable_startsWith "$argument" '-' ; then
 			
 			shift 1
 			
@@ -587,7 +593,7 @@ core_commandLine_parse()
 								break
 							fi
 							local optionValue="$1"
-							if core_compatibility_startsWith "$optionValue" '--' ; then
+							if core_variable_startsWith "$optionValue" '--' ; then
 								core_commandLine_processOptionWithoutArgument
 							else
 								shift 1
