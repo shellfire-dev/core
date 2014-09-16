@@ -147,7 +147,6 @@ core_uses()
 	local functionsFilePath
 	local sourced
 	
-	#local delimiter='@'
 	local delimiter="$(printf '\001')"
 	
 	for namespacedModule in "$@"
@@ -156,16 +155,12 @@ core_uses()
 		
 		# Skip if already sourced
 		local originalIFS="$IFS"
-		#local IFS="$(printf '\n')"
 		local IFS="$delimiter"
-		printf 'IFS<%s>\n' "$IFS"
 		if core_variable_isUnset _core_usesAlreadySourced; then
 			_core_usesAlreadySourced="${namespacedModule}"
 		else
-			printf '_core_usesAlreadySourced<%s>\n' "$_core_usesAlreadySourced"
 			for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 			do
-				printf 'func<%s>\n' "$alreadySourcedNamespacedFunction"
 				if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
 					continue 2
 				fi
