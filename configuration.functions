@@ -44,7 +44,7 @@ _core_configuration_validateConfigurationFileIsInsecurelyOwned()
 	
 	local parentPath="$(core_compatibility_basename "$actualPath")"
 
-	ls -a -l -L -n "$actualPath" | IFS=' ' read -r permissions links uid gid size garbageDateAndName
+	ls -a -l -L -n "$actualPath" | while IFS=' ' read -r permissions links uid gid size garbageDateAndName
 	do
 		if [ "$permissions" = 'total' ]; then
 			continue
