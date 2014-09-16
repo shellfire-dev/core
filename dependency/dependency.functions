@@ -203,7 +203,8 @@ core_functions_register core_dependency_functions core_dependency_determinePacka
 _core_dependency_addToPackagesToInstallIfRequired()
 {
 	local existingPackage
-	IFS=' ' for existingPackage in $packagesToInstall
+	local IFS=' '
+	for existingPackage in $packagesToInstall
 	do
 		if [ "$existingPackage" = "$pathPackage" ]; then
 			return 0
@@ -217,7 +218,8 @@ _core_dependency_addToReplacementPathIfRequired()
 	local filePath="$1"
 	local folderPath="$(compatibility_core_dirname "$filePath")"
 	local replacementPathFragment
-	IFS=':' for replacementPathFragment in $replacementPath
+	local IFS=':'
+	for replacementPathFragment in $replacementPath
 	do
 		if [ "$replacementPathFragment" = "$folderPath" ]; then
 			return 0
