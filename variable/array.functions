@@ -34,6 +34,10 @@ core_variable_array_length()
 	local originalIFS="$IFS"
 	local IFS="$(printf '\001')"
 	core_variable_indirectValue "$variableName"
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		printf '%s' 0
+		return 0
+	fi
 	set -- $core_variable_indirectValue_result
 	printf '%s' $#
 }
@@ -63,6 +67,10 @@ core_variable_array_string()
 	local IFS="$(printf '\001')"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		core_variable_array_string_result=''
+		return 0
+	fi
 	local core_variable_array_element
 	for core_variable_array_element in $core_variable_indirectValue_result
 	do
@@ -89,7 +97,12 @@ core_variable_array_passToFunctionAsArguments()
 	local originalIFS="$IFS"
 	local IFS="$(printf '\001')"
 	core_variable_indirectValue "$variableName"
-	set -- $core_variable_indirectValue_result
+
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		set --
+	else
+		set -- $core_variable_indirectValue_result
+	fi
 	
 	"$function" "$@"
 }
@@ -105,6 +118,9 @@ core_variable_array_iterate()
 	local IFS="$(printf '\001')"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		return 0
+	fi
 	for core_variable_array_element in $core_variable_indirectValue_result
 	do
 		local IFS="$originalIFS"
@@ -122,6 +138,9 @@ core_variable_array_iterateAsCallbacks()
 	local IFS="$(printf '\001')"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		return 0
+	fi
 	for callback in $core_variable_indirectValue_result
 	do
 		local IFS="$originalIFS"
@@ -139,6 +158,9 @@ core_variable_array_iterateAsCallbacksShortcut()
 	local IFS="$(printf '\001')"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		return 1
+	fi
 	for callback in $core_variable_indirectValue_result
 	do
 		local IFS="$originalIFS"
@@ -150,7 +172,7 @@ core_variable_array_iterateAsCallbacksShortcut()
 }
 
 core_variable_array_iterateShortcut()
-{
+{	
 	local variableName="$1"
 	local callback="$2"
 	shift 2
@@ -160,6 +182,9 @@ core_variable_array_iterateShortcut()
 	local IFS="$(printf '\001')"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
+		return 1
+	fi
 	for core_variable_array_element in $core_variable_indirectValue_result
 	do
 		local IFS="$originalIFS"
