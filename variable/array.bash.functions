@@ -125,7 +125,7 @@ core_variable_array_iterateShortcut()
 	shift 2
 	set -x
 	local core_variable_array_element
-	declare tempArray=${variableName}[@]
+	tempArray=${variableName}[@]
 	set
 	for core_variable_array_element in "${!tempArray}"
 	do
