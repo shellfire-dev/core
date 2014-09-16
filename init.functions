@@ -156,7 +156,8 @@ core_uses()
 		# skip if already sourced
 		# Does not handle spaces in filenames, unfortunately
 		local originalIFS="$IFS"
-		local IFS="$(printf '\n')"
+		#local IFS="$(printf '\n')"
+		local IFS="-"
 		printf '<%s>\n' "$IFS"
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
