@@ -147,13 +147,14 @@ core_uses()
 	local functionsFilePath
 	local sourced
 	
-	local delimiter='@'
+	#local delimiter='@'
+	local delimiter="$(printf '\n')"
 	
 	for namespacedModule in "$@"
 	do
 		namespacedModule="$libraryName"/"$namespacedModule"
-		# skip if already sourced
-		# Does not handle spaces in filenames, unfortunately
+		
+		# Skip if already sourced
 		local originalIFS="$IFS"
 		#local IFS="$(printf '\n')"
 		local IFS="$delimiter"
@@ -171,9 +172,9 @@ core_uses()
 			done
 			_core_usesAlreadySourced="${_core_usesAlreadySourced}${delimiter}${namespacedModule}"
 		fi
-
 		local IFS="$originalIFS"
 		
+		# Source
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
 		for relativeFunctionsFilePath in "$namespacedModule"."$global_preferredShell" "$namespacedModule" "$namespacedModule"/"$moduleName"."$global_preferredShell" "$namespacedModule"/"$moduleName"
