@@ -136,6 +136,7 @@ core_uses()
 	if core_variable_isSet _core_usesRunning; then
 		if [ $_core_usesRunning -eq 8 ]; then
 			echo "BANG"
+		local IFS="$(printf '\001')"
 			echo $_core_usesAlreadySourced
 			exit 50
 		fi
