@@ -574,7 +574,7 @@ core_commandLine_parse()
 						;;
 						
 						yes-argumented)
-							if [ $# -eq 0]; then
+							if [ $# -eq 0 ]; then
 								core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
 							fi
 							local optionValue="$1"

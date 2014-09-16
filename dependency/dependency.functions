@@ -1,4 +1,4 @@
-core_usesIn core functions path
+core_usesIn core functions path compatibility
 core_usesIn core/dependency check
 
 core_init_defines core_dependency_requires
@@ -238,6 +238,7 @@ _core_dependency_addFromInternalDataSource()
 	
 	if core_compatibility_testVariableIsUnset "$internalDataSourceName"; then
 		foundInternally=0
+		return 0
 	fi
 	foundInternally=1
 	
