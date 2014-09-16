@@ -159,6 +159,7 @@ core_uses()
 		local IFS="$(printf '\001')"
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
+			echo "$alreadySourcedNamespacedFunction"
 			if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
 				continue 2
 			fi
