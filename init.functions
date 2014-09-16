@@ -135,6 +135,7 @@ core_uses()
 	
 	if core_variable_isSet _core_usesRunning; then
 		echo "recursive core_uses"
+		echo "${BASH_SOURCE[@]}"
 	else
 		_core_usesRunning='SET'
 	fi
