@@ -161,7 +161,8 @@ core_uses()
 		local originalIFS="$IFS"
 		#local IFS="$(printf '\n')"
 		local IFS="$delimiter"
-		printf '<%s>\n' "$IFS"
+		printf 'IFS<%s>\n' "$IFS"
+		printf '_core_usesAlreadySourced<%s>\n' "$_core_usesAlreadySourced"
 		if [ ${#_core_usesAlreadySourced} -ne 0 ]; then	
 			for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 			do
