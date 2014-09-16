@@ -13,7 +13,7 @@ core_functions_register core_functions core_trap_initialise
 
 core_trap_addOnCleanUp()
 {
-	core_trap_addOnTrap "$1" EXIT INT TERM ABRT QUIT PIPE
+	core_trap_addHandler "$1" EXIT INT TERM ABRT QUIT PIPE
 }
 
 _core_trap_executeOnTrap()
