@@ -130,7 +130,7 @@ core_uses()
 	shift 2
 	
 	if core_variable_isSet _core_usesRunning; then
-		if [ $_core_usesRunning -eq 8 ]; then
+		if [ $_core_usesRunning -eq 100 ]; then
 			echo "BANG"
 		local IFS="$(printf '\001')"
 			echo $_core_usesAlreadySourced
