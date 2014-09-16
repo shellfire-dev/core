@@ -16,7 +16,7 @@ core_variable_array_isSet()
 		if core_compatibility_startsWith "$definition" "${variableName}='("; then
 			return 0
 		fi
-	done <$(declare -a -p)
+	done < <(declare -a -p)
 	return 1
 }
 
