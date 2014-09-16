@@ -216,7 +216,7 @@ _core_dependency_addToPackagesToInstallIfRequired()
 _core_dependency_addToReplacementPathIfRequired()
 {
 	local filePath="$1"
-	local folderPath="$(compatibility_core_dirname "$filePath")"
+	local folderPath="$(core_compatibility_dirname "$filePath")"
 	local replacementPathFragment
 	local IFS=':'
 	for replacementPathFragment in $replacementPath
