@@ -71,7 +71,7 @@ core_message()
 	local messageKind="$1"
 	local message="$2"
 	
-	local shouldEcho
+	local shouldEcho=0
 	case "$messageKind" in
 	
 		FAIL)
@@ -83,14 +83,18 @@ core_message()
 		;;
 	
 		INFO)
-			if [ $core_init_verbosity -gt 0 ]; then
-				shouldEcho=1
+			if core_variable_isSet core_init_verbosity; then
+				if [ $core_init_verbosity -gt 0 ]; then
+					shouldEcho=1
+				fi
 			fi
 		;;
 	
 		DEBUG)
-			if [ $core_init_verbosity -gt 1 ]; then
-				shouldEcho=1
+			if core_variable_isSet core_init_verbosity; then
+				if [ $core_init_verbosity -gt 1 ]; then
+					shouldEcho=1
+				fi
 			fi
 		;;
 		
