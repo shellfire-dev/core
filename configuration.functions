@@ -1,5 +1,5 @@
 # Consider breaking this out
-core_uses core path variable
+core_usesIn core path variable
 
 core_configuration_blacklist()
 {
