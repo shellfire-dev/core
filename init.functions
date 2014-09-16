@@ -148,7 +148,7 @@ core_uses()
 	local sourced
 	
 	#local delimiter='@'
-	local delimiter="$(printf '\001\n')"
+	local delimiter="$(printf '\001')"
 	echo ${#delimiter}
 	exit 60
 	
