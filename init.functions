@@ -129,10 +129,6 @@ core_uses()
 	local libraryName="$2"
 	shift 2
 	
-	if core_variable_isUnset _core_usesAlreadySourced; then
-		_core_usesAlreadySourced=''
-	fi
-	
 	if core_variable_isSet _core_usesRunning; then
 		if [ $_core_usesRunning -eq 8 ]; then
 			echo "BANG"
@@ -163,7 +159,9 @@ core_uses()
 		local IFS="$delimiter"
 		printf 'IFS<%s>\n' "$IFS"
 		printf '_core_usesAlreadySourced<%s>\n' "$_core_usesAlreadySourced"
-		if [ ${#_core_usesAlreadySourced} -ne 0 ]; then	
+		if core_variable_isUnset _core_usesAlreadySourced; then
+			_core_usesAlreadySourced="${namespacedModule}"
+		else
 			for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 			do
 				printf 'func<%s>\n' "$alreadySourcedNamespacedFunction"
@@ -171,9 +169,9 @@ core_uses()
 					continue 2
 				fi
 			done
+			_core_usesAlreadySourced="${_core_usesAlreadySourced}${delimiter}${namespacedModule}"
 		fi
 
-		_core_usesAlreadySourced="${_core_usesAlreadySourced}${delimiter}${namespacedModule}"
 		local IFS="$originalIFS"
 		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
