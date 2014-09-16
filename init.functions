@@ -158,10 +158,10 @@ core_uses()
 		#local IFS="$(printf '\n')"
 		local IFS="$delimiter"
 		printf 'IFS<%s>\n' "$IFS"
-		printf '_core_usesAlreadySourced<%s>\n' "$_core_usesAlreadySourced"
 		if core_variable_isUnset _core_usesAlreadySourced; then
 			_core_usesAlreadySourced="${namespacedModule}"
 		else
+			printf '_core_usesAlreadySourced<%s>\n' "$_core_usesAlreadySourced"
 			for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 			do
 				printf 'func<%s>\n' "$alreadySourcedNamespacedFunction"
