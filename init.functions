@@ -149,8 +149,6 @@ core_uses()
 	
 	#local delimiter='@'
 	local delimiter="$(printf '\001')"
-	echo ${#delimiter}
-	exit 60
 	
 	for namespacedModule in "$@"
 	do
