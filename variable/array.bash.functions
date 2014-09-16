@@ -127,6 +127,13 @@ core_variable_array_iterateShortcut()
 	# the 'trick' only works if the array isn't empty
 	set -x
 	if [ "$variableName" = "_core_configuration_blacklisted" ]; then
+		
+		if core_variable_isSet "$variableName"; then
+			echo OK
+		else
+			echo PROBLEM
+		fi
+		
 		echo "${#_core_configuration_blacklisted[@]}"
 		echo "${#_core_configuration_blacklisted}"
 		set | grep -E '_core_configuration_blacklisted=()'
