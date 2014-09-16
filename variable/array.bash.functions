@@ -22,7 +22,7 @@ core_variable_array_isSet()
 
 core_variable_array_isUnset()
 {
-	! core_variable_array_isSet
+	! core_variable_array_isSet "$1"
 }
 
 core_variable_array_append()
