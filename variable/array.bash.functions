@@ -49,7 +49,7 @@ core_variable_array_length()
 	shift 1
 	
 	# The 'trick' code only works if the array exists and has a length > 1: declare -a tempArray=${variableName}[@]; printf '%s' ${#tempArray[@]}
-	eval "printf '%s' \${#$variableName}"
+	eval "printf '%s' \${#$variableName[@]}"
 }
 
 _core_variable_array_isEmpty()
