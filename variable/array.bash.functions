@@ -5,14 +5,24 @@ core_variable_array_initialise()
 	eval "${variableName}=()"
 }
 
+# bash is weird when it comes to checking empty vs undeclared arrays: https://unix.stackexchange.com/questions/56837/how-to-test-if-a-variable-is-defined-at-all-in-bash-prior-to-version-4-2-with-th
+# this is pretty code expensive to run
 core_variable_array_isSet()
 {
-	set | grep -E '=()'
+	local variableName="$1"
+	local declaration options definition
+	while IFS=' ' read -r declaration options definition
+	do
+		if core_compatibility_startsWith "$definition" "${variableName}='("; then
+			return 0
+		fi
+	done <$(declare -a -p)
+	return 1
 }
 
 core_variable_array_isUnset()
 {
-	xxxxx
+	! core_variable_array_isSet
 }
 
 core_variable_array_append()
