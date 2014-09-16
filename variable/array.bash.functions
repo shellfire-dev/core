@@ -7,7 +7,7 @@ core_variable_array_initialise()
 
 core_variable_array_isSet()
 {
-	xxxx
+	set | grep -E '=()'
 }
 
 core_variable_array_isUnset()
