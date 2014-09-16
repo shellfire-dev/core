@@ -165,7 +165,7 @@ core_uses()
 			fi
 		done
 
-		_core_usesAlreadySourced="${_core_usesAlreadySourced}${IFS}${namespacedModule}"
+		_core_usesAlreadySourced="${_core_usesAlreadySourced}$(printf '\n')${namespacedModule}"
 		local IFS="$originalIFS"
 		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
