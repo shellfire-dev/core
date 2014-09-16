@@ -162,13 +162,15 @@ core_uses()
 		#local IFS="$(printf '\n')"
 		local IFS="$delimiter"
 		printf '<%s>\n' "$IFS"
-		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
-		do
-			printf 'func<%s>\n' "$alreadySourcedNamespacedFunction"
-			if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
-				continue 2
-			fi
-		done
+		if [ ${#_core_usesAlreadySourced} -ne 0 ]; then	
+			for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
+			do
+				printf 'func<%s>\n' "$alreadySourcedNamespacedFunction"
+				if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
+					continue 2
+				fi
+			done
+		fi
 
 		_core_usesAlreadySourced="${_core_usesAlreadySourced}${delimiter}${namespacedModule}"
 		local IFS="$originalIFS"
