@@ -136,6 +136,7 @@ core_uses()
 	if core_variable_isSet _core_usesRunning; then
 		if [ $_core_usesRunning -eq 8 ]; then
 			echo "BANG"
+			echo $_core_usesAlreadySourced
 			exit 50
 		fi
 		_core_usesRunning=$((_core_usesRunning+1))
@@ -158,7 +159,6 @@ core_uses()
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
 			if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
-				exit 50
 				continue 2
 			fi
 		done
