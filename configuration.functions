@@ -83,7 +83,8 @@ core_configuration_load()
 	# * They are not a symbolic link to a file residing in a group or world writable directory. 
 	# Some of these needs can be accompolished by parsing  ls -a -l -L -n "$folderPath" | while IFS=' ' read -r permissions uid gid size month day file
 	# Other might be best done by feature-checking stat (look at the lines of output)
-	
+
+	core_variable_array_initialise _core_configuration_blacklisted
 	core_variable_array_initialise _core_configuration_alreadyLoaded
 	
 	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc
