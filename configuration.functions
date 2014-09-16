@@ -1,9 +1,68 @@
 # Consider breaking this out
-core_uses core path
+core_uses core path variable
 
 core_configuration_blacklist()
 {
 	core_variable_array_append _core_configuration_blacklisted "$@"
+}
+
+# Rules taken from GNU rush
+core_dependency_requires '*' ls
+_core_configuration_validateConfigurationFileIsSecurelyOwned()
+{
+	# We do not do checks for /usr/local/etc (as this can be user-owned in Homebrew) or /opt/etc
+	if core_variable_doesNotStartWith "$actualPath" '/etc'; then
+		return 0
+	fi
+	
+	# We rely on ls as stat varies widely (GNU new vs GNU old vs BSD), and feature checking is painful
+	# Example on MAC   -rw-r--r--@ 1 501  20  171202 11 Sep 08:48 miscellany/logo.key
+	# Example on LINUX -rw-r--r-- 1 1000 1000 3637 Sep  8 08:37 .bashrc
+	
+	local permissions
+	local links
+	local uid
+	local gid
+	local size
+	local garbageDateAndName
+	IFS=' ' read -r permissions links uid gid size garbageDateAndName <<-EOF
+		$(ls -a -l -L -n "$actualPath")
+	EOF
+	
+	if [ $uid -ne 0 ]; then
+		core_message WARN "Configuration file '$actualPath' is not owned by root; ignoring"
+		return 0
+	fi
+	if [ $gid -ne 0 ]; then
+		core_message WARN "Configuration file '$actualPath' is not in root's group; ignoring"
+		return 0
+	fi
+	if core_variable_doesNotStartWith "$permissions" '-rw-r--r--'; then
+		core_message WARN "Configuration file '$actualPath' has permissions that are not -rw-r--r--; ignoring"
+		return 0
+	fi
+	
+	local parentPath="$(core_compatibility_basename "$actualPath")"
+
+	ls -a -l -L -n "$actualPath" | IFS=' ' read -r permissions links uid gid size garbageDateAndName
+	do
+		if [ "$permissions" = 'total' ]; then
+			continue
+		fi
+			if [ $uid -ne 0 ]; then
+				core_message WARN "Configuration file '$actualPath' lives in a folder not owned by root; ignoring"
+				return 0
+			fi
+			if [ $gid -ne 0 ]; then
+				core_message WARN "Configuration file '$actualPath' lives in a folder not owned by root's group; ignoring"
+				return 0
+			fi
+			if core_variable_doesNotStartWith "$permissions" '-rwxr-xr-x'; then
+				core_message WARN "Configuration file '$actualPath' lives in a folder with permissions not set to '-rwxr-xr-x'; ignoring"
+				return 0
+			fi
+		break
+	done
 }
 
 _core_configuration_load()
@@ -25,6 +84,11 @@ _core_configuration_load()
 			core_message WARN "Configuration file '$actualPath' is executable and should not be; ignoring"
 			return 0
 		fi
+		
+		
+		
+		
+		
 		. "$actualPath" || core_exitError "Could not load '$actualPath'"
 	elif [ -d "$actualPath" ]; then
 		if [ ! -r "$actualPath" ]; then
@@ -81,13 +145,8 @@ core_configuration_defaultsBlacklistedEnvironmentVariables=''
 core_configuration_load()
 {	
 	core_TODO Security checks to be done for any "${core_init_etcPath}" / '/etc' files
-	# * They are not owned by root.
-	# * They are not group writable.
-	# * They are not world writable.
-	# * They do not reside in a group writable directory.
-	# * They do not reside in a world writable directory.
-	# * They are not a symbolic link to a file residing in a group or world writable directory. 
-	# Some of these needs can be accompolished by parsing  ls -a -l -L -n "$folderPath" | while IFS=' ' read -r permissions uid gid size month day file
+
+	
 	# Other might be best done by feature-checking stat (look at the lines of output)
 
 	core_variable_array_initialise _core_configuration_blacklisted

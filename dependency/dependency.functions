@@ -5,6 +5,17 @@ core_usesIn core/variable array
 core_init_defines core_dependency_requires
 core_init_defines core_dependency_fallback
 
+# There are several sources of commonly used tools in linux that provide 'core' utils with differing switches, etc.
+# Despite POSIX, these are still quite incompatible.
+# In rough popularity:-
+# * GNU coreutils, findutils et al
+# * Busybox
+# * BSD userland (Mac OS X variant and *BSD variant, with slight differences between the *BSDs)
+# * Toybox (up and coming)
+# * Heirloom (http://heirloom.sourceforge.net/tools.html)
+# * Proprietary Unix: Solaris, AIX and HP-UX (with everything else effectively now an also-ran)
+# * Various other bits and bobs (see toybox)
+
 # Also uname -s (part of coreutils, often at /bin/uname, so quite reliably present)
 # See Gnu shtool http://www.gnu.org/software/shtool/ (slow)
 # See Gnu config.guess http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob;f=config.guess;hb=HEAD (yuck)
