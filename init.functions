@@ -164,7 +164,7 @@ core_uses()
 		# Source
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
-		for relativeFunctionsFilePath in "$namespacedModule"."$global_preferredShell" "$namespacedModule" "$namespacedModule"/"$moduleName"."$global_preferredShell" "$namespacedModule"/"$moduleName"
+		for relativeFunctionsFilePath in "$namespacedModule" "$namespacedModule"."$global_preferredShell" "$namespacedModule"/"$moduleName" "$namespacedModule"/"$moduleName"."$global_preferredShell"
 		do
 			functionsFilePath="$libPath"/"$relativeFunctionsFilePath".functions
 			if [ -f "$functionsFilePath" ]; then
