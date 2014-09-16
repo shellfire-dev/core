@@ -133,11 +133,10 @@ core_uses()
 	local libraryName="$2"
 	shift 2
 	
-	local alreadySourcedNamespacedFunctions
+	local namespacedModule
 	local moduleName
-	local relativeFunctionsFileName
-	local functionsFilePath
 	local sourced
+	local functionsFilePath
 	
 	local delimiter="$(printf '\001')"
 	
