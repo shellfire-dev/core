@@ -47,18 +47,18 @@ core_configuration_loadPath()
 	local environmentVariable="$1"
 	local folderOrFilePath="$2"
 	
+	if core_variable_isUnset "$environmentVariable"; then
+		return 0
+	fi
+	
 	if core_variable_array_contains _core_configuration_blacklisted "$environmentVariable"; then
 		core_message WARN "Configuration path '\$$environmentVariable/$folderOrFilePath' is blacklisted"
 		return 0
 	fi
 	
-	if core_variable_isSet "$environmentVariable"; then
-		local core_variable_indirectValue_result
-		core_variable_indirectValue "$environmentVariable"
-		local parentPath="$core_variable_indirectValue_result"
-	else
-		local parentPath=''
-	fi
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$environmentVariable"
+	local parentPath="$core_variable_indirectValue_result"
 	
 	if [ -z "$folderOrFilePath" ]; then
 		local actualPath="$parentPath"
