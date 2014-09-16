@@ -126,6 +126,7 @@ core_variable_array_iterateShortcut()
 	set -x
 	local core_variable_array_element
 	declare -a tempArray=${variableName}[@]
+	set
 	for core_variable_array_element in "${!tempArray}"
 	do
 		if $callback "$@"; then
