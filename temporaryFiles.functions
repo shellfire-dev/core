@@ -9,7 +9,7 @@ _core_temporaryFiles_removeAll_callback()
 
 core_temporaryFiles_removeAll()
 {
-	if core_variable_isSet _core_temporaryFiles_filesToRemoveOnExit; then
+	if core_variable_array_isSet _core_temporaryFiles_filesToRemoveOnExit; then
 		core_variable_array_passToFunctionAsArguments _core_temporaryFiles_filesToRemoveOnExit _core_temporaryFiles_removeAll_callback
 	fi
 }

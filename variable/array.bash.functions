@@ -5,6 +5,16 @@ core_variable_array_initialise()
 	eval "${variableName}=()"
 }
 
+core_variable_array_isSet()
+{
+	xxxx
+}
+
+core_variable_array_isUnset()
+{
+	xxxxx
+}
+
 core_variable_array_append()
 {
 	local variableName="$1"
@@ -13,7 +23,7 @@ core_variable_array_append()
 	local argument
 	for argument in "$@"
 	do
-		if core_variable_isUnset "$variableName"; then
+		if core_variable_array_isUnset "$variableName"; then
 			eval "${variableName}=('$argument')"
 		else
 			eval "${variableName}+=('$argument')"
@@ -128,7 +138,8 @@ core_variable_array_iterateShortcut()
 	set -x
 	if [ "$variableName" = "_core_configuration_blacklisted" ]; then
 		
-		if core_variable_isSet "$variableName"; then
+		# Problem with empty arrays
+		if core_variable_array_isSet "$variableName"; then
 			echo OK
 		else
 			echo PROBLEM

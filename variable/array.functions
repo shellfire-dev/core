@@ -6,6 +6,16 @@ core_variable_array_initialise()
 	core_variable_setVariable "$variableName" ''
 }
 
+core_variable_array_isSet()
+{
+	core_variable_isSet "$1"
+}
+
+core_variable_array_isUnset()
+{
+	core_variable_isUnset "$1"
+}
+
 # A \1 separated array; \1 is still file-system special, but is so rare that it only constitutes a security risk, nothing else
 core_variable_array_append()
 {
