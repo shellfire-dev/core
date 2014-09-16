@@ -150,6 +150,9 @@ core_uses()
 	local relativeFunctionsFileName
 	local functionsFilePath
 	local sourced
+	
+	local delimiter='@'
+	
 	for namespacedModule in "$@"
 	do
 		namespacedModule="$libraryName"/"$namespacedModule"
@@ -157,7 +160,7 @@ core_uses()
 		# Does not handle spaces in filenames, unfortunately
 		local originalIFS="$IFS"
 		#local IFS="$(printf '\n')"
-		local IFS="-"
+		local IFS="$delimiter"
 		printf '<%s>\n' "$IFS"
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
@@ -167,7 +170,7 @@ core_uses()
 			fi
 		done
 
-		_core_usesAlreadySourced="${_core_usesAlreadySourced}$(printf '-')${namespacedModule}"
+		_core_usesAlreadySourced="${_core_usesAlreadySourced}${delimiter}${namespacedModule}"
 		local IFS="$originalIFS"
 		
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
