@@ -51,6 +51,17 @@ core_variable_array_length()
 	printf '%s' $#
 }
 
+_core_variable_array_isEmpty()
+{
+	[ -z "$(core_variable_indirectValue "$variableName")" ]
+}
+
+core_variable_array_isEmpty()
+{
+	local variableName="$1"
+	_core_variable_array_isEmpty
+}
+
 core_variable_array_at()
 {
 	local variableName="$1"

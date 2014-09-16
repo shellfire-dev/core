@@ -46,8 +46,13 @@ core_variable_array_length()
 	local variableName="$1"
 	shift 1
 	
-	declare -a tempArray=${variableName}[@]
-	printf '%s' ${#tempArray[@]}
+	# The 'trick' code only works if the array exists and has a length > 1: declare -a tempArray=${variableName}[@]; printf '%s' ${#tempArray[@]}
+	eval "printf '%s' \${#$variableName}"
+}
+
+_core_variable_array_isEmpty()
+{
+	[ $(core_variable_array_length "$variableName") -eq 0 ]
 }
 
 # Idea from http://mywiki.wooledge.org/BashFAQ/006
@@ -65,6 +70,10 @@ core_variable_array_string()
 	local separator="$2"
 	
 	core_variable_array_string_result=''
+	
+	if _core_variable_array_isEmpty; then
+		return 0
+	fi
 	
 	local count=0
 	local core_variable_array_element
@@ -90,6 +99,11 @@ core_variable_array_passToFunctionAsArguments()
 		global_exitError "Only varargs from array are allowed"
 	fi
 	
+	if _core_variable_array_isEmpty; then
+		"$function"
+		return 0
+	fi
+	
 	declare -a tempArray=${variableName}[@]
 	"$function" "${!tempArray}"
 }
@@ -100,6 +114,10 @@ core_variable_array_iterate()
 	local variableName="$1"
 	local callback="$2"
 	shift 2
+	
+	if _core_variable_array_isEmpty; then
+		return 0
+	fi
 	
 	local core_variable_array_element
 	declare -a tempArray=${variableName}[@]
@@ -114,6 +132,10 @@ core_variable_array_iterateAsCallbacks()
 	local variableName="$1"
 	shift 1
 	
+	if _core_variable_array_isEmpty; then
+		return 0
+	fi
+	
 	local callback
 	declare -a tempArray=${variableName}[@]
 	for callback in "${!tempArray}"
@@ -126,6 +148,10 @@ core_variable_array_iterateAsCallbacksShortcut()
 {
 	local variableName="$1"
 	shift 1
+	
+	if _core_variable_array_isEmpty; then
+		return 1
+	fi
 	
 	local callback
 	declare -a tempArray=${variableName}[@]
@@ -144,28 +170,9 @@ core_variable_array_iterateShortcut()
 	local callback="$2"
 	shift 2
 	
-	# the 'trick' only works if the array isn't empty
-	if [ "$variableName" = "_core_configuration_blacklisted" ]; then
-		
-		# Problem with empty arrays
-		if core_variable_array_isSet "$variableName"; then
-			echo OK
-		else
-			echo PROBLEM
-		fi
-		
-		echo "${#_core_configuration_blacklisted[@]}"
-		echo "${#_core_configuration_blacklisted}"
-		set | grep -E '_core_configuration_blacklisted=()'
-		_core_configuration_blacklisted=('hello')
-		echo "${#_core_configuration_blacklisted}"
-		tmp=${variableName}[@]
-		printf "<%s> " "${!tmp}"; echo
-		exit 60
+	if _core_variable_array_isEmpty; then
+		return 1
 	fi
-	
-	
-	
 	
 	local core_variable_array_element
 	tempArray=${variableName}[@]
