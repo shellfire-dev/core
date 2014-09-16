@@ -129,18 +129,6 @@ core_uses()
 	local libraryName="$2"
 	shift 2
 	
-	if core_variable_isSet _core_usesRunning; then
-		if [ $_core_usesRunning -eq 100 ]; then
-			echo "BANG"
-		local IFS="$(printf '\001')"
-			echo $_core_usesAlreadySourced
-			exit 50
-		fi
-		_core_usesRunning=$((_core_usesRunning+1))
-	else
-		_core_usesRunning=0
-	fi
-	
 	local alreadySourcedNamespacedFunctions
 	local moduleName
 	local relativeFunctionsFileName
