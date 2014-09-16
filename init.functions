@@ -157,7 +157,7 @@ core_uses()
 		# Does not handle spaces in filenames, unfortunately
 		local originalIFS="$IFS"
 		local IFS="$(printf '\n')"
-		printf '<%s>' "$IFS"
+		printf '<%s>\n' "$IFS"
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
 			echo "$alreadySourcedNamespacedFunction"
