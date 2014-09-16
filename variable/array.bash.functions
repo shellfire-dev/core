@@ -176,7 +176,6 @@ core_variable_array_iterateShortcut()
 	
 	local core_variable_array_element
 	tempArray=${variableName}[@]
-	set
 	for core_variable_array_element in "${!tempArray}"
 	do
 		if $callback "$@"; then
