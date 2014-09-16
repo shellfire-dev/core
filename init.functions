@@ -164,7 +164,7 @@ core_uses()
 		printf '<%s>\n' "$IFS"
 		for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
 		do
-			echo "$alreadySourcedNamespacedFunction"
+			printf 'func<%s>\n' "$alreadySourcedNamespacedFunction"
 			if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
 				continue 2
 			fi
