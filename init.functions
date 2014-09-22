@@ -407,7 +407,7 @@ core_init_main()
 	
 	core_usesIn core
 	declare -F
-	${_program}
+	$_program
 
 	if core_init_isFattening; then
 		return 0
