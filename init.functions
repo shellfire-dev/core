@@ -70,7 +70,7 @@ core_dependency_requires()
 			# core_commandLine_exitCode_SOFTWARE
 			core_exitError 70 "programName can not be empty"
 		fi
-		_core_dependency_requires="${_core_dependency_requires}${packageManager}$(printf '\001')${programName}
+		_core_dependency_requires="${_core_dependency_requires}${packageManager}$core_variable_array_delimiter${programName}
 "
 	done
 }
@@ -146,6 +146,11 @@ core_TODO()
 	core_message TODO "$*"
 }
 
+# Does not work as a delimiter when running bash as /bin/sh on Mac - seems to be an IFS bug in bash 3.2
+#readonly core_variable_array_delimiter="$(printf '\001')"
+readonly core_variable_array_delimiter=','
+core_dependency_declares core_variable_array_delimiter
+
 core_dependency_declares _core_uses_alreadySourced
 # Duplicates logic in core/variable/array, but that is a hefty piece to pull in and breaks code (as the bash overrides handle arrays differently)
 # Has a defect such that function paths containing '0x01' can be loaded more than once [highly unlikely except as a potential security defect]
@@ -161,7 +166,8 @@ core_uses()
 	local sourced
 	local functionsFilePath
 	
-	local delimiter="$(printf '\001')"
+	# TODO: Does NOT WORK when using /bin/sh on Mac - implying older bash run as sh is broken
+	local delimiter="$core_variable_array_delimiter"
 	
 	for namespacedModule in "$@"
 	do

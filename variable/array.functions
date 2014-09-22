@@ -1,5 +1,7 @@
 core_usesIn core variable
 
+core_init_defines core_variable_array_delimiter
+
 core_variable_array_initialise()
 {
 	local variableName="$1"
@@ -30,7 +32,7 @@ core_variable_array_append()
 		else
 			local core_variable_indirectValue_result
 			core_variable_indirectValue "$variableName"
-			core_variable_setVariable "$variableName" "${core_variable_indirectValue_result}$(printf '\001')${argument}"
+			core_variable_setVariable "$variableName" "${core_variable_indirectValue_result}$core_variable_array_delimiter${argument}"
 		fi
 	done
 }
@@ -41,7 +43,7 @@ core_variable_array_length()
 	shift 1
 	
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	core_variable_indirectValue "$variableName"
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
 		printf '%s' 0
@@ -68,7 +70,7 @@ core_variable_array_at()
 	local index=$2
 
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
 	set -- $core_variable_indirectValue_result
@@ -84,7 +86,7 @@ core_variable_array_string()
 	
 	local count=0
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
@@ -115,7 +117,7 @@ core_variable_array_passToFunctionAsArguments()
 	fi
 	
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	core_variable_indirectValue "$variableName"
 
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
@@ -135,7 +137,7 @@ core_variable_array_iterate()
 	
 	local core_variable_array_element
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
@@ -155,7 +157,7 @@ core_variable_array_iterateAsCallbacks()
 	
 	local callback
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
@@ -175,7 +177,7 @@ core_variable_array_iterateAsCallbacksShortcut()
 	
 	local callback
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
@@ -199,7 +201,7 @@ core_variable_array_iterateShortcut()
 	
 	local core_variable_array_element
 	local originalIFS="$IFS"
-	local IFS="$(printf '\001')"
+	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
 	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then

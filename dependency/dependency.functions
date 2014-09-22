@@ -344,8 +344,8 @@ core_dependency_setUpPathAndInstallMissing()
 	local programName
 	local alreadyInstalledProgramName
 	local oldIFS="$IFS"
-	local IFS="$(printf '\001')"
-	while IFS="$(printf '\001')" read -r packageManager programName
+	local IFS="$core_variable_array_delimiter"
+	while IFS="$core_variable_array_delimiter" read -r packageManager programName
 	do
 		local IFS="$oldIFS"
 		case "$packageManager" in
