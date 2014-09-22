@@ -1,5 +1,3 @@
-core_dependency_check_functions=''
-
 core_dependency_check_releaseFile()
 {
 	local releaseFileName="$1"

@@ -9,7 +9,7 @@ core_temporaryFiles_initialise()
 	# Set a global TMPDIR if unset; an alternative is to create under the HOME folder
 	: ${TMPDIR:=/tmp}
 	
-	core_validate_folderPathReadableAndSearchableAndWritable 'environment variable' 'TMPDIR' "$TMPDIR"
+	core_validate_folderPathReadableAndSearchableAndWritable $core_commandLine_exitCode_CONFIG 'environment variable' 'TMPDIR' "$TMPDIR"
 }
 core_functions_register core_functions core_temporaryFiles_initialise
 
@@ -31,7 +31,7 @@ core_temporaryFiles_newFileToRemoveOnExit()
 {
 	local umaskOriginal="$(umask)"
 	umask 077
-	TMP_FILE="$(mktemp -t "$global_ourName".XXXXXXXXXXXX)" || core_exitError "Could not create a temporary file"
+	TMP_FILE="$(mktemp -t "$global_ourName".XXXXXXXXXXXX)" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary file"
 	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
 	umask "$umaskOriginal"
 }
@@ -41,7 +41,7 @@ core_temporaryFiles_newFolderToRemoveOnExit()
 {
 	local umaskOriginal="$(umask)"
 	umask 077
-	TMP_FOLDER="$(mktemp -d -t "$global_ourName".XXXXXXXXXXXX)" || core_exitError "Could not create a temporary folder"
+	TMP_FOLDER="$(mktemp -d -t "$global_ourName".XXXXXXXXXXXX)" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary folder"
 	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FOLDER"
 	umask "$umaskOriginal"
 }

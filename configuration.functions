@@ -91,7 +91,7 @@ _core_configuration_load()
 			return 0
 		fi
 		
-		. "$actualPath" || core_exitError "Could not load '$actualPath'"
+		. "$actualPath" || core_exitError $core_commandLine_exitCode_OSFILE "Could not load '$actualPath'"
 	elif [ -d "$actualPath" ]; then
 		if [ ! -r "$actualPath" ]; then
 			core_message WARN "Configuration folder '$actualPath' is not readable; ignoring"

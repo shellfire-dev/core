@@ -54,7 +54,7 @@ core_compability_installPushdAndPopd()
 	if core_compatibility_builtInDoesNotExist pushd; then
 		
 		if ! core_compatibility_builtInDoesNotExist popd; then
-			core_exitError "Weird shell does not have pushd but does have popd (?feature detection bug?)!"
+			core_exitError $core_commandLine_exitCode_SOFTWARE "Weird shell does not have pushd but does have popd (?feature detection bug?)!"
 		fi
 		
 		_core_init_compatibility_pushdCount=0

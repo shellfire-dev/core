@@ -1,5 +1,3 @@
-readonly core_libraryName=shellfire
-
 core_compatibility_basename()
 {
 	printf '%s' "${1##*/}"
@@ -39,7 +37,8 @@ core_dependency_requires()
 	# Or '*' for all
 	local packageManager="$1"
 	if [ -z "$packageManager" ]; then
-		core_exitError "packageManager can not be empty"
+		# core_commandLine_exitCode_SOFTWARE
+		core_exitError 70 "packageManager can not be empty"
 	fi
 	shift 1
 	
@@ -47,7 +46,8 @@ core_dependency_requires()
 	for programName in "$@"
 	do
 		if [ -z "$programName" ]; then
-			core_exitError "programName can not be empty"
+			# core_commandLine_exitCode_SOFTWARE
+			core_exitError 70 "programName can not be empty"
 		fi
 		_core_dependency_requires="${_core_dependency_requires}${packageManager}$(printf '\001')${programName}
 "
@@ -66,6 +66,14 @@ core_dependency_fallback()
 		:
 	done
 }
+
+core_init_declares()
+{
+	:
+}
+
+readonly core_libraryName=shellfire
+core_init_declares core_libraryName
 
 core_message()
 {
@@ -116,8 +124,9 @@ core_message()
 
 core_exitError()
 {
-	core_message FAIL "$1"
-	exit 1
+	core_message FAIL "$2"
+	
+	exit $1
 }
 
 core_TODO()
@@ -125,6 +134,7 @@ core_TODO()
 	core_message TODO "$*"
 }
 
+core_init_declares _core_uses_alreadySourced
 # Duplicates logic in core/variable/array, but that is a hefty piece to pull in and breaks code (as the bash overrides handle arrays differently)
 # Has a defect such that function paths containing '0x01' can be loaded more than once [highly unlikely except as a potential security defect]
 # By specifying $1 as not , say, /usr/lib, and $2 as something other than core_libraryName, this code can be used for plugins
@@ -148,32 +158,34 @@ core_uses()
 		# Skip if already sourced
 		local originalIFS="$IFS"
 		local IFS="$delimiter"
-		if core_variable_isUnset _core_usesAlreadySourced; then
-			_core_usesAlreadySourced="${namespacedModule}"
+		if core_variable_isUnset _core_uses_alreadySourced; then
+			_core_uses_alreadySourced="${namespacedModule}"
 		else
-			for alreadySourcedNamespacedFunction in $_core_usesAlreadySourced
+			for alreadySourcedNamespacedFunction in $_core_uses_alreadySourced
 			do
 				if [ "$namespacedModule" = "$alreadySourcedNamespacedFunction" ]; then
 					continue 2
 				fi
 			done
-			_core_usesAlreadySourced="${_core_usesAlreadySourced}${delimiter}${namespacedModule}"
+			_core_uses_alreadySourced="${_core_uses_alreadySourced}${delimiter}${namespacedModule}"
 		fi
 		local IFS="$originalIFS"
 		
 		# Source
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
-		for relativeFunctionsFilePath in "$namespacedModule" "$namespacedModule"."$global_preferredShell" "$namespacedModule"/"$moduleName" "$namespacedModule"/"$moduleName"."$global_preferredShell"
+		for relativeFunctionsFilePath in "$namespacedModule" "$namespacedModule"."$core_init_preferredShell" "$namespacedModule"/"$moduleName" "$namespacedModule"/"$moduleName"."$core_init_preferredShell"
 		do
 			functionsFilePath="$libPath"/"$relativeFunctionsFilePath".functions
 			if [ -f "$functionsFilePath" ]; then
-				. "$functionsFilePath" || core_exitError "Can not load functions '$functionsFilePath'"
+				# core_commandLine_exitCode_OSFILE
+				. "$functionsFilePath" || core_exitError 72 "Can not load functions '$functionsFilePath'"
 				sourced=1
 			fi
 		done
 		if [ $sourced -eq 0 ]; then
-			core_exitError "Can not load functions for namespace '$namespacedModule'"
+			# core_commandLine_exitCode_OSFILE
+			core_exitError 72 "Can not load functions for namespace '$namespacedModule'"
 		fi
 	done
 }
@@ -249,7 +261,8 @@ core_init_findOurNameAndPath()
 	# can be empty if 'bash file' used or 'bash </path/to/file' or ksh with PATH containing '.'
 	local potential_global_ourSymlinkPath="${0%/*}"
 	if [ -z "$potential_global_ourSymlinkPath" ]; then
-		core_exitError "Do not invoke this program either by specifying a shell interpreter on a file in the current working directory (eg bash '$0') or redirecting from a pipe into a shell interpreter (eg bash [-c] <'$0') or by using ksh with a PATH containing '.'"
+		# core_commandLine_exitCode_USAGE
+		core_exitError 64 "Do not invoke this program either by specifying a shell interpreter on a file in the current working directory (eg bash '$0') or redirecting from a pipe into a shell interpreter (eg bash [-c] <'$0') or by using ksh with a PATH containing '.'"
 	fi
 	
 	# At this point, we resolve $0 vs the current working directory
@@ -287,7 +300,8 @@ core_init_findOurNameAndPath()
 			$programName
 		EOF
 		if [ -n "$right" ]; then
-			core_exitError "We can not support program names (such as '$programName') with whitespace in them"
+			# core_commandLine_exitCode_SOFTWARE
+			core_exitError 70 "We can not support program names (such as '$programName') with whitespace in them"
 		fi
 	}
 	_core_init_findOurNameAndPath_checkForWhitespaceInName "$global_ourName"
@@ -303,11 +317,13 @@ core_init_doNotRunAsSetUidOrSetGid()
 	# * bash allows functions to be exported that can replace builtins (even the builtin builtin)
 	
 	if [ -u "$global_ourSymlinkExecutablePath" ]; then
-		core_exitError "We can not be run with the setuid bit set"
+		# core_commandLine_exitCode_NOPERM
+		core_exitError 77 "We can not be run with the setuid bit set"
 	fi
 	
 	if [ -g "$global_ourSymlinkExecutablePath" ]; then
-		core_exitError "We can not be run with setgid bit set"
+		# core_commandLine_exitCode_NOPERM
+		core_exitError 77 "We can not be run with setgid bit set"
 	fi
 }
 
@@ -350,19 +366,21 @@ core_init_determinePreferredShell()
 	
 	IFS=' ' read -r commented_shebang_path shebang_shell remainder <"$global_ourSymlinkExecutablePath"
 	if [ -n "$remainder" ]; then
-		core_exitError "Passing options to a shell ('#!$shebang_path $shebang_shell $remainder') is not supported"
+		# core_commandLine_exitCode_SOFTWARE
+		core_exitError 70 "Passing options to a shell ('#!$shebang_path $shebang_shell $remainder') is not supported"
 	fi
 	IFS='!' read -r comment shebang_path <<-EOF
 		$commented_shebang_path
 	EOF
 	
 	if [ -z "$shebang_shell" ]; then
-		global_preferredShell="$(core_compatibility_basename "$shebang_path")"
+		core_init_preferredShell="$(core_compatibility_basename "$shebang_path")"
 	else
 		if [ "$shebang_path" != '/usr/bin/env' ]; then
-			core_exitError "All shell scripts should use '/usr/bin/env' with a shell, not #!$shebang_path $shebang_shell"
+			# core_commandLine_exitCode_SOFTWARE
+			core_exitError 70 "All shell scripts should use '/usr/bin/env' with a shell, not #!$shebang_path $shebang_shell"
 		fi
-		global_preferredShell="$shebang_shell"
+		core_init_preferredShell="$shebang_shell"
 	fi
 }
 
@@ -377,12 +395,13 @@ core_init_rexecUnderCorrectShell()
 			return 0
 		fi
 	fi
-	
-	if ! core_compatibility_whichNoOutput "$global_preferredShell"; then
-		core_exitError "Preferred shell '$global_preferredShell' does not exist on the PATH"
+
+	if ! core_compatibility_whichNoOutput "$core_init_preferredShell"; then
+		#core_commandLine_exitCode_OSFILE
+		core_exitError 72 "Preferred shell '$core_init_preferredShell' does not exist on the PATH"
 	fi
-	local shellPath="$(core_compatibility_which "$global_preferredShell")"
-	
+	local shellPath="$(core_compatibility_which "$core_init_preferredShell")"
+
 	# exec -a doesn't work in dash
 	core_init_shell_rexecing=$$ exec "$shellPath" "$global_ourSymlinkExecutablePath" "$@"
 }

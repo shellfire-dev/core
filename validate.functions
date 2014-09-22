@@ -1,82 +1,87 @@
 core_validate_pathNotEmpty()
 {
-	local category="$1"
-	local name="$2"
-	local value="$3"
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
 	
 	if [ -z "$value" ]; then
-		core_exitError "The $category '$name' specifies a path '$value' which is empty"
+		core_exitError $code "The $category '$name' specifies a path '$value' which is empty"
 	fi
 }
 
 core_validate_folderPathReadableAndSearchable()
 {
 	core_validate_pathNotEmpty "$@"
-	
-	local category="$1"
-	local name="$2"
-	local value="$3"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
 	
 	local messageFragment="The $category '$name' specifies a path '$value' which"
 	if [ ! -e "$value" ]; then
-		core_exitError "$messageFragment does not exist"
+		core_exitError $code "$messageFragment does not exist"
 	fi
 	if [ ! -d "$value" ]; then
-		core_exitError "$messageFragment is not a directory"
+		core_exitError $code "$messageFragment is not a directory"
 	fi
 	if [ ! -r "$value" ]; then
-		core_exitError "$messageFragment is not a readable directory"
+		core_exitError $code "$messageFragment is not a readable directory"
 	fi
 	if [ ! -x "$value" ]; then
-		core_exitError "$messageFragment is not a searchable directory"
+		core_exitError $code "$messageFragment is not a searchable directory"
 	fi
 }
 
 core_validate_folderPathReadableAndSearchableAndWritable()
 {
 	core_validate_folderPathReadableAndSearchable "$@"
-	
-	local category="$1"
-	local name="$2"
-	local value="$3"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
 	
 	if [ ! -w "$value" ]; then
-		core_exitError "The $category '$name' specifies a path '$value' which is not a writable directory"
+		core_exitError $code "The $category '$name' specifies a path '$value' which is not a writable directory"
 	fi
 }
 
 core_validate_filePathReadableAndExecutable()
 {
 	core_validate_pathNotEmpty "$@"
-	
-	local category="$1"
-	local name="$2"
-	local value="$3"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
 	
 	local messageFragment="The $category '$name' specifies a path '$value' which"
 	if [ ! -e "$value" ]; then
-		core_exitError "$messageFragment does not exist"
+		core_exitError $code "$messageFragment does not exist"
 	fi
 	if [ ! -f "$value" ]; then
-		core_exitError "$messageFragment is not a file"
+		core_exitError $code "$messageFragment is not a file"
 	fi
 	if [ ! -r "$value" ]; then
-		core_exitError "$messageFragment is not a readable file"
+		core_exitError $code "$messageFragment is not a readable file"
 	fi
 	if [ ! -x "$value" ]; then
-		core_exitError "$messageFragment is not an executable file"
+		core_exitError $code "$messageFragment is not an executable file"
 	fi
 }
 
 core_validate_filePathReadableAndExecutableAndNotEmpty()
 {
 	core_validate_filePathReadableAndExecutable "$@"
-	
-	local category="$1"
-	local name="$2"
-	local value="$3"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
 	
 	if [ ! -s "$value" ]; then
-		core_exitError "The $category '$name' specifies a path which is an empty file"
+		core_exitError $code "The $category '$name' specifies a path which is an empty file"
 	fi
 }

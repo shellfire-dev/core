@@ -111,7 +111,7 @@ core_variable_array_passToFunctionAsArguments()
 	local function="$2"
 	shift 2
 	if [ $# -ne 0 ]; then
-		core_exitError "Only varargs from array are allowed"
+		core_exitError $core_commandLine_exitCode_SOFTWARE "Only varargs from array are allowed"
 	fi
 	
 	local originalIFS="$IFS"

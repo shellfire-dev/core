@@ -44,7 +44,7 @@ core_trap_addHandler()
 			;;
 		
 			*)
-				core_exitError "Unrecognised or unsupported trap '$trapName'"
+				core_exitError $core_commandLine_exitCode_SOFTWARE "Unrecognised or unsupported trap '$trapName'"
 			;;
 		
 		esac
