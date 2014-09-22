@@ -282,9 +282,9 @@ _core_dependency_addFromExternalDataSources()
 		# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
 		if [ ! -e "$pathAbsoluteFilePath" ]; then
 			_core_dependency_addToPackagesToInstallIfRequired
-			_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
-			break
 		fi
+		_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
+		break
 	done
 }
 
