@@ -309,6 +309,7 @@ command_not_found_handle()
 
 core_dependency_setUpPathAndInstallMissing()
 {
+	set -x
 	# A standard path, excluding games, but including any sibling binaries to our one
 	local replacementPath='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 	_core_dependency_addToReplacementPathIfRequired "$global_ourSymlinkPath"
@@ -369,6 +370,7 @@ core_dependency_setUpPathAndInstallMissing()
 	# In bash, this cleans the path; hash -r is for other shells
 	export PATH="$replacementPath"
 	hash -r
+	set +x
 }
 core_functions_register _core_dependency_functions core_dependency_setUpPathAndInstallMissing
 
