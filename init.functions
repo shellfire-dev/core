@@ -406,6 +406,7 @@ core_init_main()
 	core_init_rexecUnderCorrectShell "$@"
 	
 	core_usesIn core
+	declare -F
 	${_program}
 
 	if core_init_isFattening; then
