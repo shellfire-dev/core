@@ -233,10 +233,6 @@ _core_dependency_addToReplacementPathIfRequired()
 
 _core_dependency_addFromInternalDataSource()
 {
-	local pathProgramName
-	local pathPackage
-	local pathAbsoluteFilePath
-	
 	set -x
 	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}_${programName}"
 	
@@ -246,7 +242,10 @@ _core_dependency_addFromInternalDataSource()
 	fi
 	foundInternally=1
 	set +x
-	
+
+	local pathProgramName
+	local pathPackage
+	local pathAbsoluteFilePath
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$internalDataSourceName"
 	IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <<-EOF
@@ -265,10 +264,6 @@ _core_dependency_addFromExternalDataSources()
 	local externalDataSourceFolderPath
 	local externalDataSourceFilePath
 	
-	local pathProgramName
-	local pathPackage
-	local pathAbsoluteFilePath
-	
 	# Use external, with preference to program-level, HOME-scoped?
 	# Use internal (so allowing external overrides)?
 	# Or use a weighting system?
@@ -279,6 +274,9 @@ _core_dependency_addFromExternalDataSources()
 		return 0
 	fi
 	
+	local pathProgramName
+	local pathPackage
+	local pathAbsoluteFilePath
 	# First encountered path wins
 	for externalDataSourceFolderPath in \
 		"$HOME"/."$global_ourName" \
@@ -324,13 +322,12 @@ core_dependency_setUpPathAndInstallMissing()
 	local alreadyHandledProgramNames
 	core_variable_array_initialise alreadyHandledProgramNames
 	
-	local packageManager
-	local programName
-	local alreadyInstalledProgramName
-	
 	local packagesToInstall
 	core_variable_array_initialise packagesToInstall
 	
+	local packageManager
+	local programName
+	local alreadyInstalledProgramName
 	local oldIFS="$IFS"
 	local IFS="$(printf '\001')"
 	while IFS="$(printf '\001')" read -r packageManager programName
@@ -342,6 +339,7 @@ core_dependency_setUpPathAndInstallMissing()
 				if core_variable_array_contains alreadyHandledProgramNames "$programName"; then
 					continue
 				fi
+				packageManager="$core_dependency_packageManager"
 				core_variable_array_append alreadyHandledProgramNames "$programName"
 				_core_dependency_addFromInternalDataSource
 				_core_dependency_addFromExternalDataSources
