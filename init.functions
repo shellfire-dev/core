@@ -204,12 +204,17 @@ core_uses()
 
 core_usesIn()
 {
-	local namespace="$1"
-	shift 1
+	if [ $# -eq 1 ]; then
+		local namespace=''
+	else
+		local namespace="${1}/"
+		shift 1
+	fi
+	
 	local module
 	for module in "$@"
 	do
-		core_uses "$_program_libPath" "$core_libraryName" "$namespace"/"$module"
+		core_uses "$_program_libPath" "$core_libraryName" "${namespace}${module}"
 	done
 }
 
