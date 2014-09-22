@@ -295,6 +295,10 @@ core_dependency_add()
 	if [ $foundInternally -eq 0 ]; then
 		_core_dependency_addFromExternalDataSources
 	fi
+	if [ $foundInternally -eq 0 ]; then
+		core_message WARN "Dependency '$programName' not in any known .path file (or internally)"
+		return 0
+	fi
 	set +x
 	
 	if [ "$(core_compatibility_basename "$pathAbsoluteFilePath")" = "$programName" ]; then
