@@ -379,12 +379,8 @@ core_dependency_setUpPathAndInstallMissing()
 		core_variable_array_passToFunctionAsArguments packagesToInstall core_dependency_check_${core_dependency_packageManager}_packageManager
 	fi
 	
-	# Alternative: The only trully defensive measure is to create a tmp folder, then symlink binaries from it. This requires mktemp, and so there's a potential issue with using this logic during boot-time
-	
-	
-	# In bash, this cleans the path; hash -r is for other shells
+	# In bash, this cleans the 'hash' of paths (see hash builtin, hash -r)
 	export PATH="$replacementPath"
-	hash -r
 }
 core_functions_register _core_dependency_functions core_dependency_setUpPathAndInstallMissing
 
