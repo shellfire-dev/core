@@ -2,75 +2,75 @@
 
 # successful termination (aka EXIT_SUCCESS in stdlib.h)
 readonly core_commandLine_exitCode_OK=0
-core_init_declares core_commandLine_exitCode_OK
+core_dependency_declares core_commandLine_exitCode_OK
 
 # Not in sysexit, but so commonly used (aka EXIT_FAILURE in stdlib.h)
 readonly core_commandLine_exitCode_FAILURE=1
-core_init_declares core_commandLine_exitCode_FAILURE
+core_dependency_declares core_commandLine_exitCode_FAILURE
 
 # Not in sysexit, misuse of builtin
 readonly core_commandLine_exitCode_MISUSEBUILTIN=2
-core_init_declares core_commandLine_exitCode_MISUSEBUILTIN
+core_dependency_declares core_commandLine_exitCode_MISUSEBUILTIN
 
 # command line usage error
 readonly core_commandLine_exitCode_USAGE=64
-core_init_declares core_commandLine_exitCode_USAGE
+core_dependency_declares core_commandLine_exitCode_USAGE
 
 # data format error
 readonly core_commandLine_exitCode_DATAERR=65
-core_init_declares core_commandLine_exitCode_DATAERR
+core_dependency_declares core_commandLine_exitCode_DATAERR
 
 # cannot open input
 readonly core_commandLine_exitCode_NOINPUT=66
-core_init_declares core_commandLine_exitCode_NOINPUT
+core_dependency_declares core_commandLine_exitCode_NOINPUT
 
 # addressee unknown
 readonly core_commandLine_exitCode_NOUSER=67
-core_init_declares core_commandLine_exitCode_NOUSER
+core_dependency_declares core_commandLine_exitCode_NOUSER
 
 # host name unknown
 readonly core_commandLine_exitCode_NOHOST=68
-core_init_declares core_commandLine_exitCode_NOHOST
+core_dependency_declares core_commandLine_exitCode_NOHOST
 
 # service unavailable
 readonly core_commandLine_exitCode_UNAVAILABLE=69
-core_init_declares core_commandLine_exitCode_UNAVAILABLE
+core_dependency_declares core_commandLine_exitCode_UNAVAILABLE
 
 # internal software error
 readonly core_commandLine_exitCode_SOFTWARE=70
-core_init_declares core_commandLine_exitCode_SOFTWARE
+core_dependency_declares core_commandLine_exitCode_SOFTWARE
 
 # system error (e.g., can't fork)
 readonly core_commandLine_exitCode_OSERR=71
-core_init_declares core_commandLine_exitCode_OSERR
+core_dependency_declares core_commandLine_exitCode_OSERR
 
 # critical OS file missing
 readonly core_commandLine_exitCode_OSFILE=72
-core_init_declares core_commandLine_exitCode_OSFILE
+core_dependency_declares core_commandLine_exitCode_OSFILE
 
 # can't create (user) output file
 readonly core_commandLine_exitCode_CANTCREAT=73
-core_init_declares core_commandLine_exitCode_CANTCREAT
+core_dependency_declares core_commandLine_exitCode_CANTCREAT
 
 # input/output error
 readonly core_commandLine_exitCode_IOERR=74
-core_init_declares core_commandLine_exitCode_IOERR
+core_dependency_declares core_commandLine_exitCode_IOERR
 
 # temp failure; user is invited to retry
 readonly core_commandLine_exitCode_TEMPFAIL=75
-core_init_declares core_commandLine_exitCode_TEMPFAIL
+core_dependency_declares core_commandLine_exitCode_TEMPFAIL
 
 # remote error in protocol
 readonly core_commandLine_exitCode_PROTOCOL=76
-core_init_declares core_commandLine_exitCode_PROTOCOL
+core_dependency_declares core_commandLine_exitCode_PROTOCOL
 
 # permission denied
 readonly core_commandLine_exitCode_NOPERM=77
-core_init_declares core_commandLine_exitCode_NOPERM
+core_dependency_declares core_commandLine_exitCode_NOPERM
 
 # configuration error
 readonly core_commandLine_exitCode_CONFIG=78
-core_init_declares core_commandLine_exitCode_CONFIG
+core_dependency_declares core_commandLine_exitCode_CONFIG
 
 # Width is 80 cols; standard Parallels VM is 100 cols
 core_commandLine_helpMessage()

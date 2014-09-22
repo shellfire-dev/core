@@ -11,6 +11,9 @@ core_functions_register core_dependency_check_functions core_dependency_check_Ho
 core_dependency_requires Homebrew brew
 core_dependency_check_Homebrew_packageManager()
 {
+	echo HELLO
+	exit 50
+	
 	if [ $# -eq 0 ]; then
 		return 0
 	fi

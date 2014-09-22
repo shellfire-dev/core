@@ -6,7 +6,7 @@ core_functions_register()
 	local functionsVariableName="$1"
 	shift 1
 	
-	core_init_declares "$functionsVariableName"
+	core_dependency_declares "$functionsVariableName"
 	core_variable_array_append "$functionsVariableName" "$@"
 }
 
