@@ -124,8 +124,8 @@ core_message()
 
 core_exitError()
 {
+	echo "${FUNCNAME[@]}"
 	core_message FAIL "$2"
-	
 	exit $1
 }
 
