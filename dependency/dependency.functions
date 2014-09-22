@@ -325,6 +325,7 @@ core_dependency_setUpPathAndInstallMissing()
 	local packagesToInstall
 	core_variable_array_initialise packagesToInstall
 	
+	set -x
 	local packageManager
 	local programName
 	local alreadyInstalledProgramName
