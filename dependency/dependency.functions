@@ -263,8 +263,8 @@ _core_dependency_addFromExternalDataSources()
 	for externalDataSourceFolderPath in \
 		"$HOME"/."$_program_name" \
 		"$HOME"/."$core_libraryName" \
-		"$core_init_etcPath"/"$_program_name" \
-		"$core_init_etcPath"/"$core_libraryName"
+		"$_program_etcPath"/"$_program_name" \
+		"$_program_etcPath"/"$core_libraryName"
 	do
 		externalDataSourceFilePath="$externalDataSourceFolderPath"/paths.d/"$packageManager"/"$programName".path
 		if ! core_path_isReadableNonEmptyFilePath "$externalDataSourceFilePath"; then

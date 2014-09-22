@@ -2,17 +2,7 @@ core_init_defines core_message
 core_init_defines core_exitError
 core_init_defines core_TODO
 core_init_defines core_uses
-
-core_usesIn()
-{
-	local namespace="$1"
-	shift 1
-	local module
-	for module in "$@"
-	do
-		core_uses "$core_init_libPath" "$core_libraryName" "$namespace"/"$module"
-	done
-}
+core_init_defines core_usesIn
 
 core_usesIn core configuration commandLine compatibility dependency functions path trap temporaryFiles umask validate variable
 
@@ -24,11 +14,3 @@ core_functions_register core_functions \
 	core_compatibility_execute \
 	core_commandLine_parse \
 	core_dependency_installDependencies
-
-_program
-
-core_executeProgram()
-{
-	core_functions_execute core_functions "$@"
-	"${_program_entrypoint}"
-}

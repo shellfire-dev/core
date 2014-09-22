@@ -95,10 +95,10 @@ Configuration
 This program can be configured by creating files in the form 'key=value' in the
 files and folders:-
   
-  ${core_init_etcPath}/${core_libraryName}/rc
-  ${core_init_etcPath}/${core_libraryName}/rc.d
-  ${core_init_etcPath}/${_program_name}/rc
-  ${core_init_etcPath}/${_program_name}/rc.d
+  ${_program_etcPath}/${core_libraryName}/rc
+  ${_program_etcPath}/${core_libraryName}/rc.d
+  ${_program_etcPath}/${_program_name}/rc
+  ${_program_etcPath}/${_program_name}/rc.d
   HOME/.${core_libraryName}/rc
   HOME/.${core_libraryName}/rc.d
   ${core_libraryName}_RC

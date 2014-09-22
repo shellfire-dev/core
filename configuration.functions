@@ -149,11 +149,11 @@ core_configuration_load()
 	core_variable_array_initialise _core_configuration_blacklisted
 	core_variable_array_initialise _core_configuration_alreadyLoaded
 	
-	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc
-	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc.d
+	core_configuration_loadPath _program_etcPath "${core_libraryName}"/rc
+	core_configuration_loadPath _program_etcPath "${core_libraryName}"/rc.d
 	
-	core_configuration_loadPath core_init_etcPath "${_program_name}"/rc
-	core_configuration_loadPath core_init_etcPath "${_program_name}"/rc.d
+	core_configuration_loadPath _program_etcPath "${_program_name}"/rc
+	core_configuration_loadPath _program_etcPath "${_program_name}"/rc.d
 	
 	core_configuration_loadPath HOME ."${core_libraryName}"/rc
 	core_configuration_loadPath HOME ."${core_libraryName}"/rc.d

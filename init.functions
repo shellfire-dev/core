@@ -1,3 +1,8 @@
+core_init_isFattening()
+{
+	core_variable_isSet _program_fattening
+}
+
 core_compatibility_basename()
 {
 	printf '%s' "${1##*/}"
@@ -31,10 +36,17 @@ core_variable_indirectValue()
 	eval "core_variable_indirectValue_result=\"\$${variableName}\""
 }
 
-core_dependency_declares()
-{
-	:
-}
+if core_init_isFattening; then
+	core_dependency_declares()
+	{
+		_program_fattening_declaredNames="$_program_fattening_declaredNames $1"
+	}
+else
+	core_dependency_declares()
+	{
+		:
+	}
+fi
 
 readonly core_libraryName=shellfire
 core_dependency_declares core_libraryName
@@ -187,6 +199,17 @@ core_uses()
 			# core_commandLine_exitCode_OSFILE
 			core_exitError 72 "Can not load functions for namespace '$namespacedModule'"
 		fi
+	done
+}
+
+core_usesIn()
+{
+	local namespace="$1"
+	shift 1
+	local module
+	for module in "$@"
+	do
+		core_uses "$_program_libPath" "$core_libraryName" "$namespace"/"$module"
 	done
 }
 
@@ -368,21 +391,6 @@ core_init_rexecUnderCorrectShell()
 	core_init_shell_rexecing=$$ exec "$shellPath" "$global_ourSymlinkExecutablePath" "$@"
 }
 
-core_init_defaultEssentialPaths()
-{
-	cd -P "$_program_libPath" 1>/dev/null
-	
-		core_init_libPath="$(pwd)"
-	
-	cd - 1>/dev/null
-
-	cd -P "$_program_etcPath" 1>/dev/null
-	
-		core_init_etcPath="$(pwd)"
-	
-	cd - 1>/dev/null
-}
-
 core_init_main()
 {
 	core_init_init
@@ -391,14 +399,19 @@ core_init_main()
 	core_init_setTracing
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
-	core_init_defaultEssentialPaths
 	
 	local uses='core'
 	if core_variable_isSet _program_uses; then
 		uses="$uses $_program_uses"
 	fi
-	core_uses "$core_init_libPath" "$core_libraryName" $uses
-	core_executeProgram "$@"
+	core_usesIn $uses
+	${_program}
+
+	if core_init_isFattening; then
+		return 0
+	fi
+	core_functions_execute core_functions "$@"
+	${_program_entrypoint}
 }
 
 core_init_main "$@"
