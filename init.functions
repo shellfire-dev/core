@@ -41,6 +41,7 @@ core_dependency_requires()
 	if [ -z "$packageManager" ]; then
 		core_exitError "packageManager can not be empty"
 	fi
+	shift 1
 	
 	local programName
 	for programName in "$@"
