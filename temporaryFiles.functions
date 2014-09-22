@@ -23,13 +23,13 @@ core_temporaryFiles_removeAll()
 core_dependency_requires '*' mktemp
 core_temporaryFiles_newFileToRemoveOnExit()
 {
-	TMP_FILE="$(mktemp -t "$ourName".XXXXXXXXXXXX)"
+	TMP_FILE="$(mktemp -t "$global_ourName".XXXXXXXXXXXX)"
 	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
 }
 
 core_dependency_requires '*' mktemp
 core_temporaryFiles_newFolderToRemoveOnExit()
 {
-	TMP_FOLDER="$(mktemp -t "$ourName".XXXXXXXXXXXX -d)"
+	TMP_FOLDER="$(mktemp -t "$global_ourName".XXXXXXXXXXXX -d)"
 	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
 }
