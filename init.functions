@@ -415,7 +415,7 @@ core_init_main()
 	declare -F _program
 	declare -f _program
 	type -t _program
-	"$_program" "$@"
+	eval "$_program"
 
 	if core_init_isFattening; then
 		return 0
