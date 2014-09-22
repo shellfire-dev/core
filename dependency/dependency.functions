@@ -326,6 +326,7 @@ core_dependency_setUpPathAndInstallMissing()
 	core_variable_array_initialise packagesToInstall
 	
 	set -x
+	printf '<%s>\n' "${_core_dependency_requires}"
 	local packageManager
 	local programName
 	local alreadyInstalledProgramName
@@ -337,10 +338,10 @@ core_dependency_setUpPathAndInstallMissing()
 		case "$packageManager" in
 			
 			'*'|"$core_dependency_packageManager")
+				packageManager="$core_dependency_packageManager"
 				if core_variable_array_contains alreadyHandledProgramNames "$programName"; then
 					continue
 				fi
-				packageManager="$core_dependency_packageManager"
 				core_variable_array_append alreadyHandledProgramNames "$programName"
 				_core_dependency_addFromInternalDataSource
 				_core_dependency_addFromExternalDataSources
