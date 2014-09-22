@@ -339,9 +339,7 @@ core_dependency_setUpPathAndInstallMissing()
 					continue
 				fi
 				core_variable_array_append alreadyHandledProgramNames "$programName"
-				set -x
 				core_dependency_add
-				set +x
 			;;
 
 			# Because of the heredoc, there's an extra blank line. A messy alternative is https://unix.stackexchange.com/questions/102891/posix-compliant-way-to-work-with-a-list-of-filenames-possibly-with-whitespace
@@ -369,7 +367,6 @@ core_dependency_setUpPathAndInstallMissing()
 	# In bash, this cleans the path; hash -r is for other shells
 	export PATH="$replacementPath"
 	hash -r
-	set +x
 }
 core_functions_register _core_dependency_functions core_dependency_setUpPathAndInstallMissing
 
