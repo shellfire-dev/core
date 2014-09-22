@@ -237,6 +237,7 @@ _core_dependency_addFromInternalDataSource()
 	local pathPackage
 	local pathAbsoluteFilePath
 	
+	set -x
 	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}_${programName}"
 	
 	if core_variable_isUnset "$internalDataSourceName"; then
@@ -244,7 +245,8 @@ _core_dependency_addFromInternalDataSource()
 		return 0
 	fi
 	foundInternally=1
-
+	set +x
+	
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$internalDataSourceName"
 	IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <<-EOF
