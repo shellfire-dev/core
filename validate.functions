@@ -44,7 +44,7 @@ core_validate_filePathReadableAndExecutable()
 	if [ ! -e "$value" ]; then
 		core_exitError "$messageFragment does not exist"
 	fi
-	if [ ! -d "$value" ]; then
+	if [ ! -f "$value" ]; then
 		core_exitError "$messageFragment is not a file"
 	fi
 	if [ ! -r "$value" ]; then
