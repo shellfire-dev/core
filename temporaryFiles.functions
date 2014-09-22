@@ -1,9 +1,15 @@
 core_usesIn core trap
 core_usesIn core/variable array
+core_usesIn core validate
 
 core_temporaryFiles_initialise()
 {
 	core_trap_addOnCleanUp core_temporaryFiles_removeAll
+	
+	# Set a global TMPDIR if unset; an alternative is to create under the HOME folder
+	: ${TMPDIR:=/tmp}
+	
+	core_validate_folderPathReadableAndSearchableAndWritable 'environment variable' 'TMPDIR' "$TMPDIR"
 }
 core_functions_register core_functions core_temporaryFiles_initialise
 
@@ -23,13 +29,19 @@ core_temporaryFiles_removeAll()
 core_dependency_requires '*' mktemp
 core_temporaryFiles_newFileToRemoveOnExit()
 {
-	TMP_FILE="$(mktemp -t "$global_ourName".XXXXXXXXXXXX)"
+	local umaskOriginal="$(umask)"
+	umask 077
+	TMP_FILE="$(mktemp -t "$global_ourName".XXXXXXXXXXXX)" || core_exitError "Could not create a temporary file"
 	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
+	umask "$umaskOriginal"
 }
 
 core_dependency_requires '*' mktemp
 core_temporaryFiles_newFolderToRemoveOnExit()
 {
-	TMP_FOLDER="$(mktemp -t "$global_ourName".XXXXXXXXXXXX -d)"
+	local umaskOriginal="$(umask)"
+	umask 077
+	TMP_FOLDER="$(mktemp -d -t "$global_ourName".XXXXXXXXXXXX)" || core_exitError "Could not create a temporary folder"
 	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FOLDER"
+	umask "$umaskOriginal"
 }

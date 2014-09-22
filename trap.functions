@@ -44,7 +44,7 @@ core_trap_addHandler()
 			;;
 		
 			*)
-				global_exitError "Unrecognised or unsupported trap '$trapName'"
+				core_exitError "Unrecognised or unsupported trap '$trapName'"
 			;;
 		
 		esac

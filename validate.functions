@@ -32,6 +32,15 @@ core_validate_folderPathReadableAndSearchable()
 	fi
 }
 
+core_validate_folderPathReadableAndSearchableAndWritable()
+{
+	core_validate_folderPathReadableAndSearchable "$@"
+	
+	if [ ! -w "$value" ]; then
+		core_exitError "The $category '$name' specifies a path '$value' which is not a writable directory"
+	fi
+}
+
 core_validate_filePathReadableAndExecutable()
 {
 	core_validate_pathNotEmpty "$@"

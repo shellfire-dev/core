@@ -98,7 +98,7 @@ core_variable_array_passToFunctionAsArguments()
 	local function="$2"
 	shift 2
 	if [ $# -ne 0 ]; then
-		global_exitError "Only varargs from array are allowed"
+		core_exitError "Only varargs from array are allowed"
 	fi
 	
 	if _core_variable_array_isEmpty; then
