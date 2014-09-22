@@ -233,7 +233,6 @@ _core_dependency_addToReplacementPathIfRequired()
 
 _core_dependency_addFromInternalDataSource()
 {
-	set -x
 	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}_${programName}"
 	
 	if core_variable_isUnset "$internalDataSourceName"; then
@@ -325,8 +324,6 @@ core_dependency_setUpPathAndInstallMissing()
 	local packagesToInstall
 	core_variable_array_initialise packagesToInstall
 	
-	printf '<%s>\n' "${_core_dependency_requires}"
-	exit 50
 	local packageManager
 	local programName
 	local alreadyInstalledProgramName
