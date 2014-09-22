@@ -278,7 +278,8 @@ _core_dependency_addFromExternalDataSources()
 			_core_dependency_addToPackagesToInstallIfRequired
 		fi
 		_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
-		break
+		foundInternally=1
+		return
 	done
 }
 
