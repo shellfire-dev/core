@@ -119,7 +119,7 @@ core_message()
 	esac
 	
 	if [ $shouldEcho -eq 1 ]; then
-		printf '%s\n' "$global_ourName: $messageKind: $message" 1>&2
+		printf '%s\n' "$_program_name: $messageKind: $message" 1>&2
 	fi
 }
 
@@ -248,16 +248,10 @@ core_init_setSaneEnvironmentDefaults()
 
 # http://mywiki.wooledge.org/BashFAQ/028 on $0
 # http://mywiki.wooledge.org/Bashism?action=show&redirect=bashism
-# realpath vs readlink, and supported OS (comments): https://unix.stackexchange.com/questions/136494/whats-the-difference-between-realpath-and-readlink-f
-core_dependency_requires '*' readlink
-core_dependency_fallback '!readlink' realpath
 core_init_findOurNameAndPath()
 {
 	readonly global_ourSymlinkName="$(core_compatibility_basename "$0")"
-	
-	# Temporary assignment
-	global_ourName="$global_ourSymlinkName"
-	
+		
 	# can be empty if 'bash file' used or 'bash </path/to/file' or ksh with PATH containing '.'
 	local potential_global_ourSymlinkPath="${0%/*}"
 	if [ -z "$potential_global_ourSymlinkPath" ]; then
@@ -274,38 +268,6 @@ core_init_findOurNameAndPath()
 	cd -P "$potential_global_ourSymlinkPath" 1>/dev/null
 		readonly global_ourPath="$(pwd)"
 	cd - >/dev/null
-	
-	# realpath is quite rare, unfortunately, as it is perfectly suited (but it is in coreutils, so it will become more common)
-	# readlink is not on AIX, some Solaris, and doesn't work if $0 ends in \n. Only GNU versions are canonical
-	if core_compatibility_whichNoOutput readlink; then
-		local potentialSymlink="$0"
-		while readlink "$potentialSymlink"
-		do
-			potentialSymlink="$(readlink "$potentialSymlink")"
-		done
-		readonly global_ourName="$(core_compatibility_basename "$potentialSymlink")"
-	elif core_compatibility_whichNoOutput realpath; then
-		readonly global_ourName="$(core_compatibility_basename "$(realpath "$0")")"
-	else
-		readonly global_ourName="$global_ourSymlinkName"
-	fi
-	
-	# eg due to the fact we store the program names in a whitespace-separated variable for tracing (shellfire_trace)
-	_core_init_findOurNameAndPath_checkForWhitespaceInName()
-	{
-		local programName="$1"
-		local left
-		local right
-		read -r left right <<-EOF
-			$programName
-		EOF
-		if [ -n "$right" ]; then
-			# core_commandLine_exitCode_SOFTWARE
-			core_exitError 70 "We can not support program names (such as '$programName') with whitespace in them"
-		fi
-	}
-	_core_init_findOurNameAndPath_checkForWhitespaceInName "$global_ourName"
-	_core_init_findOurNameAndPath_checkForWhitespaceInName "$global_ourSymlinkName"
 	
 	readonly global_ourSymlinkExecutablePath="$global_ourSymlinkPath"/"$global_ourSymlinkName"
 }
@@ -333,9 +295,9 @@ core_init_setTracing()
 		
 		*x*)
 			if core_variable_isSet shellfire_trace; then
-				export shellfire_trace="$shellfire_trace $global_ourSymlinkName"
+				export shellfire_trace="$shellfire_trace $_program_name"
 			else
-				export shellfire_trace="$global_ourSymlinkName"
+				export shellfire_trace="$_program_name"
 			fi
 		;;
 		
@@ -345,7 +307,7 @@ core_init_setTracing()
 				local program
 				for program in $shellfire_trace
 				do
-					if [ "$program" = "$global_ourSymlinkName" ]; then
+					if [ "$program" = "$_program_name" ]; then
 						set -x
 						break
 					fi

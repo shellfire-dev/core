@@ -76,7 +76,7 @@ core_dependency_declares core_commandLine_exitCode_CONFIG
 core_commandLine_helpMessage()
 {
 	_program_commandLine_helpMessage
-	printf '%s' Usage: "${global_ourName} ${_program_commandLine_helpMessage_usage}
+	printf '%s' Usage: "${_program_name} ${_program_commandLine_helpMessage_usage}
 ${_program_commandLine_helpMessage_description}
 
   -h, --help             ${_program_commandLine_helpMessage_optionsSpacing}display this help and exit
@@ -97,20 +97,20 @@ files and folders:-
   
   ${core_init_etcPath}/${core_libraryName}/rc
   ${core_init_etcPath}/${core_libraryName}/rc.d
-  ${core_init_etcPath}/${global_ourName}/rc
-  ${core_init_etcPath}/${global_ourName}/rc.d
+  ${core_init_etcPath}/${_program_name}/rc
+  ${core_init_etcPath}/${_program_name}/rc.d
   HOME/.${core_libraryName}/rc
   HOME/.${core_libraryName}/rc.d
   ${core_libraryName}_RC
   ${core_libraryName}_RC_D
-  HOME/.${global_ourName}/rc
-  HOME/.${global_ourName}/rc.d
-  ${global_ourName}_RC
-  ${global_ourName}_RC_D
+  HOME/.${_program_name}/rc
+  HOME/.${_program_name}/rc.d
+  ${_program_name}_RC
+  ${_program_name}_RC_D
 
 Locations ending '.d' are folders which are searched for files. All files in a
 folder are used in shell glob-expansion order. HOME, ${core_libraryName}_RC,
-${core_libraryName}_RC_D, ${global_ourName}_RC and ${global_ourName}_RC_D
+${core_libraryName}_RC_D, ${_program_name}_RC and ${_program_name}_RC_D
 are environment variables. If the variable does not exist, or is blacklisted,
 the location is ignored. Blacklisting is done by specifying:-
 

@@ -267,9 +267,9 @@ _core_dependency_addFromExternalDataSources()
 	local pathAbsoluteFilePath
 	# First encountered path wins
 	for externalDataSourceFolderPath in \
-		"$HOME"/."$global_ourName" \
+		"$HOME"/."$_program_name" \
 		"$HOME"/."$core_libraryName" \
-		"$core_init_etcPath"/"$global_ourName" \
+		"$core_init_etcPath"/"$_program_name" \
 		"$core_init_etcPath"/"$core_libraryName"
 	do
 		externalDataSourceFilePath="$externalDataSourceFolderPath"/paths.d/"$packageManager"/"$programName".path

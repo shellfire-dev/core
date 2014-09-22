@@ -152,8 +152,8 @@ core_configuration_load()
 	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc
 	core_configuration_loadPath core_init_etcPath "${core_libraryName}"/rc.d
 	
-	core_configuration_loadPath core_init_etcPath "${global_ourName}"/rc
-	core_configuration_loadPath core_init_etcPath "${global_ourName}"/rc.d
+	core_configuration_loadPath core_init_etcPath "${_program_name}"/rc
+	core_configuration_loadPath core_init_etcPath "${_program_name}"/rc.d
 	
 	core_configuration_loadPath HOME ."${core_libraryName}"/rc
 	core_configuration_loadPath HOME ."${core_libraryName}"/rc.d
@@ -161,11 +161,11 @@ core_configuration_load()
 	core_configuration_loadPath ${core_libraryName}_RC ''
 	core_configuration_loadPath ${core_libraryName}_RC_D ''
 	
-	core_configuration_loadPath HOME ."${global_ourName}"/rc
-	core_configuration_loadPath HOME ."${global_ourName}"/rc.d
+	core_configuration_loadPath HOME ."${_program_name}"/rc
+	core_configuration_loadPath HOME ."${_program_name}"/rc.d
 	
-	core_configuration_loadPath ${global_ourName}_RC ''
-	core_configuration_loadPath ${global_ourName}_RC_D ''
+	core_configuration_loadPath ${_program_name}_RC ''
+	core_configuration_loadPath ${_program_name}_RC_D ''
 }
 
 core_usesIn core compatibility
