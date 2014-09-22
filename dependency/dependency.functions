@@ -325,8 +325,8 @@ core_dependency_setUpPathAndInstallMissing()
 	local packagesToInstall
 	core_variable_array_initialise packagesToInstall
 	
-	set -x
 	printf '<%s>\n' "${_core_dependency_requires}"
+	set -x
 	local packageManager
 	local programName
 	local alreadyInstalledProgramName
