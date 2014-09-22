@@ -412,10 +412,7 @@ core_init_main()
 	core_init_rexecUnderCorrectShell "$@"
 	
 	core_usesIn core
-	declare -F _program
-	declare -f _program
-	type -t _program
-	eval "$_program"
+	_program
 
 	if core_init_isFattening; then
 		return 0
