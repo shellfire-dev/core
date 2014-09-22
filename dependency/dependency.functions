@@ -293,7 +293,7 @@ core_dependency_add()
 		_core_dependency_addFromExternalDataSources
 	fi
 	
-	if [ "$(core_init_basename "$pathAbsoluteFilePath")" = "$programName" ]; then
+	if [ "$(core_compatibility_basename "$pathAbsoluteFilePath")" = "$programName" ]; then
 		return 0
 	fi
 	
