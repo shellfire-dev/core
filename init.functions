@@ -389,6 +389,9 @@ core_init_rexecUnderCorrectShell()
 			# we've been successfully re-exec'd
 			unset core_init_shell_rexecing
 			return 0
+		else
+			echo WWWWWWWWWWWWW
+			exit 60
 		fi
 	fi
 
