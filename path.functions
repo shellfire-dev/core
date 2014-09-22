@@ -14,11 +14,11 @@ core_path_isReadableNonEmptyFilePath()
 		return 1
 	fi
 	
-	if [ ! -s "$filePath" ]; then
-		return 1
+	if [ -s "$filePath" ]; then
+		return 0
 	fi
 	
-	return 0
+	return 1
 }
 
 core_path_iterateOverFolderPath()
