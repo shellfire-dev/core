@@ -85,3 +85,23 @@ core_validate_filePathReadableAndExecutableAndNotEmpty()
 		core_exitError $code "The $category '$name' specifies a path which is an empty file"
 	fi
 }
+
+core_validate_yesOrNo()
+{
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
+
+	case "$value" in
+		
+		no|yes)
+			:
+		;;
+		
+		*)
+			core_exitError $code "The $category '$name' should be yes or no, not '$value'"
+		;;
+		
+	esac
+}
