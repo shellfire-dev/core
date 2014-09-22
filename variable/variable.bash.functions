@@ -3,3 +3,46 @@ core_variable_indirectValue()
 {
 	printf -v core_variable_indirectValue_result '%s' "${!1}"
 }
+
+core_variable_firstCharacter()
+{
+	printf '%s' "${1:0:1}"
+}
+
+core_variable_lastCharacter()
+{
+	printf '%s' "${1:$((${#1} - 1)):1}"
+}
+
+core_variable_allButLast()
+{
+	printf '%s' "${1:0:-1}"
+}
+
+core_variable_allButFirst()
+{
+	printf '%s' "${1:1}"
+}
+
+core_variable_allButFirstAndLast()
+{
+	printf '%s' "${1:1:-1}"
+}
+
+core_variable_allButLastN()
+{
+	local value="$1"
+	local numberToOmit=$2
+	
+	local n=$((${#value} - numberToOmit))
+	printf '%s' "${value:0:$n}"
+}
+
+core_variable_allButFirstN()
+{
+	local value="$1"
+	local numberToOmit=$2
+	
+	local n=$((${#value} - numberToOmit))
+	printf '%s' "${value:$numberToOmit:$n}"
+}

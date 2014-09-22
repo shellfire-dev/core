@@ -4,12 +4,7 @@ core_init_defines core_variable_indirectValue
 
 core_variable_setVariable()
 {
-	eval "$1='$2'"
-}
-
-core_variable_setWithoutQuotesVariable()
-{
-	eval "$1=$2"
+	eval "$1"'=$2'
 }
 
 core_variable_setVariableIfUnset()
@@ -47,4 +42,81 @@ core_variable_endsWith()
 core_variable_doesNotEndWith()
 {
 	[ "${1%${2}}" = "$1" ]
+}
+
+core_variable_firstCharacter()
+{
+	local value="$1"
+	local suffix="${value#?}"
+	printf '%s' "${value%$suffix}"
+}
+
+core_value_lastCharacter()
+{
+	local value="$1"
+	local prefix="${value%?}"
+	printf '%s' "${value#$prefix}"
+}
+
+_core_variable_copy()
+{
+	local valueToCopy="$1"
+	local copies=$2
+	
+	local count=0
+	while [ $count -lt $copies ]
+	do
+		copy="${copy}${valueToCopy}"
+		count=$((count + 1))
+	done
+}
+
+core_variable_allButLastN()
+{
+	local value="$1"
+	local numberToOmit=$2
+	
+	local length=${#value}
+	local endLength=$((length - numberToOmit))
+	if [ $endLength -lt 1 ]; then
+		return
+	fi
+	
+	local count=0
+	local match=''
+	local copy
+	_core_variable_copy '?' $endLength
+	
+	local suffix="${value#$copy}"
+	printf '%s' "${value%$suffix}"
+}
+
+core_variable_allButLast()
+{
+	core_variable_allButLastN "$1" 1
+}
+
+core_variable_allButFirstN()
+{
+	local value="$1"
+	local numberToOmit=$2
+	
+	local length=${#value}
+	local endLength=$((length - numberToOmit))
+	if [ $endLength -lt 1 ]; then
+		return
+	fi
+	
+	local count=0
+	local match=''
+	local copy
+	_core_variable_copy '?' $endLength
+	
+	local prefix="${value%$copy}"
+	printf '%s' "${value#$prefix}"
+}
+
+core_variable_allButFirst()
+{
+	core_variable_allButFirstN "$1" 1
 }
