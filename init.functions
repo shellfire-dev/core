@@ -197,7 +197,7 @@ core_uses()
 		done
 		if [ $sourced -eq 0 ]; then
 			# core_commandLine_exitCode_OSFILE
-			core_exitError 72 "Can not load functions for namespace '$namespacedModule'"
+			core_exitError 72 "Can not load functions for module '$namespacedModule'"
 		fi
 	done
 }
@@ -205,16 +205,16 @@ core_uses()
 core_usesIn()
 {
 	if [ $# -eq 1 ]; then
-		local namespace=''
+		local parentNamespace=''
 	else
-		local namespace="${1}/"
+		local parentNamespace="${1}/"
 		shift 1
 	fi
 	
 	local module
 	for module in "$@"
 	do
-		core_uses "$_program_libPath" "$core_libraryName" "${namespace}${module}"
+		core_uses "$_program_libPath" "$core_libraryName" "${parentNamespace}${module}"
 	done
 }
 

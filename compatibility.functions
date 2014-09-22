@@ -30,7 +30,7 @@ core_compatibility_echo()
 	printf '%s\n' "$1"
 }
 
-core_usesIn functions
+core_usesIn core functions
 
 core_compatibility_execute()
 {
