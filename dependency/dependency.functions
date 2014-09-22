@@ -287,12 +287,14 @@ core_dependency_add()
 	local pathProgramName
 	local pathPackage
 	local pathAbsoluteFilePath
+	
 	local foundInternally=0
 	_core_dependency_addFromInternalDataSource
 	if [ $foundInternally -eq 0 ]; then
 		_core_dependency_addFromExternalDataSources
 	fi
 	
+	echo "$programName"
 	if [ "$(core_compatibility_basename "$pathAbsoluteFilePath")" = "$programName" ]; then
 		return 0
 	fi
