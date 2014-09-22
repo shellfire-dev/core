@@ -24,11 +24,6 @@ _core_compatibility_builtInDoesNotExist()
 	return 0
 }
 
-
-
-
-
-
 # dash by default escapes backslashes, other echos behave differently. This way is defensive.
 core_compatibility_echo()
 {

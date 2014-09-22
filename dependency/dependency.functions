@@ -241,9 +241,6 @@ _core_dependency_addFromInternalDataSource()
 	fi
 	foundInternally=1
 
-	local pathProgramName
-	local pathPackage
-	local pathAbsoluteFilePath
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$internalDataSourceName"
 	IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <<-EOF
@@ -262,9 +259,6 @@ _core_dependency_addFromExternalDataSources()
 	local externalDataSourceFolderPath
 	local externalDataSourceFilePath
 	
-	local pathProgramName
-	local pathPackage
-	local pathAbsoluteFilePath
 	# First encountered path wins
 	for externalDataSourceFolderPath in \
 		"$HOME"/."$_program_name" \
@@ -290,12 +284,27 @@ _core_dependency_addFromExternalDataSources()
 
 core_dependency_add()
 {
+	local pathProgramName
+	local pathPackage
+	local pathAbsoluteFilePath
 	local foundInternally=0
 	_core_dependency_addFromInternalDataSource
-	if [ $foundInternally -eq 1 ]; then
+	if [ $foundInternally -eq 0 ]; then
+		_core_dependency_addFromExternalDataSources
+	fi
+	
+	if [ "$(core_init_basename "$pathAbsoluteFilePath")" = "$programName" ]; then
 		return 0
 	fi
-	_core_dependency_addFromExternalDataSources
+	
+	# Make a temporary folder to contain a symlink to this program so names work correctly; add to the path
+	if [ -z "$temporaryPathForWeirdlyLinkedFiles" ]; then
+		local TMP_FOLDER
+		core_temporaryFiles_newFolderToRemoveOnExit
+		temporaryPathForWeirdlyLinkedFiles="$TMP_FOLDER"
+		replacementPath="$temporaryPathForWeirdlyLinkedFiles:$replacementPath"
+	fi
+	ln -s "$pathAbsoluteFilePath" "$temporaryPathForWeirdlyLinkedFiles"/"$programName" 
 }
 
 # Special bash-ism
@@ -322,6 +331,8 @@ core_dependency_setUpPathAndInstallMissing()
 	
 	local packagesToInstall
 	core_variable_array_initialise packagesToInstall
+	
+	local temporaryPathForWeirdlyLinkedFiles=''
 	
 	local packageManager
 	local programName
@@ -362,7 +373,8 @@ core_dependency_setUpPathAndInstallMissing()
 		core_variable_array_passToFunctionAsArguments packagesToInstall core_dependency_check_${core_dependency_packageManager}_packageManager
 	fi
 	
-	# Alternative: The only trully defensive measure is to create a tmp folder, then symlink binaries from it. This requires mktemp
+	# Alternative: The only trully defensive measure is to create a tmp folder, then symlink binaries from it. This requires mktemp, and so there's a potential issue with using this logic during boot-time
+	
 	
 	# In bash, this cleans the path; hash -r is for other shells
 	export PATH="$replacementPath"
