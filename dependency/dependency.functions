@@ -240,7 +240,6 @@ _core_dependency_addFromInternalDataSource()
 		return 0
 	fi
 	foundInternally=1
-	set +x
 
 	local pathProgramName
 	local pathPackage
@@ -262,16 +261,6 @@ _core_dependency_addFromExternalDataSources()
 {
 	local externalDataSourceFolderPath
 	local externalDataSourceFilePath
-	
-	# Use external, with preference to program-level, HOME-scoped?
-	# Use internal (so allowing external overrides)?
-	# Or use a weighting system?
-	
-	local foundInternally=0
-	_core_dependency_addFromInternalDataSource
-	if [ $foundInternally -eq 1 ]; then
-		return 0
-	fi
 	
 	local pathProgramName
 	local pathPackage
@@ -299,6 +288,16 @@ _core_dependency_addFromExternalDataSources()
 	done
 }
 
+core_dependency_add()
+{
+	local foundInternally=0
+	_core_dependency_addFromInternalDataSource
+	if [ $foundInternally -eq 1 ]; then
+		return 0
+	fi
+	_core_dependency_addFromExternalDataSources
+}
+
 # Special bash-ism
 command_not_found_handle()
 {
@@ -309,7 +308,6 @@ command_not_found_handle()
 
 core_dependency_setUpPathAndInstallMissing()
 {
-	set -x
 	# A standard path, excluding games, but including any sibling binaries to our one
 	local replacementPath='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 	_core_dependency_addToReplacementPathIfRequired "$global_ourSymlinkPath"
@@ -341,8 +339,9 @@ core_dependency_setUpPathAndInstallMissing()
 					continue
 				fi
 				core_variable_array_append alreadyHandledProgramNames "$programName"
-				_core_dependency_addFromInternalDataSource
-				_core_dependency_addFromExternalDataSources
+				set -x
+				core_dependency_add
+				set +x
 			;;
 
 			# Because of the heredoc, there's an extra blank line. A messy alternative is https://unix.stackexchange.com/questions/102891/posix-compliant-way-to-work-with-a-list-of-filenames-possibly-with-whitespace
