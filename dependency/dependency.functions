@@ -329,10 +329,11 @@ core_dependency_setUpPathAndInstallMissing()
 	local packagesToInstall
 	core_variable_array_initialise packagesToInstall
 	
-	xxxxx IFS= malarky needs to go - space delimited
-	
-	while IFS=' ' read -r packageManager programName
+	local oldIFS="$IFS"
+	local IFS="$(printf '\001')"
+	while IFS="$(printf '\001')" read -r packageManager programName
 	do
+		local IFS="$oldIFS"
 		case "$packageManager" in
 			
 			'*'|"$core_dependency_packageManager")
@@ -357,6 +358,7 @@ core_dependency_setUpPathAndInstallMissing()
 	done <<-EOF
 		${_core_dependency_requires}
 	EOF
+	local IFS="$oldIFS"
 	
 	if [ $(core_variable_array_length packagesToInstall) -ne 0 ]; then
 		core_message WARN "Installing missing packages '$(core_variable_array_string packagesToInstall " ")'"

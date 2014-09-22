@@ -48,7 +48,7 @@ core_dependency_requires()
 		if [ -z "$programName" ]; then
 			core_exitError "programName can not be empty"
 		fi
-		_core_dependency_requires="${_core_dependency_requires}${packageManager} ${programName}
+		_core_dependency_requires="${_core_dependency_requires}${packageManager}$(printf '\001')${programName}
 "
 	done
 }
