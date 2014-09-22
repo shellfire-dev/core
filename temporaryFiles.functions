@@ -31,5 +31,5 @@ core_dependency_requires '*' mktemp
 core_temporaryFiles_newFolderToRemoveOnExit()
 {
 	TMP_FOLDER="$(mktemp -t "$global_ourName".XXXXXXXXXXXX -d)"
-	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
+	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FOLDER"
 }
