@@ -3,6 +3,7 @@ core_variable_indirectValue()
 {
 	set -x
 	echo $1
+	set +x
 	printf -v core_variable_indirectValue_result '%s' "${!1}"
 }
 
