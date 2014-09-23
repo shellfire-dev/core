@@ -31,6 +31,7 @@ core_functions_exists()
 	local arg4
 	local arg5
 	local arg6
+	type _program_commandLine_helpMessage
 	IFS= ' ' read -r arg0 arg1 arg2 arg3 arg4 arg5 arg6 <<-EOF
 		$(type "$functionName")
 	EOF
