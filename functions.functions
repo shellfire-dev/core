@@ -28,36 +28,30 @@ core_functions_exists()
 		return 1
 	fi
 	
-	set -x
 	local arg0
 	local arg1
 	local arg2
 	local arg3
 	local arg4
-	local arg5
-	local arg6
-	IFS=' ' read -r arg0 arg1 arg2 arg3 arg4 arg5 arg6 <<-EOF
+	IFS=' ' read -r arg0 arg1 arg2 arg3 arg4 <<-EOF
 		$(type "$functionName")
 	EOF
-	echo $arg0 $arg1 $arg2 $arg3 $arg4 $arg5 $arg6
+	echo $arg0 $arg1 $arg2 $arg3 $arg4
 	case "$arg3" in
 		
 		# dash
 		shell)
 			if [ "$arg4" = 'function' ]; then
-				set +x
 				return 0
 			fi
 		;;
 		
 		# bash
 		function)
-				set +x
 			return 0
 		;;
 		
 	esac
-
-	set +x
+	
 	return 1
 }
