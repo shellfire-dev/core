@@ -154,88 +154,103 @@ _core_commandLine_versionMessageLookup()
 		AGPLv3)
 			_program_licence_description='GNU Affero GPL version 3 <http://www.gnu.org/licenses/agpl-3.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		AGPLv3+)
 			_program_licence_description='GNU Affero GPL version 3 or later <http://www.gnu.org/licenses/agpl-3.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		Apache2)
 			_program_licence_description='Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0.html>.'
 			_program_text=Apache
+			_program_openSourceLicensed=1
 		;;
 		
 		# BSD 2-clause, newest of the BSD licenses
 		SimplifiedBSD)
 			_program_licence_description='Simplified BSD License (BSD 2-Clause) <http://opensource.org/licenses/BSD-2-Clause>.'
 			_program_text=BSD
+			_program_openSourceLicensed=1
 		;;
 		
 		# BSD 3-clause, middlin' of the BSD licenses
 		NewBSD)
 			_program_licence_description='New BSD License (BSD 3-Clause) <http://opensource.org/licenses/BSD-3-Clause>.'
 			_program_text=BSD
+			_program_openSourceLicensed=1
 		;;
 		
 		GPLv2)
 			_program_licence_description='GNU GPL version 2 <http://www.gnu.org/licenses/gpl-2.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		GPLv2+)
 			_program_licence_description='GNU GPL version 2 or later <http://www.gnu.org/licenses/gpl-2.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		GPLv3)
 			_program_licence_description='GNU GPL version 3 <http://www.gnu.org/licenses/gpl-3.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		GPLv3+)
 			_program_licence_description='GNU GPL version 3 or later <http://www.gnu.org/licenses/gpl-3.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		LGPLv2.1)
 			_program_licence_description='GNU Lesser GPL version 2.1 <http://www.gnu.org/licenses/lgpl-2.1.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		LGPLv2.1+)
 			_program_licence_description='GNU Lesser GPL version 2.1 or later <http://www.gnu.org/licenses/lgpl-2.1.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		LGPLv3)
 			_program_licence_description='GNU Lesser GPL version 3 <http://www.gnu.org/licenses/lgpl-3.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		LGPLv3+)
 			_program_licence_description='GNU Lesser GPL version 3 or later <http://www.gnu.org/licenses/lgpl-3.0.html>.'
 			_program_text=GNU
+			_program_openSourceLicensed=1
 		;;
 		
 		MIT)
-			_program_licence_description='The MIT License <http://opensource.org/licenses/MIT>'
+			_program_licence_description='MIT License <http://opensource.org/licenses/MIT>.'
 			_program_text=MIT
+			_program_openSourceLicensed=1
 		;;
 		
 		'Public Domain')
 			_program_license_description='This software is in the public domain.'
 			_program_text='Public Domain'
+			_program_openSourceLicensed=0
 		;;
 		
 		Unlicensed)
-			_program_license_description='All Rights Reserved.'
-			_program_text=Unlicensed
+			_program_license_description='Unlicensed. All Rights Reserved.'
+			_program_openSourceLicensed=0
 		;;
 		
 		*)
 			_program_licence_description='Proprietary licence.'
-			_program_text="Closed Source"
+			_program_openSourceLicensed=0
 		;;
 		
 	esac
@@ -254,7 +269,7 @@ _core_commandLine_versionMessageLookup()
 		
 		Unlicensed)
 			_program_permission='This software is unlicensed.'
-			_program_warranty='Refer to the copyright holders.'
+			_program_warranty='Warranty, if any, is as documented by the copyright holders.'
 		;;
 		
 		*)
