@@ -748,7 +748,7 @@ if ! core_functions_exists _program_commandLine_parseInitialise; then
 fi
 
 if ! core_functions_exists _program_commandLine_handleNonOptions; then
-	_program_commandLine_optionExists()
+	_program_commandLine_handleNonOptions()
 	{
 		if [ $# -ne 0 ]; then
 			core_commandLine_exitBadCommandLine "Non-options are not accepted"
