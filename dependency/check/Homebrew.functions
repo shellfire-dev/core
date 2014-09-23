@@ -43,12 +43,12 @@ core_dependency_check_Homebrew_packageManager()
 	}
 	_core_dependency_check_Homebrew_packageManager_installTaps
 
-	core_message INFO "Updating Homebrew package manager"
+	core_message INFO "Updating Homebrew package manager (may take some time)"
 	brew update
 	
 	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
 		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
-			core_message INFO "Upgrading Homebrew package manager"
+			core_message INFO "Upgrading Homebrew package manager (may take some time)"
 			brew upgrade
 		fi
 	fi
