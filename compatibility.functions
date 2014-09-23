@@ -34,14 +34,14 @@ core_usesIn core functions
 
 core_compatibility_execute()
 {
-	core_functions_execute core_compatibility_functions
+	core_functions_execute _core_compatibility_functions
 }
 
 core_compatibility_setSaneShellOptions()
 {
 	:
 }
-core_functions_register core_compatibility_functions core_compatibility_setSaneShellOptions
+core_functions_register _core_compatibility_functions core_compatibility_setSaneShellOptions
 
 core_compability_installPushdAndPopd()
 {
@@ -84,7 +84,7 @@ core_compability_installPushdAndPopd()
 		
 	fi
 }
-core_functions_register core_compatibility_functions core_compability_installPushdAndPopd
+core_functions_register _core_compatibility_functions core_compability_installPushdAndPopd
 
 core_compability_installSource()
 {
@@ -98,5 +98,5 @@ core_compability_installSource()
 		
 	fi
 }
-core_functions_register core_compatibility_functions core_compability_installSource
+core_functions_register _core_compatibility_functions core_compability_installSource
 
