@@ -9,7 +9,7 @@ core_trap_initialise()
 		trap "_core_trap_executeOnTrap $trapName" "$trapName" 
 	done
 }
-core_functions_register core_functions core_trap_initialise
+core_functions_register _core_functions core_trap_initialise
 
 core_trap_addOnCleanUp()
 {

@@ -11,7 +11,7 @@ core_temporaryFiles_initialise()
 	
 	core_validate_folderPathReadableAndSearchableAndWritable $core_commandLine_exitCode_CONFIG 'environment variable' 'TMPDIR' "$TMPDIR"
 }
-core_functions_register core_functions core_temporaryFiles_initialise
+core_functions_register _core_functions core_temporaryFiles_initialise
 
 core_dependency_requires '*' rm
 _core_temporaryFiles_removeAll_callback()

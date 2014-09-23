@@ -417,7 +417,7 @@ core_init_main()
 	if core_init_isFattening; then
 		return 0
 	fi
-	core_functions_execute core_functions "$@"
+	core_functions_execute _core_functions "$@"
 	${_program_entrypoint}
 }
 
