@@ -39,12 +39,12 @@ core_functions_exists()
 	IFS=' ' read -r arg0 arg1 arg2 arg3 arg4 arg5 arg6 <<-EOF
 		$(type "$functionName")
 	EOF
-	echo $arg0 $arg1 $arg3 $arg4 $arg5 $arg6
-	case "$arg4" in
+	echo $arg0 $arg1 $arg2 $arg3 $arg4 $arg5 $arg6
+	case "$arg3" in
 		
 		# dash
 		shell)
-			if [ "$arg5" = 'function' ]; then
+			if [ "$arg4" = 'function' ]; then
 				set +x
 				return 0
 			fi
