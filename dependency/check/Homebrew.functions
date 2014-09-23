@@ -56,7 +56,7 @@ core_dependency_check_Homebrew_packageManager()
 	for packageToInstall in "$@"
 	do
 		package="$(core_compatibility_basename "$packageToInstall")"
-		if brew --prefix "$dependency" 1>/dev/null 2>/dev/null; then
+		if brew --prefix "$package" 1>/dev/null 2>/dev/null; then
 			continue
 		fi
 		
