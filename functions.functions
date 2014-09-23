@@ -19,3 +19,34 @@ core_functions_execute()
 		core_variable_array_iterateAsCallbacks "$functionsVariableName" "$@"
 	fi
 }
+
+# Not perfect by any means; an expanded environment variable with content of 'a shell function', say, could fail this test
+core_functions_exists()
+{
+	local functionName="$1"
+	local arg0
+	local arg1
+	local arg2
+	local arg3
+	local arg4
+	local arg5
+	local arg6
+	IFS= ' ' read -r arg0 arg1 arg2 arg3 arg4 arg5 arg6 type "$functionName"
+	case "$arg4" in
+		
+		# dash
+		shell)
+			if [ "$arg5" = 'function' ]; then
+				return 0
+			fi
+		;;
+		
+		# bash
+		function)
+			return 0
+		;;
+		
+	esac
+	
+	return 1
+}

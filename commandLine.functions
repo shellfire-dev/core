@@ -72,10 +72,26 @@ core_dependency_declares core_commandLine_exitCode_NOPERM
 readonly core_commandLine_exitCode_CONFIG=78
 core_dependency_declares core_commandLine_exitCode_CONFIG
 
+if ! core_functions_exists _program_commandLine_helpMessage; then
+	_program_commandLine_helpMessage()
+	{
+		:
+	}
+fi
+
 # Width is 80 cols; standard Parallels VM is 100 cols
 core_commandLine_helpMessage()
 {
+	# Defaults
+	_program_commandLine_helpMessage_usage="[OPTION]..."
+	_program_commandLine_helpMessage_description="Does nothing."
+	_program_commandLine_helpMessage_options=""
+    _program_commandLine_helpMessage_optionsSpacing='     '
+	_program_commandLine_helpMessage_configurationKeys=""
+	_program_commandLine_helpMessage_examples=""
+	
 	_program_commandLine_helpMessage
+	
 	printf '%s' Usage: "${_program_name} ${_program_commandLine_helpMessage_usage}
 ${_program_commandLine_helpMessage_description}
 
@@ -375,6 +391,13 @@ core_commandLine_optionExists()
 	esac
 }
 
+if ! core_functions_exists _program_commandLine_optionExists; then
+	_program_commandLine_optionExists()
+	{
+		echo 'no'
+	}
+fi
+
 core_commandLine_processOptionWithoutArgument()
 {
 	case "$optionName" in
@@ -398,6 +421,13 @@ core_commandLine_processOptionWithoutArgument()
 	esac
 }
 
+if ! core_functions_exists _program_commandLine_processOptionWithoutArgument; then
+	_program_commandLine_processOptionWithoutArgument()
+	{
+		:
+	}
+fi
+
 core_commandLine_processOptionWithArgument()
 {
 	case "$optionName" in
@@ -413,6 +443,14 @@ core_commandLine_processOptionWithArgument()
 		
 	esac
 }
+
+if ! core_functions_exists _program_commandLine_processOptionWithArgument; then
+	_program_commandLine_optionExists()
+	{
+		:
+	}
+fi
+
 
 # This can be confused with XF86-style long options (eg -find)
 core_commandLine_parseConcatenatedOptionsWithoutEquals()
@@ -701,3 +739,26 @@ core_commandLine_parse()
 	
 	_program_commandLine_validate
 }
+
+if ! core_functions_exists _program_commandLine_parseInitialise; then
+	_program_commandLine_parseInitialise()
+	{
+		:
+	}
+fi
+
+if ! core_functions_exists _program_commandLine_handleNonOptions; then
+	_program_commandLine_optionExists()
+	{
+		if [ $# -ne 0 ]; then
+			core_commandLine_exitBadCommandLine "Non-options are not accepted"
+		fi
+	}
+fi
+
+if ! core_functions_exists _program_commandLine_validate; then
+	_program_commandLine_validate()
+	{
+		:
+	}
+fi
