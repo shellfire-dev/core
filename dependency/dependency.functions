@@ -190,7 +190,7 @@ core_functions_register _core_dependency_functions core_dependency_ensureWeAreRu
 core_dependency_fallback !'*' lsb_release
 core_dependency_determinePackageManager()
 {
-	if core_variable_array_iterateAsCallbacksShortcut core_dependency_check_functions; then
+	if core_variable_array_iterateAsCallbacksShortcut _core_dependency_check_functions; then
 		return 0
 	fi
 	

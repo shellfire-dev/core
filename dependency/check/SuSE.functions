@@ -2,7 +2,7 @@ core_dependency_check_SuSE_checkFunction()
 {
 	core_dependency_check_releaseFile SuSE-release SuSE
 }
-core_functions_register core_dependency_check_functions core_dependency_check_SuSE_checkFunction
+core_functions_register _core_dependency_check_functions core_dependency_check_SuSE_checkFunction
 
 core_dependency_requires SuSE sudo zypper
 core_dependency_check_SuSE_packageManager()

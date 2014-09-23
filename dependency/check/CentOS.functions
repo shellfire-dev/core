@@ -2,7 +2,7 @@ core_dependency_check_CentOS_checkFunction()
 {
 	core_dependency_check_releaseFile centos-release CentOS
 }
-core_functions_register core_dependency_check_functions core_dependency_check_CentOS_checkFunction
+core_functions_register _core_dependency_check_functions core_dependency_check_CentOS_checkFunction
 
 core_dependency_requires CentOS sudo yum
 core_dependency_check_CentOS_packageManager()
