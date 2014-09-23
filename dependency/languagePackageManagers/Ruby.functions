@@ -1,0 +1,19 @@
+core_dependency_requires '*' ruby
+core_dependency_languagePackageManagers_Ruby_packageManager()
+{
+	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
+		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
+			core_message INFO "Upgrading Homebrew package manager"
+			gem update
+		fi
+	fi
+	
+	local gem
+	for gem in "$@"
+	do
+		# gem help list documentation (2.1.2_3) refers to 'STRING' when it means 'regex'!
+		if ! gem list "^${gem}$" --installed --local 1>/dev/null; then
+			gem install "$gem"
+		fi
+	done
+}

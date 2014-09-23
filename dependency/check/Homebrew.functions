@@ -11,29 +11,72 @@ core_functions_register _core_dependency_check_functions core_dependency_check_H
 core_dependency_requires Homebrew brew
 core_dependency_check_Homebrew_packageManager()
 {
-	if [ $# -eq 0 ]; then
-		return 0
-	fi
+	# We can't cache this in an array as it changes on every loop
+	_core_dependency_check_Homebrew_packageManager_tapExists()
+	{
+		local existingTap
+		brew tap | while IFS='' read -r existingTap
+		do
+			if [ "$existingTap" = "$tap" ]; then
+				return 0
+			fi
+		done
+		return 1
+	}
 	
 	local packageToInstall
-	local tap
 	local package
-	for packageToInstall in "$@"
-	do
-		tap="$(core_compatibility_dirname "$packageToInstall")"
-		if [ "$tap" != '.' ]; then
-			# eg diffutils, openssh, awk, rsync, gcc (homebrew/versions)
+	_core_dependency_check_Homebrew_packageManager_installTaps()
+	{
+		local tap
+		for packageToInstall in "$@"
+		do
+			tap="$(core_compatibility_dirname "$packageToInstall")"
+			if [ "$tap" = '.' ]; then
+				continue
+			fi
+			if _core_dependency_check_Homebrew_packageManager_tapExists; then
+				continue
+			fi
 			brew tap "$tap" 1>/dev/null 2>/dev/null
-		fi
-	done
-	
+		done
+	}
+	_core_dependency_check_Homebrew_packageManager_installTaps
+
+	core_message INFO "Updating Homebrew package manager"
 	brew update
+	
+	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
+		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
+			core_message INFO "Upgrading Homebrew package manager"
+			brew upgrade
+		fi
+	fi
 	
 	for packageToInstall in "$@"
 	do
 		package="$(core_compatibility_basename "$packageToInstall")"
+		if brew --prefix "$dependency" 1>/dev/null 2>/dev/null; then
+			continue
+		fi
+		
 		brew install "$package"
 	done
 	
 	# fakeroot required a  brew link
+}
+
+core_dependency_check_Homebrew_installPackageManagerIfRequired()
+{
+	if core_compatibility_whichNoOutput brew; then
+		return 0
+	fi
+
+	core_message INFO "Installing Homebrew package manager"
+	ruby -e "$(curl -fsSL 'https://raw.githubusercontent.com/Homebrew/install/master/install')"
+
+	core_message INFO "Doctoring (sic) Homebrew package manager"
+	brew doctor
+	
+	# check is /usr/local/{s}bin is on the path
 }
