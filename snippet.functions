@@ -1,13 +1,13 @@
 # Unfortunately, strips trailing LFs
 core_snippet_raw_encoder()
 {
-	core_variable_setVariable _core_embed_snippet_${snippetName} "$(<"$snippetFilePath")"
+	core_variable_setVariable _core_snippet_embeddedData_${snippetName} "$(<"$snippetFilePath")"
 }
 
 core_snippet_raw_decoder()
 {
 	local core_variable_indirectValue_result
-	core_variable_indirectValue _core_embed_snippet_${snippetName}
+	core_variable_indirectValue _core_snippet_embeddedData_${snippetName}
 	printf '%s' "$core_variable_indirectValue_result"
 }
 
@@ -22,7 +22,7 @@ core_snippet_raw_decoder()
 core_dependency_requires '*' base64
 core_snippet_base64_encoder()
 {
-	_core_embed_snippet_${snippetName}="$(base64 --wrap 0 "$snippetFilePath")"
+	_core_snippet_embeddedData_${snippetName}="$(base64 --wrap 0 "$snippetFilePath")"
 }
 
 # MacOSX uses base64 -D
@@ -32,10 +32,11 @@ core_dependency_requires '*' base64
 core_snippet_base64_decoder()
 {
 	base64 -d <<-EOF
-		$(core_variable_indirectValue _core_embed_snippet_${snippetName})
+		$(core_variable_indirectValue _core_snippet_embeddedData_${snippetName})
 	EOF
 }
 
+core_usesIn core variable
 core_snippet_embed()
 {
 	local codecName="$1"
@@ -47,7 +48,7 @@ core_snippet_embed()
 	local snippetFilePath
 	for snippetName in "$@"
 	do
-		if core_variable_isSet _core_embed_snippet_${snippetName}; then
+		if core_variable_isSet _core_snippet_embeddedData_${snippetName}; then
 			continue
 		fi
 		
@@ -57,20 +58,24 @@ core_snippet_embed()
 		fi
 		
 		${encoder}
-		core_dependency_declares _core_embed_snippet_${snippetName}
+		core_dependency_declares _core_snippet_embeddedData_${snippetName}
+		
+		core_variable_setVariable _core_snippet_embeddedCodec_${snippetName} $codecName
+		core_dependency_declares _core_snippet_embeddedCodec_${snippetName}
 	done
 }
 
 core_snippet_retrieve()
 {
-	local codecName="$1"
-	shift 1
-	
-	local decoder="core_snippet_${codecName}_decoder"
-
 	local snippetName
+	local core_variable_indirectValue_result
+	local codec
+	local decoder
 	for snippetName in "$@"
 	do
+		core_variable_indirectValue _core_snippet_embeddedCodec_${snippetName}
+		codec="$core_variable_indirectValue_result"
+		decoder="_core_snippet_${codec}_decoder"
 		${decoder}
 	done
 }
