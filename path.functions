@@ -42,3 +42,24 @@ core_path_iterateOverFolderPath()
 		set -o noglob
 	popd
 }
+
+core_path_readLines()
+{
+	local callback="$1"
+	local filePath="$2"
+	
+	local originalIFS="$IFS"
+	local IFS
+	local line
+	while IFS='' read -r line
+	do
+		IFS="$originalIFS" $callback 0 "$line"
+	done <"$filePath"
+	
+	IFS="$originalIFS"
+	
+	# Handles a final line with no terminating LF
+	if [ -n "$line" ]; then
+		$callback 1 "$line"
+	fi
+}

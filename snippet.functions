@@ -1,0 +1,76 @@
+# Unfortunately, strips trailing LFs
+core_snippet_raw_encoder()
+{
+	core_variable_setVariable _core_embed_snippet_${snippetName} "$(<"$snippetFilePath")"
+}
+
+core_snippet_raw_decoder()
+{
+	local core_variable_indirectValue_result
+	core_variable_indirectValue _core_embed_snippet_${snippetName}
+	printf '%s' "$core_variable_indirectValue_result"
+}
+
+# Strips trailing LFs but does not matter, as does not affect base64 representation
+# MacOSX and CoreUtils work the same way but create differently formatted data
+# * Encode (has a trailing LF): base64 <file>
+# * Decode: base64 -D <file>
+# CoreUtils
+# * Encode (line breaks and trailing line break unless using --wrap 0): base64 --wrap 0
+# * Decode: base64 -d <file>
+# uuencode -m is a non-starter (not installed by default on Ubuntu, although part of busybox and MacOSX)
+core_dependency_requires '*' base64
+core_snippet_base64_encoder()
+{
+	_core_embed_snippet_${snippetName}="$(base64 --wrap 0 "$snippetFilePath")"
+}
+
+# MacOSX uses base64 -D
+# Openssl uses openssl enc -base64 -d
+# Busybox seems to have base64 but it's not enabled in Debian/Ubuntu and missing from the man page
+core_dependency_requires '*' base64
+core_snippet_base64_decoder()
+{
+	base64 -d <<-EOF
+		$(core_variable_indirectValue _core_embed_snippet_${snippetName})
+	EOF
+}
+
+core_snippet_embed()
+{
+	local codecName="$1"
+	shift 1
+	
+	local encoder="core_snippet_${codecName}_encoder"
+	
+	local snippetName
+	local snippetFilePath
+	for snippetName in "$@"
+	do
+		if core_variable_isSet _core_embed_snippet_${snippetName}; then
+			continue
+		fi
+		
+		snippetFilePath="$_program_libPath"/"${_program_name}"/"$snippetName".snippet
+		if ! core_path_isReadableNonEmptyFilePath "$snippetFilePath"; then
+			core_exitError $core_commandLine_exitCode_SOFTWARE "Snippet '$snippetName' does not exist as a readable, non-empty file at '$snippetFilePath'"
+		fi
+		
+		${encoder}
+		core_dependency_declares _core_embed_snippet_${snippetName}
+	done
+}
+
+core_snippet_retrieve()
+{
+	local codecName="$1"
+	shift 1
+	
+	local decoder="core_snippet_${codecName}_encoder"
+
+	local snippetName
+	for snippetName in "$@"
+	do
+		${decoder}
+	done
+}
