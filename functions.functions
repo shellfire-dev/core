@@ -39,6 +39,7 @@ core_functions_exists()
 	IFS=' ' read -r arg0 arg1 arg2 arg3 arg4 arg5 arg6 <<-EOF
 		$(type "$functionName")
 	EOF
+	echo $arg4
 	case "$arg4" in
 		
 		# dash
