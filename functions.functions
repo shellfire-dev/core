@@ -24,6 +24,10 @@ core_functions_execute()
 core_functions_exists()
 {
 	local functionName="$1"
+	if ! type "$functionName" 1>/dev/null 2>/dev/null; then
+		return 1
+	fi
+	
 	local arg0
 	local arg1
 	local arg2
@@ -31,7 +35,6 @@ core_functions_exists()
 	local arg4
 	local arg5
 	local arg6
-	type _program_commandLine_helpMessage
 	IFS= ' ' read -r arg0 arg1 arg2 arg3 arg4 arg5 arg6 <<-EOF
 		$(type "$functionName")
 	EOF
