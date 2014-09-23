@@ -39,18 +39,7 @@ core_variable_indirectValue()
 if core_init_isFattening; then
 	core_dependency_declares()
 	{
-		local delcares
-		local alreadyDeclared
-		for declares in "$@"
-		do
-			for alreadyDeclared in "$_program_fattening_declaredNames"
-			do
-				if [ "$alreadyDeclared" = "$declares" ]; then
-					return 0
-				fi
-			done
-			_program_fattening_declaredNames="$_program_fattening_declaredNames $declares"
-		done
+		_program_fattening_declares "$@"
 	}
 else
 	core_dependency_declares()
