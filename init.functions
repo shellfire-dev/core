@@ -412,7 +412,11 @@ core_init_main()
 	core_init_rexecUnderCorrectShell "$@"
 	
 	core_usesIn core
-	_program
+	if core_functions_exists _program; then
+		_program
+	else
+		:
+	fi
 
 	if core_init_isFattening; then
 		return 0
