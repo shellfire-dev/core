@@ -120,3 +120,37 @@ core_variable_allButFirst()
 {
 	core_variable_allButFirstN "$1" 1
 }
+
+core_variable_isTrue()
+{
+	_core_variable_parseBoolean "$1" 0 1 2
+}
+
+core_variable_isFalse()
+{
+	_core_variable_parseBoolean "$1" 1 0 2
+}
+
+core_variable_isInvalidBoolean()
+{
+	_core_variable_parseBoolean "$1" 1 1 0
+}
+
+_core_variable_parseBoolean()
+{
+	case "$1" in
+		
+		true|True|TRUE|T|yes|Yes|YES|Y|on|On|ON|O|1)
+			return $2
+		;;
+		
+		false|False|FALSE|F|no|No|NO|N|off|Off|OFF|OFF|0)
+			return $3
+		;;
+		
+		*)
+			return $4
+		;;
+		
+	esac
+}
