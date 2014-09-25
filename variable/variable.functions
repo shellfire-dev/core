@@ -140,11 +140,11 @@ _core_variable_parseBoolean()
 {
 	case "$1" in
 		
-		true|True|TRUE|T|yes|Yes|YES|Y|on|On|ON|O|1)
+		true|True|TRUE|T|yes|Yes|YES|Y|on|On|ON|1)
 			return $2
 		;;
 		
-		false|False|FALSE|F|no|No|NO|N|off|Off|OFF|O|0)
+		false|False|FALSE|F|no|No|NO|N|off|Off|OFF|0)
 			return $3
 		;;
 		
