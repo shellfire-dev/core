@@ -144,7 +144,7 @@ _core_variable_parseBoolean()
 			return $2
 		;;
 		
-		false|False|FALSE|F|no|No|NO|N|off|Off|OFF|OFF|0)
+		false|False|FALSE|F|no|No|NO|N|off|Off|OFF|O|0)
 			return $3
 		;;
 		
