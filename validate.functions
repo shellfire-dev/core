@@ -86,22 +86,19 @@ core_validate_filePathReadableAndExecutableAndNotEmpty()
 	fi
 }
 
-core_validate_yesOrNo()
+core_validate_isBoolean()
 {
 	local code=$1
 	local category="$2"
 	local name="$3"
 	local value="$4"
-
-	case "$value" in
-		
-		no|yes)
-			:
-		;;
-		
-		*)
-			core_exitError $code "The $category '$name' should be yes or no, not '$value'"
-		;;
-		
-	esac
+	
+	set +e
+	core_variable_isTrue "$value"
+	local exitCode=$?
+	set -e
+	
+	if [ $exitCode -eq 2 ]; then
+		core_exitError $code "The $category '$name' should be yes or no, not '$value'"
+	fi
 }
