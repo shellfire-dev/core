@@ -96,6 +96,30 @@ core_validate_filePathReadableAndExecutableAndNotEmpty()
 	fi
 }
 
+core_validate_socketPathReadableAndWritable()
+{
+	core_validate_pathNotEmpty "$@"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
+	
+	local messageFragment="The $category '$name' specifies a path '$value' which"
+	if [ ! -e "$value" ]; then
+		core_validate_exit "$messageFragment does not exist"
+	fi
+	if [ ! -S "$value" ]; then
+		core_validate_exit "$messageFragment is not a socket"
+	fi
+	if [ ! -r "$value" ]; then
+		core_validate_exit "$messageFragment is not a readable socket"
+	fi
+	if [ ! -x "$value" ]; then
+		core_validate_exit "$messageFragment is not an executable socket"
+	fi
+}
+
 core_validate_isBoolean()
 {
 	local code=$1
@@ -110,5 +134,41 @@ core_validate_isBoolean()
 	
 	if [ $exitCode -eq 2 ]; then
 		core_validate_exit "The $category '$name' should be yes or no, not '$value'"
+	fi
+}
+
+# From https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
+# See comments by Gilles for negative number tests
+core_validate_isUnsignedInteger()
+{
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
+	
+	case "$value" in
+	    ''|*[!0-9]*)
+			core_validate_exit "The $category '$name' should be an unsigned integer, not '$value'"
+		;;
+		
+	    *)
+			:
+		;;
+	esac
+}
+
+core_validate_nonDynamicPort()
+{
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
+	
+	core_validate_isUnsignedInteger "$value"
+	if [ $value -lt 1 ]; then
+		core_validate_exit "The $category '$name' should be between 1 and 65535, not '$value'"
+	fi
+	if [ $value -gt 65535 ]; then
+		core_validate_exit "The $category '$name' should be between 1 and 65535, not '$value'"
 	fi
 }
