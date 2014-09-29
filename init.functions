@@ -399,7 +399,12 @@ core_init_rexecUnderCorrectShell()
 	local shellPath="$(core_compatibility_which "$core_init_preferredShell")"
 
 	# exec -a doesn't work in dash
-	core_init_shell_rexecing=$$ exec "$shellPath" "$global_ourSymlinkExecutablePath" "$@"
+	if [ "$core_init_preferredShell" = 'bash' ]; then
+		# Forces a privileged shell. Not a great defence.
+		core_init_shell_rexecing=$$ exec "$shellPath" -p "$global_ourSymlinkExecutablePath" "$@"
+	else
+		core_init_shell_rexecing=$$ exec "$shellPath" "$global_ourSymlinkExecutablePath" "$@"
+	fi
 }
 
 core_init_main()

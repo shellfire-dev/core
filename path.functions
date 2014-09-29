@@ -21,6 +21,19 @@ core_path_isReadableNonEmptyFilePath()
 	return 1
 }
 
+core_path_isReadableNonEmptyExecutableFilePath()
+{
+	local filePath="$1"
+	
+	core_path_isReadableNonEmptyFilePath "$filePath"
+	
+	if [ -x "$filePath" ]; then
+		return 0
+	fi
+	
+	return 1
+}
+
 core_path_iterateOverFolderPath()
 {
 	local folderPath="$1"

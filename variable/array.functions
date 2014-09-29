@@ -37,6 +37,18 @@ core_variable_array_append()
 	done
 }
 
+core_variable_array_appendAsOptionArg()
+{
+	local variableName="$1"
+	shift 1
+	
+	local argument
+	for argument in "$@"
+	do
+		core_variable_array_append "$variableName" "'${arguments}'"
+	done
+}
+
 core_variable_array_length()
 {
 	local variableName="$1"
