@@ -7,6 +7,21 @@ core_variable_setVariable()
 	eval "$1"'=$2'
 }
 
+core_variable_isUnsetOrEmpty()
+{
+	local variableName="$1"
+	if core_variable_isUnset "$variableName"; then
+		return 0
+	fi
+	
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	if [ -z "$core_variable_indirectValue_result" ]; then
+		return 0
+	fi
+	return 1
+}
+
 core_variable_setVariableIfUnset()
 {
 	local variableName="$1"
