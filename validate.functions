@@ -1,3 +1,13 @@
+core_validate_exit()
+{
+	local message="$1"
+	if [ $code -eq $core_commandLine_exitCode_USAGE ]; then
+		core_commandLine_exitBadCommandLine "$message"
+	else
+		core_exitError $code "$message"
+	fi
+}
+
 core_validate_pathNotEmpty()
 {
 	local code=$1
@@ -6,7 +16,7 @@ core_validate_pathNotEmpty()
 	local value="$4"
 	
 	if [ -z "$value" ]; then
-		core_exitError $code "The $category '$name' specifies a path '$value' which is empty"
+		core_validate_exit "The $category '$name' specifies a path '$value' which is empty"
 	fi
 }
 
@@ -21,16 +31,16 @@ core_validate_folderPathReadableAndSearchable()
 	
 	local messageFragment="The $category '$name' specifies a path '$value' which"
 	if [ ! -e "$value" ]; then
-		core_exitError $code "$messageFragment does not exist"
+		core_validate_exit "$messageFragment does not exist"
 	fi
 	if [ ! -d "$value" ]; then
-		core_exitError $code "$messageFragment is not a directory"
+		core_validate_exit "$messageFragment is not a directory"
 	fi
 	if [ ! -r "$value" ]; then
-		core_exitError $code "$messageFragment is not a readable directory"
+		core_validate_exit "$messageFragment is not a readable directory"
 	fi
 	if [ ! -x "$value" ]; then
-		core_exitError $code "$messageFragment is not a searchable directory"
+		core_validate_exit "$messageFragment is not a searchable directory"
 	fi
 }
 
@@ -44,7 +54,7 @@ core_validate_folderPathReadableAndSearchableAndWritable()
 	local value="$4"
 	
 	if [ ! -w "$value" ]; then
-		core_exitError $code "The $category '$name' specifies a path '$value' which is not a writable directory"
+		core_validate_exit "The $category '$name' specifies a path '$value' which is not a writable directory"
 	fi
 }
 
@@ -59,16 +69,16 @@ core_validate_filePathReadableAndExecutable()
 	
 	local messageFragment="The $category '$name' specifies a path '$value' which"
 	if [ ! -e "$value" ]; then
-		core_exitError $code "$messageFragment does not exist"
+		core_validate_exit "$messageFragment does not exist"
 	fi
 	if [ ! -f "$value" ]; then
-		core_exitError $code "$messageFragment is not a file"
+		core_validate_exit "$messageFragment is not a file"
 	fi
 	if [ ! -r "$value" ]; then
-		core_exitError $code "$messageFragment is not a readable file"
+		core_validate_exit "$messageFragment is not a readable file"
 	fi
 	if [ ! -x "$value" ]; then
-		core_exitError $code "$messageFragment is not an executable file"
+		core_validate_exit "$messageFragment is not an executable file"
 	fi
 }
 
@@ -82,7 +92,7 @@ core_validate_filePathReadableAndExecutableAndNotEmpty()
 	local value="$4"
 	
 	if [ ! -s "$value" ]; then
-		core_exitError $code "The $category '$name' specifies a path which is an empty file"
+		core_validate_exit "The $category '$name' specifies a path which is an empty file"
 	fi
 }
 
@@ -99,6 +109,6 @@ core_validate_isBoolean()
 	set -e
 	
 	if [ $exitCode -eq 2 ]; then
-		core_exitError $code "The $category '$name' should be yes or no, not '$value'"
+		core_validate_exit "The $category '$name' should be yes or no, not '$value'"
 	fi
 }
