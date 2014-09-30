@@ -109,7 +109,7 @@ core_message()
 		
 		WARN)
 			if [ -t 2 ]; then
-				prefix="$(printf '\033[1m\033[33m]')"
+				prefix="$(printf '\033[1m\033[33m')"
 				suffix="$(printf '\033[0m')"
 			fi
 			shouldEcho=1
@@ -136,6 +136,10 @@ core_message()
 		;;
 		
 		TODO)
+			if [ -t 2 ]; then
+				prefix="$(printf '\033[2m')"
+				suffix="$(printf '\033[0m')"
+			fi
 			shouldEcho=1
 		;;
 	
