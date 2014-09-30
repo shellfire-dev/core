@@ -94,19 +94,34 @@ core_message()
 	local message="$2"
 	
 	local shouldEcho=0
+	local prefix=''
+	local suffix=''
 	case "$messageKind" in
 	
 		FAIL)
+			if [ -t 2 ]; then
+				# http://wiki.bash-hackers.org/scripting/terminalcodes
+				prefix="$(printf '\033[1m\033[31m]')"
+				suffix="$(printf '\033[0m')"
+			fi
 			shouldEcho=1
 		;;
 		
 		WARN)
+			if [ -t 2 ]; then
+				prefix="$(printf '\033[1m\033[33m]')"
+				suffix="$(printf '\033[0m')"
+			fi
 			shouldEcho=1
 		;;
 	
 		INFO)
 			if core_variable_isSet core_init_verbosity; then
 				if [ $core_init_verbosity -gt 0 ]; then
+					if [ -t 2 ]; then
+						prefix="$(printf '\033[1m\033[34m]')"
+						suffix="$(printf '\033[0m')"
+					fi
 					shouldEcho=1
 				fi
 			fi
@@ -131,7 +146,7 @@ core_message()
 	esac
 	
 	if [ $shouldEcho -eq 1 ]; then
-		printf '%s\n' "$_program_name: $messageKind: $message" 1>&2
+		printf '%s%s%s\n' "$prefix" "$_program_name: $messageKind: $message" "$suffix" 1>&2
 	fi
 }
 
