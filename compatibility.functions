@@ -48,7 +48,7 @@ core_compability_installPushdAndPopd()
 	# bash, zsh are known to support this
 	if _core_compatibility_builtInDoesNotExist pushd; then
 		
-		if ! core_compatibility_builtInDoesNotExist popd; then
+		if ! _core_compatibility_builtInDoesNotExist popd; then
 			core_exitError $core_commandLine_exitCode_SOFTWARE "Weird shell does not have pushd but does have popd (?feature detection bug?)!"
 		fi
 		
