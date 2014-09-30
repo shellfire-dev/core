@@ -1,0 +1,34 @@
+core_usesIn core trap
+core_usesIn core/variable array
+
+core_children_initialise()
+{
+	core_trap_addOnCleanUp core_children_killAll
+}
+core_functions_register _core_functions core_children_initialise
+
+core_dependency_requires '*' kill
+_core_children_killAll_callback()
+{
+	local pid
+	for pid in "$@"
+	do
+		kill -TERM "$pid" 2>/dev/null || true	
+	done
+}
+
+core_children_killAll()
+{
+	if core_variable_array_isSet _core_children_childrenToRemoveOnExit; then
+		core_variable_array_passToFunctionAsArguments _core_children_childrenToRemoveOnExit _core_children_killAll_callback
+	fi
+}
+
+core_children_killOnExit()
+{
+	local childPid
+	for childPid in "$@"
+	do
+		core_variable_array_append _core_children_childrenToRemoveOnExit "$childPid"
+	done
+}
