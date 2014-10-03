@@ -101,7 +101,7 @@ core_message()
 		FAIL)
 			if [ -t 2 ]; then
 				# http://wiki.bash-hackers.org/scripting/terminalcodes
-				prefix="$(printf '\033[1m\033[31m]')"
+				prefix="$(printf '\033[1m\033[31m')"
 				suffix="$(printf '\033[0m')"
 			fi
 			shouldEcho=1
