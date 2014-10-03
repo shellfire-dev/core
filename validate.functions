@@ -58,7 +58,7 @@ core_validate_folderPathReadableAndSearchableAndWritable()
 	fi
 }
 
-core_validate_filePathReadableAndExecutable()
+core_validate_filePathReadable()
 {
 	core_validate_pathNotEmpty "$@"
 
@@ -77,6 +77,18 @@ core_validate_filePathReadableAndExecutable()
 	if [ ! -r "$value" ]; then
 		core_validate_exit "$messageFragment is not a readable file"
 	fi
+}
+
+core_validate_filePathReadableAndExecutable()
+{
+	core_validate_filePathReadable "$@"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
+	
+	local messageFragment="The $category '$name' specifies a path '$value' which"
 	if [ ! -x "$value" ]; then
 		core_validate_exit "$messageFragment is not an executable file"
 	fi
