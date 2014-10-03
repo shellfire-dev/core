@@ -164,7 +164,7 @@ core_validate_nonDynamicPort()
 	local name="$3"
 	local value="$4"
 	
-	core_validate_isUnsignedInteger "$value"
+	core_validate_isUnsignedInteger $code "$category" "$name" "$value"
 	if [ $value -lt 1 ]; then
 		core_validate_exit "The $category '$name' should be between 1 and 65535, not '$value'"
 	fi
