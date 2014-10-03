@@ -76,6 +76,23 @@ core_dependency_requires()
 }
 
 # More for documentation than anything else for now
+core_dependency_oneOf()
+{
+	# Or '*' for all
+	local packageManager="$1"
+	if [ -z "$packageManager" ]; then
+		# core_commandLine_exitCode_SOFTWARE
+		core_exitError 70 "packageManager can not be empty"
+	fi
+	shift 1
+	local programName
+	for programName in "$@"
+	do
+		:
+	done
+}
+
+# More for documentation than anything else for now
 core_dependency_fallback()
 {
 	# eg !bash
