@@ -199,7 +199,7 @@ core_dependency_determinePackageManager()
 	if core_compatibility_whichNoOutput lsb_release; then
 		local lsbDistributor="$(lsb_release --id --short)"
 		if [ -n "$lsbDistributor" ]; then
-			readonly core_dependency_packageManager="$lsbDistributor"
+			core_dependency_packageManager="$lsbDistributor"
 			return 0
 		fi
 	fi

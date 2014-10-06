@@ -48,7 +48,7 @@ else
 	}
 fi
 
-readonly core_libraryName=shellfire
+core_libraryName=shellfire
 core_dependency_declares core_libraryName
 
 _core_dependency_requires=''
@@ -183,8 +183,8 @@ core_TODO()
 }
 
 # Does not work as a delimiter when running bash as /bin/sh on Mac - seems to be an IFS bug in bash 3.2
-#readonly core_variable_array_delimiter="$(printf '\001')"
-readonly core_variable_array_delimiter=','
+#core_variable_array_delimiter="$(printf '\001')"
+core_variable_array_delimiter=','
 core_dependency_declares core_variable_array_delimiter
 
 core_dependency_declares _core_uses_alreadySourced
@@ -320,7 +320,7 @@ core_init_setSaneEnvironmentDefaults()
 # http://mywiki.wooledge.org/Bashism?action=show&redirect=bashism
 core_init_findOurNameAndPath()
 {
-	readonly global_ourSymlinkName="$(core_compatibility_basename "$0")"
+	global_ourSymlinkName="$(core_compatibility_basename "$0")"
 		
 	# can be empty if 'bash file' used or 'bash </path/to/file' or ksh with PATH containing '.'
 	local potential_global_ourSymlinkPath="${0%/*}"
@@ -332,14 +332,14 @@ core_init_findOurNameAndPath()
 	# At this point, we resolve $0 vs the current working directory
 	# If we were exec'd, we have either a relative or an absolute path
 	cd "$potential_global_ourSymlinkPath" 1>/dev/null
-		readonly global_ourSymlinkPath="$(pwd)"
+		global_ourSymlinkPath="$(pwd)"
 	cd - >/dev/null
 	
 	cd -P "$potential_global_ourSymlinkPath" 1>/dev/null
-		readonly global_ourPath="$(pwd)"
+		global_ourPath="$(pwd)"
 	cd - >/dev/null
 	
-	readonly global_ourSymlinkExecutablePath="$global_ourSymlinkPath"/"$global_ourSymlinkName"
+	global_ourSymlinkExecutablePath="$global_ourSymlinkPath"/"$global_ourSymlinkName"
 }
 
 core_init_doNotRunAsSetUidOrSetGid()

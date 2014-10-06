@@ -1,7 +1,7 @@
 core_dependency_check_Homebrew_checkFunction()
 {
 	if core_compatibility_whichNoOutput brew; then
-		readonly core_dependency_packageManager="Homebrew"
+		core_dependency_packageManager="Homebrew"
 		return 0
 	fi
 	return 1

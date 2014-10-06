@@ -1,7 +1,7 @@
 core_dependency_check_Cygwin_checkFunction()
 {
 	if [ -x /bin/cygcheck.exe ]; then
-		readonly core_dependency_packageManager="Cygwin"
+		core_dependency_packageManager="Cygwin"
 		return 0
 	fi
 	return 1

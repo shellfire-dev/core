@@ -4,7 +4,7 @@ core_dependency_check_releaseFile()
 	local packageManager="$2"
 	
 	if [ -f /etc/"$releaseFileName" ]; then
-		readonly core_dependency_packageManager="$packageManager"
+		core_dependency_packageManager="$packageManager"
 		return 0
 	fi
 	return 1
