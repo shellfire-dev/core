@@ -20,20 +20,17 @@ core_compatibility_whichNoOutput()
 
 core_variable_isSet()
 {
-	local variableName="$1"
-	eval "[ \"\${$variableName+set}\" = 'set' ]"
+	eval "[ \"\${$1+set}\" = 'set' ]"
 }
 
 core_variable_isUnset()
 {
-	local variableName="$1"
-	eval "[ \"\${$variableName+unset}\" != 'unset' ]"
+	eval "[ \"\${$1+unset}\" != 'unset' ]"
 }
 
 core_variable_indirectValue()
 {
-	local variableName="$1"
-	eval "core_variable_indirectValue_result=\"\$${variableName}\""
+	eval "core_variable_indirectValue_result=\"\$${1}\""
 }
 
 if core_init_isFattening; then
@@ -56,90 +53,98 @@ core_dependency_declares _core_dependency_requires
 core_dependency_requires()
 {
 	# Or '*' for all
-	local packageManager="$1"
-	if [ -z "$packageManager" ]; then
+	_local_packageManager="$1"
+	if [ -z "$_local_packageManager" ]; then
 		# core_commandLine_exitCode_SOFTWARE
 		core_exitError 70 "packageManager can not be empty"
 	fi
 	shift 1
 	
-	local programName
-	for programName in "$@"
+	for _local_programName in "$@"
 	do
-		if [ -z "$programName" ]; then
+		if [ -z "$_local_programName" ]; then
 			# core_commandLine_exitCode_SOFTWARE
 			core_exitError 70 "programName can not be empty"
 		fi
-		_core_dependency_requires="${_core_dependency_requires}${packageManager}${core_variable_array_delimiter}${programName}
+		_core_dependency_requires="${_core_dependency_requires}${_local_packageManager}${core_variable_array_delimiter}${_local_programName}
 "
 	done
+	
+	unset _local_packageManager
+	unset _local_programName
 }
 
 # More for documentation than anything else for now
 core_dependency_oneOf()
 {
 	# Or '*' for all
-	local packageManager="$1"
-	if [ -z "$packageManager" ]; then
+	_local_packageManager="$1"
+	if [ -z "$_local_packageManager" ]; then
 		# core_commandLine_exitCode_SOFTWARE
 		core_exitError 70 "packageManager can not be empty"
 	fi
 	shift 1
-	local programName
-	for programName in "$@"
+	_local_programName
+	for _local_programName in "$@"
 	do
 		:
 	done
+	
+	unset _local_packageManager
+	unset _local_programName
 }
 
 # More for documentation than anything else for now
 core_dependency_fallback()
 {
 	# eg !bash
-	local condition="$1"
+	_local_condition="$1"
 	
-	local programNameOnPath
+	_local_programNameOnPath
 	for programNameOnPath in "$@"
 	do
 		:
 	done
+	
+	unset _local_condition
+	unset _local_programNameOnPath
 }
 
 core_message()
 {
-	local messageKind="$1"
-	local message="$2"
+	_local_messageKind="$1"
+	_local_message="$2"
 	
-	local shouldEcho=0
-	local prefix=''
-	local suffix=''
+	_local_shouldEcho=0
+	_local_prefix=''
+	_local_suffix=''
 	case "$messageKind" in
 	
 		FAIL)
 			if [ -t 2 ]; then
 				# http://wiki.bash-hackers.org/scripting/terminalcodes
-				prefix="$(printf '\033[1m\033[31m')"
-				suffix="$(printf '\033[0m')"
+				_local_prefix="$(printf '\033[1m\033[31m')"
+				_local_suffix="$(printf '\033[0m')"
 			fi
-			shouldEcho=1
+			_local_shouldEcho=1
 		;;
 		
 		WARN)
 			if [ -t 2 ]; then
-				prefix="$(printf '\033[1m\033[33m')"
-				suffix="$(printf '\033[0m')"
+				_local_prefix="$(printf '\033[1m\033[33m')"
+				_local_suffix="$(printf '\033[0m')"
 			fi
-			shouldEcho=1
+			_local_shouldEcho=1
 		;;
 	
 		INFO)
 			if core_variable_isSet core_init_verbosity; then
 				if [ $core_init_verbosity -gt 0 ]; then
 					if [ -t 2 ]; then
-						prefix="$(printf '\033[1m\033[34m')"
-						suffix="$(printf '\033[0m')"
+						_local_prefix="$(printf '\033[1m\033[34m')"
+						_local_suffix="$(printf '\033[0m')"
 					fi
-					shouldEcho=1
+					_local_shouldEcho=1
 				fi
 			fi
 		;;
@@ -147,28 +152,34 @@ core_message()
 		DEBUG)
 			if core_variable_isSet core_init_verbosity; then
 				if [ $core_init_verbosity -gt 1 ]; then
-					shouldEcho=1
+					_local_shouldEcho=1
 				fi
 			fi
 		;;
 		
 		TODO)
 			if [ -t 2 ]; then
-				prefix="$(printf '\033[2m')"
-				suffix="$(printf '\033[0m')"
+				_local_prefix="$(printf '\033[2m')"
+				_local_suffix="$(printf '\033[0m')"
 			fi
-			shouldEcho=1
+			_local_shouldEcho=1
 		;;
 	
 		*)
-			shouldEcho=1
+			_local_shouldEcho=1
 		;;
 
 	esac
 	
-	if [ $shouldEcho -eq 1 ]; then
-		printf '%s%s%s\n' "$prefix" "$_program_name: $messageKind: $message" "$suffix" 1>&2
+	if [ $_local_shouldEcho -eq 1 ]; then
+		printf '%s%s%s\n' "$_local_prefix" "$_program_name: $_local_messageKind: $_local_message" "$_local_suffix" 1>&2
 	fi
+	
+	unset _local_messageKind
+	unset _local_message
+	unset _local_shouldEcho
+	unset _local_prefix
+	unset _local_suffix
 }
 
 core_exitError()
@@ -339,9 +350,9 @@ core_init_findOurNameAndPath()
 		global_ourPath="$(pwd)"
 	cd - >/dev/null
 	
-	unset _local_ourSymlinkPathRaw
-	
 	global_ourSymlinkExecutablePath="$global_ourSymlinkPath"/"$global_ourSymlinkName"
+	
+	unset _local_ourSymlinkPathRaw
 }
 
 core_init_doNotRunAsSetUidOrSetGid()
@@ -363,12 +374,6 @@ core_init_doNotRunAsSetUidOrSetGid()
 
 core_init_determinePreferredShell()
 {
-	_local_shebang_path
-	_local_shebang_shell
-	_local_remainder
-	_local_comment
-	_local_shebang_path
-	
 	IFS=' ' read -r _local_commented_shebang_path _local_shebang_shell _local_remainder <"$global_ourSymlinkExecutablePath"
 	if [ -n "$_local_remainder" ]; then
 		# core_commandLine_exitCode_SOFTWARE
