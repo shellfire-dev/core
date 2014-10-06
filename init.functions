@@ -372,6 +372,7 @@ core_init_doNotRunAsSetUidOrSetGid()
 	fi
 }
 
+core_init_preferredShell=''
 core_init_determinePreferredShell()
 {
 	IFS=' ' read -r _local_commented_shebang_path _local_shebang_shell _local_remainder <"$global_ourSymlinkExecutablePath"
@@ -459,14 +460,16 @@ core_init_setTracing()
 	esac
 }
 
+# https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh
 core_init_setLocalSupport()
 {
 	case "$core_init_preferredShell" in
-
-		# Needed for ksh93 (tested on ksh93u).
-		# pdksh, mksh have this alias by default.
-		# dash, bash, ash in BusyBox and zsh support local natively
-		# OpenBSD ksh, and oksh (derived from OpenBSD ksh) local support is unknown.
+		
+		# Note: Supporting ksh93 is painful (eg https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh)
+		# Needed for ksh93 (tested on ksh93u+).
+		# * pdksh, mksh have this alias by default and expected visibility.
+		# * dash, bash, ash in BusyBox and zsh support local natively.
+		# * OpenBSD ksh, and oksh (derived from OpenBSD ksh) local support is unknown.
 		ksh|ksh93|ksh93u)
 			alias local='typeset'
 		;;
