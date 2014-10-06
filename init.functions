@@ -330,7 +330,7 @@ core_init_setSaneEnvironmentDefaults()
 # http://mywiki.wooledge.org/Bashism?action=show&redirect=bashism
 core_init_findOurNameAndPath()
 {
-	global_ourSymlinkName="$(core_compatibility_basename "$0")"
+	core_init_ourSymlinkName="$(core_compatibility_basename "$0")"
 		
 	# can be empty if 'bash file' used or 'bash </path/to/file' or ksh with PATH containing '.'
 	_local_ourSymlinkPathRaw="${0%/*}"
@@ -342,14 +342,14 @@ core_init_findOurNameAndPath()
 	# At this point, we resolve $0 vs the current working directory
 	# If we were exec'd, we have either a relative or an absolute path
 	cd "$_local_ourSymlinkPathRaw" 1>/dev/null
-		global_ourSymlinkPath="$(pwd)"
+		core_init_ourSymlinkPath="$(pwd)"
 	cd - >/dev/null
 	
 	cd -P "$_local_ourSymlinkPathRaw" 1>/dev/null
-		global_ourPath="$(pwd)"
+		core_init_ourPath="$(pwd)"
 	cd - >/dev/null
 	
-	global_ourSymlinkExecutablePath="$global_ourSymlinkPath"/"$global_ourSymlinkName"
+	core_init_ourSymlinkExecutablePath="$core_init_ourSymlinkPath"/"$core_init_ourSymlinkName"
 	
 	unset _local_ourSymlinkPathRaw
 }
@@ -360,12 +360,12 @@ core_init_doNotRunAsSetUidOrSetGid()
 	# * Happens too late, really - the shell interpreter is running
 	# * bash allows functions to be exported that can replace builtins (even the builtin builtin)
 	
-	if [ -u "$global_ourSymlinkExecutablePath" ]; then
+	if [ -u "$core_init_ourSymlinkExecutablePath" ]; then
 		# core_commandLine_exitCode_NOPERM
 		core_exitError 77 "We can not be run with the setuid bit set"
 	fi
 	
-	if [ -g "$global_ourSymlinkExecutablePath" ]; then
+	if [ -g "$core_init_ourSymlinkExecutablePath" ]; then
 		# core_commandLine_exitCode_NOPERM
 		core_exitError 77 "We can not be run with setgid bit set"
 	fi
@@ -374,7 +374,7 @@ core_init_doNotRunAsSetUidOrSetGid()
 core_init_preferredShell=''
 core_init_determinePreferredShell()
 {
-	IFS=' ' read -r _local_commented_shebang_path _local_shebang_shell _local_remainder <"$global_ourSymlinkExecutablePath"
+	IFS=' ' read -r _local_commented_shebang_path _local_shebang_shell _local_remainder <"$core_init_ourSymlinkExecutablePath"
 	if [ -n "$_local_remainder" ]; then
 		# core_commandLine_exitCode_SOFTWARE
 		core_exitError 70 "Passing options to a shell ('#!$_local_shebang_path $_local_shebang_shell $_local_remainder') is not supported"
@@ -422,9 +422,9 @@ core_init_rexecUnderCorrectShell()
 	if [ "$core_init_preferredShell" = 'bash' ]; then
 		# Forces a privileged shell. Not a great defence.
 		# Also possible for ksh but ksh doesn't export functions
-		core_init_shell_rexecing=$$ exec "$_local_shellPath" -p "$global_ourSymlinkExecutablePath" "$@"
+		core_init_shell_rexecing=$$ exec "$_local_shellPath" -p "$core_init_ourSymlinkExecutablePath" "$@"
 	else
-		core_init_shell_rexecing=$$ exec "$_local_shellPath" "$global_ourSymlinkExecutablePath" "$@"
+		core_init_shell_rexecing=$$ exec "$_local_shellPath" "$core_init_ourSymlinkExecutablePath" "$@"
 	fi
 	
 	unset _local_shellPath

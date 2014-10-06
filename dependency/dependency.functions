@@ -143,8 +143,8 @@ core_dependency_setUpPathAndInstallMissing()
 {
 	# A standard path, excluding games, but including any sibling binaries to our one
 	local replacementPath='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-	_core_dependency_addToReplacementPathIfRequired "$global_ourSymlinkPath"
-	_core_dependency_addToReplacementPathIfRequired "$global_ourPath"
+	_core_dependency_addToReplacementPathIfRequired "$core_init_ourSymlinkPath"
+	_core_dependency_addToReplacementPathIfRequired "$core_init_ourPath"
 	
 	if [ "$core_dependency_packageManager" = 'Unknown' ]; then
 		core_message INFO 'Could not determine package manager for your system, located binaries may be incorrect'
