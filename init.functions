@@ -84,7 +84,7 @@ core_dependency_oneOf()
 		core_exitError 70 "packageManager can not be empty"
 	fi
 	shift 1
-	_local_programName
+	
 	for _local_programName in "$@"
 	do
 		:
@@ -100,7 +100,6 @@ core_dependency_fallback()
 	# eg !bash
 	_local_condition="$1"
 	
-	_local_programNameOnPath
 	for programNameOnPath in "$@"
 	do
 		:
@@ -422,6 +421,7 @@ core_init_rexecUnderCorrectShell()
 	# exec -a doesn't work in dash
 	if [ "$core_init_preferredShell" = 'bash' ]; then
 		# Forces a privileged shell. Not a great defence.
+		# Also possible for ksh but ksh doesn't export functions
 		core_init_shell_rexecing=$$ exec "$_local_shellPath" -p "$global_ourSymlinkExecutablePath" "$@"
 	else
 		core_init_shell_rexecing=$$ exec "$_local_shellPath" "$global_ourSymlinkExecutablePath" "$@"
