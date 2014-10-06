@@ -10,9 +10,8 @@ core_variable_array_initialise()
 core_variable_array_isSet()
 {
 	local variableName="$1"
-	if [ $# -eq 3 ]; then
+	if [ $variableName = 'options' ]; then
 		declare -a -p
-		exit 70
 	fi
 	local declaration options definition
 	local declarationName declarationBody
