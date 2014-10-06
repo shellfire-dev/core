@@ -8,9 +8,11 @@ core_init_defines core_dependency_fallback
 core_dependency_fallback !'*' lsb_release
 core_dependency_determinePackageManager()
 {
+	set -x
 	if core_variable_array_iterateAsCallbacksShortcut _core_dependency_check_functions; then
 		return 0
 	fi
+	set +x
 	
 	# Alternatively, we can use /etc/debian_version's presence in a check above
 	# Or parse /etc/lsb-release for DISTRIB_ID
