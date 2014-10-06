@@ -6,23 +6,9 @@ core_variable_array_initialise()
 }
 
 # bash is weird when it comes to checking empty vs undeclared arrays: https://unix.stackexchange.com/questions/56837/how-to-test-if-a-variable-is-defined-at-all-in-bash-prior-to-version-4-2-with-th
-# this code is expensive to run; an alternative might be to test that index 0 is set, but this isn't a 100% requirement for bash
 core_variable_array_isSet()
 {
-	local variableName="$1"
-	if [ $variableName = 'options' ]; then
-		declare -a -p
-	fi
-	local declaration options definition
-	local declarationName declarationBody
-	while IFS=' ' read -r declaration options definition
-	do
-		IFS="=" read -r declarationName declarationBody <<<"$definition"
-		if [ "$declarationName" = "$variableName" ]; then
-			return 0
-		fi
-	done < <(declare -a -p)
-	return 1
+	declare +f -p foobar &>/dev/null
 }
 
 core_variable_array_isUnset()
