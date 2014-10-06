@@ -117,7 +117,7 @@ core_message()
 	_local_shouldEcho=0
 	_local_prefix=''
 	_local_suffix=''
-	case "$messageKind" in
+	case "$_local_messageKind" in
 	
 		FAIL)
 			if [ -t 2 ]; then
