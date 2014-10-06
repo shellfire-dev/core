@@ -9,9 +9,11 @@ core_variable_array_initialise()
 # this code is expensive to run; an alternative might be to test that index 0 is set, but this isn't a 100% requirement for bash
 core_variable_array_isSet()
 {
-	declare -a -p
-	exit 70
 	local variableName="$1"
+	if [ "$variableName" = 'options' ]; then
+		declare -a -p
+		exit 70
+	fi
 	local declaration options definition
 	local declarationName declarationBody
 	while IFS=' ' read -r declaration options definition
