@@ -323,21 +323,23 @@ core_init_findOurNameAndPath()
 	global_ourSymlinkName="$(core_compatibility_basename "$0")"
 		
 	# can be empty if 'bash file' used or 'bash </path/to/file' or ksh with PATH containing '.'
-	local potential_global_ourSymlinkPath="${0%/*}"
-	if [ -z "$potential_global_ourSymlinkPath" ]; then
+	_local_ourSymlinkPathRaw="${0%/*}"
+	if [ -z "$_local_ourSymlinkPathRaw" ]; then
 		# core_commandLine_exitCode_USAGE
 		core_exitError 64 "Do not invoke this program either by specifying a shell interpreter on a file in the current working directory (eg bash '$0') or redirecting from a pipe into a shell interpreter (eg bash [-c] <'$0') or by using ksh with a PATH containing '.'"
 	fi
 	
 	# At this point, we resolve $0 vs the current working directory
 	# If we were exec'd, we have either a relative or an absolute path
-	cd "$potential_global_ourSymlinkPath" 1>/dev/null
+	cd "$_local_ourSymlinkPathRaw" 1>/dev/null
 		global_ourSymlinkPath="$(pwd)"
 	cd - >/dev/null
 	
-	cd -P "$potential_global_ourSymlinkPath" 1>/dev/null
+	cd -P "$_local_ourSymlinkPathRaw" 1>/dev/null
 		global_ourPath="$(pwd)"
 	cd - >/dev/null
+	
+	unset _local_ourSymlinkPathRaw
 	
 	global_ourSymlinkExecutablePath="$global_ourSymlinkPath"/"$global_ourSymlinkName"
 }
@@ -359,61 +361,38 @@ core_init_doNotRunAsSetUidOrSetGid()
 	fi
 }
 
-core_init_setTracing()
-{
-	case "$-" in
-		
-		*x*)
-			if core_variable_isSet shellfire_trace; then
-				export shellfire_trace="$shellfire_trace $_program_name"
-			else
-				export shellfire_trace="$_program_name"
-			fi
-		;;
-		
-		*)
-			# Known to not be correct for space-delimited program names
-			if core_variable_isSet shellfire_trace; then
-				local program
-				for program in $shellfire_trace
-				do
-					if [ "$program" = "$_program_name" ]; then
-						set -x
-						break
-					fi
-				done
-			fi
-		;;
-		
-	esac
-}
-
 core_init_determinePreferredShell()
 {
-	local shebang_path
-	local shebang_shell
-	local remainder
-	local comment
-	local shebang_path
+	_local_shebang_path
+	_local_shebang_shell
+	_local_remainder
+	_local_comment
+	_local_shebang_path
 	
-	IFS=' ' read -r commented_shebang_path shebang_shell remainder <"$global_ourSymlinkExecutablePath"
-	if [ -n "$remainder" ]; then
+	IFS=' ' read -r _local_commented_shebang_path _local_shebang_shell _local_remainder <"$global_ourSymlinkExecutablePath"
+	if [ -n "$_local_remainder" ]; then
 		# core_commandLine_exitCode_SOFTWARE
-		core_exitError 70 "Passing options to a shell ('#!$shebang_path $shebang_shell $remainder') is not supported"
+		core_exitError 70 "Passing options to a shell ('#!$_local_shebang_path $_local_shebang_shell $_local_remainder') is not supported"
 	fi
-	IFS='!' read -r comment shebang_path <<-EOF
-		$commented_shebang_path
+	IFS='!' read -r _local_comment _local_shebang_path <<-EOF
+		$_local_commented_shebang_path
 	EOF
 	
-	if [ -z "$shebang_shell" ]; then
-		core_init_preferredShell="$(core_compatibility_basename "$shebang_path")"
+	if [ -z "$_local_shebang_shell" ]; then
+		core_init_preferredShell="$(core_compatibility_basename "$_local_shebang_path")"
 	else
-		if [ "$shebang_path" != '/usr/bin/env' ]; then
+		if [ "$_local_shebang_path" != '/usr/bin/env' ]; then
 			# core_commandLine_exitCode_SOFTWARE
-			core_exitError 70 "All shell scripts should use '/usr/bin/env' with a shell, not #!$shebang_path $shebang_shell"
+			core_exitError 70 "All shell scripts should use '/usr/bin/env' with a shell, not #!$_local_shebang_path $shebang_shell"
 		fi
-		core_init_preferredShell="$shebang_shell"
+		core_init_preferredShell="$_local_shebang_shell"
 	fi
+	
+	unset _local_shebang_path
+	unset _local_shebang_shell
+	unset _local_remainder
+	unset _local_comment
+	unset _local_shebang_path
 }
 
 # Ensures we run under a shell interpreter that we were designed for - no matter what is specified in the shebang
@@ -432,15 +411,62 @@ core_init_rexecUnderCorrectShell()
 		#core_commandLine_exitCode_OSFILE
 		core_exitError 72 "Preferred shell '$core_init_preferredShell' does not exist on the PATH"
 	fi
-	local shellPath="$(core_compatibility_which "$core_init_preferredShell")"
+	_local_shellPath="$(core_compatibility_which "$core_init_preferredShell")"
 
 	# exec -a doesn't work in dash
 	if [ "$core_init_preferredShell" = 'bash' ]; then
 		# Forces a privileged shell. Not a great defence.
-		core_init_shell_rexecing=$$ exec "$shellPath" -p "$global_ourSymlinkExecutablePath" "$@"
+		core_init_shell_rexecing=$$ exec "$_local_shellPath" -p "$global_ourSymlinkExecutablePath" "$@"
 	else
-		core_init_shell_rexecing=$$ exec "$shellPath" "$global_ourSymlinkExecutablePath" "$@"
+		core_init_shell_rexecing=$$ exec "$_local_shellPath" "$global_ourSymlinkExecutablePath" "$@"
 	fi
+	
+	unset _local_shellPath
+}
+
+core_init_setTracing()
+{
+	case "$-" in
+		
+		*x*)
+			if core_variable_isSet shellfire_trace; then
+				export shellfire_trace="$shellfire_trace $_program_name"
+			else
+				export shellfire_trace="$_program_name"
+			fi
+		;;
+		
+		*)
+			# Known to not be correct for space-delimited program names
+			if core_variable_isSet shellfire_trace; then
+				_local_program
+				for _core_init_setTracing_program in $shellfire_trace
+				do
+					if [ "$program" = "$_program_name" ]; then
+						set -x
+						break
+					fi
+				done
+			fi
+			unset _local_program
+		;;
+		
+	esac
+}
+
+core_init_setLocalSupport()
+{
+	case "$core_init_preferredShell" in
+
+		# Needed for ksh93 (tested on ksh93u).
+		# pdksh, mksh have this alias by default.
+		# dash, bash, ash in BusyBox and zsh support local natively
+		# OpenBSD ksh, and oksh (derived from OpenBSD ksh) local support is unknown.
+		ksh|ksh93|ksh93u)
+			alias local='typeset'
+		;;
+		
+	esac
 }
 
 core_init_main()
@@ -448,9 +474,11 @@ core_init_main()
 	core_init_init
 	core_init_setSaneEnvironmentDefaults
 	core_init_findOurNameAndPath
-	core_init_setTracing
+	core_init_setLocalSupport
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
+	core_init_setTracing
+	core_init_setLocalSupport
 	
 	core_usesIn core
 	if core_functions_exists _program; then
