@@ -8,7 +8,7 @@ core_variable_array_initialise()
 # bash is weird when it comes to checking empty vs undeclared arrays: https://unix.stackexchange.com/questions/56837/how-to-test-if-a-variable-is-defined-at-all-in-bash-prior-to-version-4-2-with-th
 core_variable_array_isSet()
 {
-	declare +f -p foobar &>/dev/null
+	declare -p "$1" &>/dev/null
 }
 
 core_variable_array_isUnset()
@@ -25,9 +25,11 @@ core_variable_array_append()
 	for argument in "$@"
 	do
 		if core_variable_array_isUnset "$variableName"; then
-			eval "${variableName}=('$argument')"
+			eval "${variableName}"'=($argument)'
+			#eval "${variableName}=('$argument')"
 		else
-			eval "${variableName}+=('$argument')"
+			eval "${variableName}"'+=($argument)'
+			#eval "${variableName}+=('$argument')"
 		fi
 	done
 }
