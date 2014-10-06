@@ -19,6 +19,12 @@ core_variable_array_isSet()
 			return 0
 		fi
 	done < <(declare -a -p)
+	if [ -n "$declaration" ]; then
+		IFS="=" read -r declarationName declarationBody <<<"$definition"
+		if [ "$declarationName" = "$variableName" ]; then
+			return 0
+		fi
+	fi
 	return 1
 }
 
