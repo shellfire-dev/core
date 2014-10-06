@@ -100,7 +100,7 @@ core_dependency_fallback()
 	# eg !bash
 	_local_condition="$1"
 	
-	for programNameOnPath in "$@"
+	for _local_programNameOnPath in "$@"
 	do
 		:
 	done
@@ -210,6 +210,7 @@ core_uses()
 	local namespacedModule
 	local moduleName
 	local sourced
+	local relativeFunctionsFilePath
 	local functionsFilePath
 	
 	# TODO: Does NOT WORK when using /bin/sh on Mac - implying older bash run as sh is broken
