@@ -394,7 +394,7 @@ core_init_determinePreferredShell()
 		core_init_preferredShell="$_local_shebang_shell"
 	fi
 	
-	unset _local_shebang_path
+	unset _local_commented_shebang_path
 	unset _local_shebang_shell
 	unset _local_remainder
 	unset _local_comment
