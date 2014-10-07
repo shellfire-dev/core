@@ -26,10 +26,8 @@ core_variable_array_append()
 	do
 		if core_variable_array_isUnset "$variableName"; then
 			eval "${variableName}"'=($argument)'
-			#eval "${variableName}=('$argument')"
 		else
 			eval "${variableName}"'+=($argument)'
-			#eval "${variableName}+=('$argument')"
 		fi
 	done
 }

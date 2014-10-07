@@ -16,7 +16,7 @@ core_functions_register _core_functions core_temporaryFiles_initialise
 core_dependency_requires '*' rm
 _core_temporaryFiles_removeAll_callback()
 {
-	rm -r -f -- "$@" 2>/dev/null || true
+	rm -r -f -- "$@" 1>/dev/null 2>/dev/null || true
 }
 
 core_temporaryFiles_removeAll()
