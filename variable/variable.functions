@@ -71,7 +71,7 @@ core_variable_firstCharacter()
 	printf '%s' "${value%$suffix}"
 }
 
-core_value_lastCharacter()
+core_variable_lastCharacter()
 {
 	local value="$1"
 	local prefix="${value%?}"
