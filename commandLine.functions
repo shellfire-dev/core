@@ -119,8 +119,8 @@ files and folders:-
   ${_program_name}_RC_D
 
 Locations ending '.d' are folders which are searched for files. All files in a
-folder are used in shell glob-expansion order. HOME, ${_program_name}_RC and
-${_program_name}_RC_D are environment variables. If the variable
+folder are used in shell glob-expansion order. HOME, ${_program_namespace}_RC and
+${_program_namespace}_RC_D are environment variables. If the variable
 does not exist, or is blacklisted, the location is ignored.
 Blacklisting is done by specifying:-
 
