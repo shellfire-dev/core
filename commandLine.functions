@@ -144,8 +144,8 @@ If the permissions are not set, the file is ignored.
 
 Configuration Keys
   
-  ${_program_name}_verbose   $(core_init_verbosity)  Controls message logging on stderr
-  ${_program_name}_language  $(core_init_language)  Controls sort language${_program_commandLine_helpMessage_configurationKeys}
+  ${_program_namespace}_verbose   $(core_init_verbosity)  Controls message logging on stderr
+  ${_program_namespace}_language  $(core_init_language)  Controls sort language${_program_commandLine_helpMessage_configurationKeys}
 Values should be single or double-quoted if they contain whitespace.
 
 Examples
@@ -404,7 +404,7 @@ core_commandLine_processOptionWithoutArgument()
 	
 		v|verbose)
 			local currentVerbosity=$(core_init_verbosity)
-			core_variable_setVariable ${_program_name}_verbose $((currentVerbosity+1))
+			core_variable_setVariable ${_program_namespace}_verbose $((currentVerbosity+1))
 		;;
 		
 		version)
@@ -432,7 +432,7 @@ core_commandLine_processOptionWithArgument()
 		v|verbose)
 			core_validate_isUnsignedInteger $core_commandLine_exitCode_USAGE 'option' "$optionNameIncludingHyphens" "$optionValue"
 			
-			core_variable_setVariable ${_program_name}_verbose "$optionValue"
+			core_variable_setVariable ${_program_namespace}_verbose "$optionValue"
 		;;
 		
 		*)

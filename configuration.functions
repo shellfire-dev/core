@@ -171,6 +171,10 @@ core_configuration_load()
 core_usesIn core compatibility
 core_configuration_defaults()
 {
-	core_variable_setVariableIfUnset ${_program_name}_language $(core_init_language)
-	core_variable_setVariableIfUnset ${_program_name}_verbose $(core_init_verbosity)
+	if core_variable_setVariableIfUnset _program_namespace; then
+		_program_namespace=${_program_name}
+	fi
+	
+	core_variable_setVariableIfUnset ${_program_namespace}_language $(core_init_language)
+	core_variable_setVariableIfUnset ${_program_namespace}_verbose $(core_init_verbosity)
 }
