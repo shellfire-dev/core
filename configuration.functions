@@ -146,14 +146,18 @@ core_configuration_loadPath()
 core_configuration_defaultsBlacklistedEnvironmentVariables=''
 core_configuration_load()
 {
+	if core_variable_setVariableIfUnset _program_namespace; then
+		_program_namespace=${_program_name}
+	fi
+	
 	core_variable_array_initialise _core_configuration_blacklisted
 	core_variable_array_initialise _core_configuration_alreadyLoaded
 	
 	core_configuration_loadPath _program_etcPath "${core_libraryName}"/rc
 	core_configuration_loadPath _program_etcPath "${core_libraryName}"/rc.d
 	
-	core_configuration_loadPath _program_etcPath "${_program_name}"/rc
-	core_configuration_loadPath _program_etcPath "${_program_name}"/rc.d
+	core_configuration_loadPath _program_etcPath "${_program_namespace}"/rc
+	core_configuration_loadPath _program_etcPath "${_program_namespace}"/rc.d
 	
 	core_configuration_loadPath HOME ."${core_libraryName}"/rc
 	core_configuration_loadPath HOME ."${core_libraryName}"/rc.d
@@ -161,20 +165,16 @@ core_configuration_load()
 	core_configuration_loadPath ${core_libraryName}_RC ''
 	core_configuration_loadPath ${core_libraryName}_RC_D ''
 	
-	core_configuration_loadPath HOME ."${_program_name}"/rc
-	core_configuration_loadPath HOME ."${_program_name}"/rc.d
+	core_configuration_loadPath HOME ."${_program_namespace}"/rc
+	core_configuration_loadPath HOME ."${_program_namespace}"/rc.d
 	
-	core_configuration_loadPath ${_program_name}_RC ''
-	core_configuration_loadPath ${_program_name}_RC_D ''
+	core_configuration_loadPath ${_program_namespace}_RC ''
+	core_configuration_loadPath ${_program_namespace}_RC_D ''
 }
 
 core_usesIn core compatibility
 core_configuration_defaults()
 {
-	if core_variable_setVariableIfUnset _program_namespace; then
-		_program_namespace=${_program_name}
-	fi
-	
 	core_variable_setVariableIfUnset ${_program_namespace}_language $(core_init_language)
 	core_variable_setVariableIfUnset ${_program_namespace}_verbose $(core_init_verbosity)
 }
