@@ -115,8 +115,8 @@ files and folders:-
   ${_program_etcPath}/${_program_name}/rc.d
   HOME/.${_program_name}/rc
   HOME/.${_program_name}/rc.d
-  ${_program_name}_RC
-  ${_program_name}_RC_D
+  ${_program_namespace}_RC
+  ${_program_namespace}_RC_D
 
 Locations ending '.d' are folders which are searched for files. All files in a
 folder are used in shell glob-expansion order. HOME, ${_program_namespace}_RC and
