@@ -146,9 +146,7 @@ core_configuration_loadPath()
 core_configuration_defaultsBlacklistedEnvironmentVariables=''
 core_configuration_load()
 {
-	if core_variable_setVariableIfUnset _program_namespace; then
-		_program_namespace=${_program_name}
-	fi
+	core_variable_setVariableIfUnset _program_namespace "${_program_name}"
 	
 	core_variable_array_initialise _core_configuration_blacklisted
 	core_variable_array_initialise _core_configuration_alreadyLoaded
