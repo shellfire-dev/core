@@ -111,24 +111,18 @@ Configuration
 This program can be configured by creating files in the form 'key=value' in the
 files and folders:-
   
-  ${_program_etcPath}/${core_libraryName}/rc
-  ${_program_etcPath}/${core_libraryName}/rc.d
   ${_program_etcPath}/${_program_name}/rc
   ${_program_etcPath}/${_program_name}/rc.d
-  HOME/.${core_libraryName}/rc
-  HOME/.${core_libraryName}/rc.d
-  ${core_libraryName}_RC
-  ${core_libraryName}_RC_D
   HOME/.${_program_name}/rc
   HOME/.${_program_name}/rc.d
   ${_program_name}_RC
   ${_program_name}_RC_D
 
 Locations ending '.d' are folders which are searched for files. All files in a
-folder are used in shell glob-expansion order. HOME, ${core_libraryName}_RC,
-${core_libraryName}_RC_D, ${_program_name}_RC and ${_program_name}_RC_D
-are environment variables. If the variable does not exist, or is blacklisted,
-the location is ignored. Blacklisting is done by specifying:-
+folder are used in shell glob-expansion order. HOME, ${_program_name}_RC and
+${_program_name}_RC_D are environment variables. If the variable
+does not exist, or is blacklisted, the location is ignored.
+Blacklisting is done by specifying:-
 
   core_configuration_blacklist  VARIABLE_NAME
   
@@ -150,8 +144,8 @@ If the permissions are not set, the file is ignored.
 
 Configuration Keys
   
-  core_init_language   ${core_init_language}  Controls sort order language
-  core_init_verbosity  ${core_init_verbosity}  Controls message logging on stderr${_program_commandLine_helpMessage_configurationKeys}
+  ${_program_name}_verbose   $(core_init_verbosity)  Controls message logging on stderr
+  ${_program_name}_language  $(core_init_language)  Controls sort language${_program_commandLine_helpMessage_configurationKeys}
 Values should be single or double-quoted if they contain whitespace.
 
 Examples
@@ -346,14 +340,16 @@ core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogic
 	unset LC_NUMERIC
 	unset LC_TIME
 	unset LC_ALL
-
-	export LANG="$core_init_language"
-	export LC_COLLATE="$core_init_language"
-	export LC_CTYPE="$core_init_language"
-	export LC_MESSAGES="$core_init_language"
-	export LC_MONETARY="$core_init_language"
-	export LC_NUMERIC="$core_init_language"
-	export LC_TIME="$core_init_language"
+	
+	local language="$(core_init_language)"
+	
+	export LANG="$language"
+	export LC_COLLATE="$language"
+	export LC_CTYPE="$language"
+	export LC_MESSAGES="$language"
+	export LC_MONETARY="$language"
+	export LC_NUMERIC="$language"
+	export LC_TIME="$language"
 	export LC_ALL=""
 	
 	# ? Also LANGUAGE, a GNU gettext extension?
@@ -407,7 +403,8 @@ core_commandLine_processOptionWithoutArgument()
 		;;
 	
 		v|verbose)
-			core_init_verbosity=$((core_init_verbosity+1))
+			local currentVerbosity=$(core_init_verbosity)
+			core_variable_setVariable ${_program_name}_verbose $((currentVerbosity+1))
 		;;
 		
 		version)
@@ -433,8 +430,9 @@ core_commandLine_processOptionWithArgument()
 	case "$optionName" in
 		
 		v|verbose)
-			core_TODO Check value is an unsigned integer
-			core_init_verbosity="$optionValue"
+			core_validate_isUnsignedInteger $core_commandLine_exitCode_USAGE 'option' "$optionNameIncludingHyphens" "$optionValue"
+			
+			core_variable_setVariable ${_program_name}_verbose "$optionValue"
 		;;
 		
 		*)

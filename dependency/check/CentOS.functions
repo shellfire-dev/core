@@ -7,7 +7,7 @@ core_functions_register _core_dependency_check_functions core_dependency_check_C
 core_dependency_requires CentOS sudo yum
 core_dependency_check_CentOS_packageManager()
 {
-	if [ $core_init_verbosity -gt 0 ]; then
+	if [ $(core_init_verbosity) -gt 0 ]; then
 		local yumVerbosity=""
 	else
 		local yumVerbosity=" --quiet"
