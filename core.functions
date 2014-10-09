@@ -8,10 +8,10 @@ core_usesIn core configuration commandLine compatibility dependency functions pa
 core_usesIn core children temporaryFiles
 
 core_functions_register _core_functions \
+	core_compatibility_execute \
 	core_configuration_load \
 	core_configuration_defaults \
 	core_umask_setDefault \
 	core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogicIsReliable \
-	core_compatibility_execute \
 	core_commandLine_parse \
 	core_dependency_installDependencies
