@@ -33,11 +33,6 @@ core_variable_setVariableIfUnset()
 	fi
 }
 
-core_variable_length()
-{
-	printf '%s' "${#1}"
-}
-
 #if core_variable_startsWith "/etc/path/to/file" "/home/"; then
 #	echo 'yes'
 #fi
