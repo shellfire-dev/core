@@ -132,6 +132,30 @@ core_validate_socketPathReadableAndWritable()
 	fi
 }
 
+core_validate_characterDeviceFileReadableAndWritable()
+{
+	core_validate_pathNotEmpty "$@"
+
+	local code=$1
+	local category="$2"
+	local name="$3"
+	local value="$4"
+	
+	local messageFragment="The $category '$name' specifies a path '$value' which"
+	if [ ! -e "$value" ]; then
+		core_validate_exit "$messageFragment does not exist"
+	fi
+	if [ ! -c "$value" ]; then
+		core_validate_exit "$messageFragment is not a character device file"
+	fi
+	if [ ! -r "$value" ]; then
+		core_validate_exit "$messageFragment is not a readable character device file"
+	fi
+	if [ ! -x "$value" ]; then
+		core_validate_exit "$messageFragment is not an executable character device file"
+	fi
+}
+
 core_validate_isBoolean()
 {
 	local code=$1
