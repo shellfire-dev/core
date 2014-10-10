@@ -68,6 +68,7 @@ core_dependency_requires()
 		fi
 		_core_dependency_requires="${_core_dependency_requires}${_local_packageManager}${core_variable_array_delimiter}${_local_programName}
 "
+		core_message DEBUG "Requires in packageManager '$_local_packageManager' program '$_local_programName'"
 	done
 	
 	unset _local_packageManager
