@@ -2,7 +2,7 @@ core_usesIn core/variable array
 
 core_trap_initialise()
 {
-	local trapNames='EXIT|HUP|INT|QUIT|ABRT|PIPE|TERM|TSTP|INFO|USR1|USR2'
+	local trapNames='EXIT|HUP|INT|QUIT|ABRT|PIPE|TERM|TSTP|USR1|USR2'
 	local trapName
 	local IFS='|'
 	for trapName in $trapNames
@@ -41,7 +41,7 @@ core_trap_addHandler()
 		
 			# DEBUG|ERR|RETURN are not supported
 		
-			EXIT|HUP|INT|QUIT|ABRT|PIPE|TERM|TSTP|INFO|USR1|USR2)
+			EXIT|HUP|INT|QUIT|ABRT|PIPE|TERM|TSTP|USR1|USR2)
 				:
 			;;
 		
