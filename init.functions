@@ -199,7 +199,7 @@ core_terminal_colour()
 	# Are there non-VT102-alike terminals still out there, such that we can't just use ANSI codes?
 	if [ -t 2 ]; then
 		if core_compatibility_whichNoOutput tput; then
-			tput $terminfoCommand $code
+			tput $terminfoCommand $ansiCode
 		else
 			printf '\033[${ansiMajorCode}${ansiCode}m'
 		fi
