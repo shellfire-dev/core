@@ -132,6 +132,19 @@ core_init_language()
 	fi
 }
 
+core_terminal_ansiSupported()
+{
+	case "$TERM" in
+		
+		xterm*|rxvt*|urxvt*|linux*|vt*)
+			return 0
+		;;
+		
+	esac
+	
+	return 1
+}
+
 # http://wiki.bash-hackers.org/scripting/terminalcodes
 # http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 # http://www.termsys.demon.co.uk/vtansi.htm
@@ -141,9 +154,13 @@ core_init_language()
 # https://en.wikipedia.org/wiki/ANSI_escape_code
 core_terminal_colour()
 {
+	if [ ! -t $1 ]; then
+		return 0
+	fi
+	
 	local terminfoCommand
 	local ansiMajorCode
-	case "$1" in
+	case "$2" in
 		
 		foreground)
 			terminfoCommand=setaf
@@ -158,7 +175,7 @@ core_terminal_colour()
 	esac
 	
 	local ansiCode
-	case "$2" in
+	case "$3" in
 		black)
 			ansiCode=0
 		;;
@@ -197,20 +214,19 @@ core_terminal_colour()
 	esac
 	
 	# Are there non-VT102-alike terminals still out there, such that we can't just use ANSI codes?
-	if [ -t 2 ]; then
-		if core_compatibility_whichNoOutput tput; then
-			tput $terminfoCommand $ansiCode
-		else
-			printf '\033[${ansiMajorCode}${ansiCode}m'
-		fi
+	if core_compatibility_whichNoOutput tput; then
+		tput $terminfoCommand $ansiCode
+	elif core_terminal_ansiSupported; then
+		printf '\033[${ansiMajorCode}${ansiCode}m'
 	fi
 }
 
 core_terminal_effect()
 {
-	if [ ! -t 2 ]; then
+	if [ ! -t $1 ]; then
 		return 0
 	fi
+	shift 1
 	
 	local effect
 	local terminfoCommand
@@ -256,7 +272,7 @@ core_terminal_effect()
 		
 		if core_compatibility_whichNoOutput tput; then
 			tput $terminfoCommand
-		else
+		elif core_terminal_ansiSupported; then
 			printf "\033[${ansiCode}m"
 		fi
 	done
@@ -264,10 +280,10 @@ core_terminal_effect()
 
 core_terminal_reset()
 {
-	if [ -t 2 ]; then
+	if [ -t $1 ]; then
 		if core_compatibility_whichNoOutput tput; then
 			tput sgr0
-		else
+		elif core_terminal_ansiSupported; then
 			printf '\033[0m'
 		fi
 	fi
@@ -284,39 +300,39 @@ core_message()
 		
 		# 2 green, 3 
 		FAIL)
-			prefix="$(core_terminal_effect bold)$(core_terminal_colour foreground red)"
+			prefix="$(core_terminal_effect 2 bold)$(core_terminal_colour 2 foreground red)"
 			shouldEcho=1
 		;;
 		
 		WARN)
-			prefix="$(core_terminal_effect bold)$(core_terminal_colour foreground yellow)"
+			prefix="$(core_terminal_effect 2 bold)$(core_terminal_colour 2 foreground yellow)"
 			shouldEcho=1
 		;;
 	
 		NOTICE)
 			if [ $(core_init_verbosity) -gt 0 ]; then
-				prefix="$(core_terminal_colour foreground cyan)"
+				prefix="$(core_terminal_colour 2 foreground cyan)"
 				shouldEcho=1
 			fi
 		;;
 	
 		INFO)
 			if [ $(core_init_verbosity) -gt 1 ]; then
-				prefix="$(core_terminal_colour foreground white)"
+				prefix="$(core_terminal_colour 2 foreground white)"
 				shouldEcho=1
 			fi
 		;;
 		
 		TODO)
 			if [ $(core_init_verbosity) -gt 1 ]; then
-				prefix="$(core_terminal_effect dim)"
+				prefix="$(core_terminal_effect 2 dim)"
 				shouldEcho=1
 			fi
 		;;
 	
 		DEBUG)
 			if [ $(core_init_verbosity) -gt 2 ]; then
-				prefix="$(core_terminal_effect dim)$(core_terminal_colour foreground magenta)"
+				prefix="$(core_terminal_effect 2 dim)$(core_terminal_colour 2 foreground magenta)"
 				shouldEcho=1
 			fi
 		;;
@@ -328,7 +344,7 @@ core_message()
 	esac
 	
 	if [ $shouldEcho -eq 1 ]; then
-		printf '%s%s%s\n' "$prefix" "$_program_name: $messageKind: $message" "$(core_terminal_reset)" 1>&2
+		printf '%s%s%s\n' "$prefix" "$_program_name: $messageKind: $message" "$(core_terminal_reset 2)" 1>&2
 	fi
 }
 
