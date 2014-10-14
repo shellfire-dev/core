@@ -361,7 +361,7 @@ core_TODO()
 
 # Does not work as a delimiter when running bash as /bin/sh on Mac - seems to be an IFS bug in bash 3.2
 #core_variable_array_delimiter="$(printf '\001')"
-core_variable_array_delimiter=','
+core_variable_array_delimiter="$(printf '\r')"
 core_dependency_declares core_variable_array_delimiter
 
 core_dependency_declares _core_uses_alreadySourced
