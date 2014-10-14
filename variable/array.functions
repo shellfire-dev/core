@@ -43,7 +43,7 @@ core_variable_array_isSet()
 		local core_variable_indirectValue_result
 		core_variable_indirectValue "$variableNameInitialised"
 		
-		if [ ${#core_variable_indirectValue_result} -gt 0 ]; then
+		if [ ${core_variable_indirectValue_result} -gt 0 ]; then
 			return 0
 		else
 			return 1
