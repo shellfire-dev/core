@@ -2,50 +2,80 @@ core_usesIn core variable
 
 core_init_defines core_variable_array_delimiter
 
+core_variable_array_warning()
+{
+	if [ "$core_init_preferred_shell" = 'sh' ]; then
+		if core_variable_isSet BASH_VERSINFO; then
+			if [ "$BASH_VERSINFO" -eq 3 ]; then
+				core_message NOTICE "There's a horrible bug in bash 3, which when run as sh, that treats 'local variableName' as being set to empty, not as unset. We have to support bash 3 for Mac OS X and MinGW."
+				core_message NOTICE "There's a horrible bug in bash 3, which when run as sh, that doesn't like IFS='\001'."
+			fi
+		fi
+	fi
+}
+
 core_variable_array_initialise()
 {
 	local variableName="$1"
+	local variableNameInitialised="${variableName}_initialised"
+	
+	if core_variable_isSet "$variableNameInitialised"; then
+		
+		local core_variable_indirectValue_result
+		core_variable_indirectValue "$variableNameInitialised"
+		
+		if [ -n "$core_variable_indirectValue_result" ]; then
+			return 0
+		fi
+	fi
+	
 	core_variable_setVariable "$variableName" ''
+	core_variable_setVariable "${variableName}_initialised" 0
 }
 
 core_variable_array_isSet()
 {
-	core_variable_isSet "$1"
+	local variableName="$1"
+	local variableNameInitialised="${variableName}_initialised"
+	
+	if core_variable_isSet "$variableNameInitialised"; then
+		
+		local core_variable_indirectValue_result
+		core_variable_indirectValue "$variableNameInitialised"
+		
+		if [ "$core_variable_indirectValue_result" = 'x' ]; then
+			return 0
+		else
+			return 1
+		fi
+	fi
+	
+	return 0
 }
 
 core_variable_array_isUnset()
 {
-	core_variable_isUnset "$1"
+	! core_variable_array_isSet "$1"
 }
 
-# A \1 separated array; \1 is still file-system special, but is so rare that it only constitutes a security risk, nothing else
 core_variable_array_append()
-{
+{	
 	local variableName="$1"
 	shift 1
-	
+		
 	local argument
 	for argument in "$@"
 	do
-		if core_variable_isUnset "$variableName"; then
+		if core_variable_array_isUnset "$variableName"; then
+			core_variable_array_initialise "$variableName"
 			core_variable_setVariable "$variableName" "$argument"
+			core_variable_setVariable "${variableName}_initialised" 1
 		else
-			local core_variable_indirectValue_result
+			core_variable_indirectValue "${variableName}_initialised"
+			core_variable_setVariable "${variableName}_initialised" $((core_variable_indirectValue_result+1))
 			core_variable_indirectValue "$variableName"
 			core_variable_setVariable "$variableName" "${core_variable_indirectValue_result}$core_variable_array_delimiter${argument}"
 		fi
-	done
-}
-
-core_variable_array_appendAsOptionArg()
-{
-	local variableName="$1"
-	shift 1
-	
-	local argument
-	for argument in "$@"
-	do
-		core_variable_array_append "$variableName" "'${argument}'"
 	done
 }
 
@@ -53,21 +83,17 @@ core_variable_array_length()
 {
 	local variableName="$1"
 	shift 1
-	
-	local originalIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
-	core_variable_indirectValue "$variableName"
-	if [ ${#core_variable_indirectValue_result} -eq 0 ]; then
-		printf '%s' 0
-		return 0
-	fi
-	set -- $core_variable_indirectValue_result
-	printf '%s' $#
+
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "${variableName}_initialised"
+	printf '%s' $core_variable_indirectValue_result
 }
 
 _core_variable_array_isEmpty()
 {
-	[ -z "$(core_variable_indirectValue "$variableName")" ]
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "${variableName}_initialised"
+	[ $core_variable_indirectValue -gt 0 ]
 }
 
 core_variable_array_isEmpty()
