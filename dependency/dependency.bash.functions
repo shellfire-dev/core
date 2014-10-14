@@ -142,7 +142,7 @@ core_dependency_determineOsFamily()
 		if [ "$core_dependency_osFamily" = 'Obsolete' ]; then
 			core_message WARN "The uname system (uname -s) '$unameSystem' is obsolete; it is probable this program will not work"
 		elif [ "$core_dependency_osFamily" = 'Unsupported' ]; then
-			core_message INFO "The uname system (uname -s) '$unameSystem' is unsupported"
+			core_message NOTICE "The uname system (uname -s) '$unameSystem' is unsupported"
 		fi
 	fi
 }

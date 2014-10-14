@@ -3,7 +3,7 @@ core_dependency_languagePackageManagers_Ruby_packageManager()
 {
 	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
 		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
-			core_message INFO "Upgrading Homebrew package manager"
+			core_message NOTICE "Updating gem manager"
 			gem update
 		fi
 	fi

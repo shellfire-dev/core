@@ -43,7 +43,7 @@ core_dependency_check_Homebrew_packageManager()
 	}
 	_core_dependency_check_Homebrew_packageManager_installTaps
 
-	core_message INFO "Updating Homebrew package manager (may take some time)"
+	core_message NOTICE "Updating Homebrew package manager (may take some time)"
 	brew update
 	
 	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
@@ -72,7 +72,7 @@ core_dependency_check_Homebrew_installPackageManagerIfRequired()
 		return 0
 	fi
 
-	core_message INFO "Installing Homebrew package manager"
+	core_message NOTICE "Installing Homebrew package manager"
 	ruby -e "$(curl -fsSL 'https://raw.githubusercontent.com/Homebrew/install/master/install')"
 
 	core_message INFO "Doctoring (sic) Homebrew package manager"

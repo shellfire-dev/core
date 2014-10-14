@@ -132,6 +132,147 @@ core_init_language()
 	fi
 }
 
+# http://wiki.bash-hackers.org/scripting/terminalcodes
+# http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+# http://www.termsys.demon.co.uk/vtansi.htm
+# We fallback to colouring output using ANSI sequences if tput isn't present (eg on BusyBox)
+# Linux console is mostly VT102 / ECMA-48 compliant
+# https://www.gnu.org/software/termutils/manual/termutils-2.0/html_chapter/tput_1.html
+# https://en.wikipedia.org/wiki/ANSI_escape_code
+core_terminal_colour()
+{
+	local terminfoCommand
+	local ansiMajorCode
+	case "$1" in
+		
+		foreground)
+			terminfoCommand=setaf
+			ansiMajorCode=3
+		;;
+		
+		background)
+			terminfoCommand=setbf
+			ansiMajorCode=4
+		;;
+		
+	esac
+	
+	local ansiCode
+	case "$2" in
+		black)
+			ansiCode=0
+		;;
+		
+		red)
+			ansiCode=1
+		;;
+			
+		green)
+			ansiCode=2
+		;;
+		
+		yellow)
+			ansiCode=3
+		;;
+		
+		blue)
+			ansiCode=4
+		;;
+		
+		magenta)
+			ansiCode=5
+		;;
+		
+		cyan)
+			ansiCode=6
+		;;
+		
+		white)
+			ansiCode=7
+		;;
+		
+		default)
+			ansiCode=9
+		;;
+	esac
+	
+	# Are there non-VT102-alike terminals still out there, such that we can't just use ANSI codes?
+	if [ -t 2 ]; then
+		if core_command_whichNoOutput tput; then
+			tput $terminfoCommand $code
+		else
+			printf '\033[${ansiMajorCode}${ansiCode}m'
+		fi
+	fi
+}
+
+core_terminal_effect()
+{
+	if [ ! -t 2 ]; then
+		return 0
+	fi
+	
+	local effect
+	local terminfoCommand
+	local ansiCode
+	for effect in "$@"
+	do
+		case "$effect" in
+			
+			bold)
+				terminfoCommand=bold
+				ansiCode=1
+			;;
+			
+			dim)
+				terminfoCommand=dim
+				ansiCode=2
+			;;
+			
+			# underscore not supported
+			# $(tput smul)test$(tput rmul)
+			# vs
+			# ansiCode=4
+			
+			# standout mode (often bold or reversed)
+			# smso / rmso
+			
+			blink)
+				terminfoCommand=blink
+				ansiCode=5
+			;;
+			
+			reversed)
+				terminfoCommand=rev
+				ansiCode=7
+			;;
+			
+			invisible)
+				terminfoCommand=invis
+				ansiCode=8
+			;;
+			
+		esac
+		
+		if core_command_whichNoOutput tput; then
+			tput $terminfoCommand
+		else
+			printf "\033[${ansiCode}m"
+		fi
+	done
+}
+
+core_terminal_reset()
+{
+	if [ -t 2 ]; then
+		if core_command_whichNoOutput tput; then
+			tput sgr0
+		else
+			printf '\033[0m'
+		fi
+	fi
+}
+
 core_message()
 {
 	local messageKind="$1"
@@ -139,48 +280,45 @@ core_message()
 	
 	local shouldEcho=0
 	local prefix=''
-	local suffix=''
 	case "$messageKind" in
-	
+		
+		# 2 green, 3 
 		FAIL)
-			if [ -t 2 ]; then
-				# http://wiki.bash-hackers.org/scripting/terminalcodes
-				prefix="$(printf '\033[1m\033[31m')"
-				suffix="$(printf '\033[0m')"
-			fi
+			prefix="$(core_terminal_effect bold)$(core_terminal_colour foreground red)"
 			shouldEcho=1
 		;;
 		
 		WARN)
-			if [ -t 2 ]; then
-				prefix="$(printf '\033[1m\033[33m')"
-				suffix="$(printf '\033[0m')"
-			fi
+			prefix="$(core_terminal_effect bold)$(core_terminal_colour foreground yellow)"
 			shouldEcho=1
 		;;
 	
-		INFO)
+		NOTICE)
 			if [ $(core_init_verbosity) -gt 0 ]; then
-				if [ -t 2 ]; then
-					prefix="$(printf '\033[1m\033[34m')"
-					suffix="$(printf '\033[0m')"
-				fi
+				prefix="$(core_terminal_colour foreground cyan)"
 				shouldEcho=1
 			fi
 		;;
 	
-		DEBUG)
+		INFO)
 			if [ $(core_init_verbosity) -gt 1 ]; then
+				prefix="$(core_terminal_colour foreground white)"
 				shouldEcho=1
 			fi
 		;;
 		
 		TODO)
-			if [ -t 2 ]; then
-				prefix="$(printf '\033[2m')"
-				suffix="$(printf '\033[0m')"
+			if [ $(core_init_verbosity) -gt 1 ]; then
+				prefix="$(core_terminal_effect dim)"
+				shouldEcho=1
 			fi
-			shouldEcho=1
+		;;
+	
+		DEBUG)
+			if [ $(core_init_verbosity) -gt 2 ]; then
+				prefix="$(core_terminal_effect dim)$(core_terminal_colour foreground magenta)"
+				shouldEcho=1
+			fi
 		;;
 	
 		*)
@@ -190,7 +328,7 @@ core_message()
 	esac
 	
 	if [ $shouldEcho -eq 1 ]; then
-		printf '%s%s%s\n' "$prefix" "$_program_name: $messageKind: $message" "$suffix" 1>&2
+		printf '%s%s%s\n' "$prefix" "$_program_name: $messageKind: $message" "$(core_terminal_reset)" 1>&2
 	fi
 }
 
