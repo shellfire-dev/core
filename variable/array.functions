@@ -45,7 +45,7 @@ core_variable_array_appendAsOptionArg()
 	local argument
 	for argument in "$@"
 	do
-		core_variable_array_append "$variableName" "'${arguments}'"
+		core_variable_array_append "$variableName" "'${argument}'"
 	done
 }
 
