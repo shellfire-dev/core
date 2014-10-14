@@ -50,7 +50,7 @@ core_variable_array_isSet()
 		fi
 	fi
 	
-	return 0
+	return 1
 }
 
 core_variable_array_isUnset()
