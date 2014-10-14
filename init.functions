@@ -198,7 +198,7 @@ core_terminal_colour()
 	
 	# Are there non-VT102-alike terminals still out there, such that we can't just use ANSI codes?
 	if [ -t 2 ]; then
-		if core_command_whichNoOutput tput; then
+		if core_init_whichNoOutput tput; then
 			tput $terminfoCommand $code
 		else
 			printf '\033[${ansiMajorCode}${ansiCode}m'
@@ -254,7 +254,7 @@ core_terminal_effect()
 			
 		esac
 		
-		if core_command_whichNoOutput tput; then
+		if core_init_whichNoOutput tput; then
 			tput $terminfoCommand
 		else
 			printf "\033[${ansiCode}m"
@@ -265,7 +265,7 @@ core_terminal_effect()
 core_terminal_reset()
 {
 	if [ -t 2 ]; then
-		if core_command_whichNoOutput tput; then
+		if core_init_whichNoOutput tput; then
 			tput sgr0
 		else
 			printf '\033[0m'
