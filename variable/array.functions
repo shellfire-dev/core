@@ -44,9 +44,9 @@ core_variable_array_isSet()
 		core_variable_indirectValue "$variableNameInitialised"
 		
 		if [ ${#core_variable_indirectValue_result} -gt 0 ]; then
-			return 1
-		else
 			return 0
+		else
+			return 1
 		fi
 	fi
 	
