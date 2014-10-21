@@ -162,6 +162,11 @@ core_terminal_ansiSupported()
 	return 1
 }
 
+core_terminal_ansiSequence()
+{
+	IFS='' printf "\033[${@}m"
+}
+
 core_terminal_tput()
 {
 	# Defensive syntax (|| true) for systems such as FreeBSD 10 where tput doesn't seem to support 'setaf' et al
@@ -231,7 +236,7 @@ core_terminal_colour()
 	esac
 
 	if core_terminal_ansiSupported; then
-		printf '\033[${ansiMajorCode}${ansiCode}m'
+		core_terminal_ansiSequence $ansiMajorCode $ansiCode
 	elif core_compatibility_whichNoOutput tput; then
 		core_terminal_tput $terminfoCommand $ansiCode
 	fi
@@ -287,7 +292,7 @@ core_terminal_effect()
 		esac
 
 		if core_terminal_ansiSupported; then
-			printf "\033[${ansiCode}m"
+			core_terminal_ansiSequence $ansiCode
 		elif core_compatibility_whichNoOutput tput; then
 			core_terminal_tput $terminfoCommand
 		fi
@@ -298,7 +303,7 @@ core_terminal_reset()
 {
 	if [ -t $1 ]; then
 		if core_terminal_ansiSupported; then
-			printf '\033[0m'
+			core_terminal_ansiSequence 0
 		elif core_compatibility_whichNoOutput tput; then
 			core_terminal_tput sgr0
 		fi
