@@ -298,7 +298,6 @@ core_message()
 	local prefix=''
 	case "$messageKind" in
 		
-		# 2 green, 3 
 		FAIL)
 			prefix="$(core_terminal_effect 2 bold)$(core_terminal_colour 2 foreground red)"
 			shouldEcho=1
