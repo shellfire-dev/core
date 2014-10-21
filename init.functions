@@ -164,7 +164,7 @@ core_terminal_ansiSupported()
 
 core_terminal_ansiSequence()
 {
-	IFS='' printf "\033[${@}m"
+	IFS='' printf "\033[${1}m"
 }
 
 core_terminal_tput()
@@ -181,64 +181,64 @@ core_terminal_colour()
 	fi
 	
 	local terminfoCommand
-	local ansiMajorCode
+	local ansiGroundCodeBit
 	case "$2" in
 		
 		foreground)
 			terminfoCommand=setaf
-			ansiMajorCode=3
+			ansiGroundCodeBit=3
 		;;
 		
 		background)
 			terminfoCommand=setbf
-			ansiMajorCode=4
+			ansiGroundCodeBit=4
 		;;
 		
 	esac
 	
-	local ansiCode
+	local ansiColorCodeBit
 	case "$3" in
 		black)
-			ansiCode=0
+			ansiColorCodeBit=0
 		;;
 		
 		red)
-			ansiCode=1
+			ansiColorCodeBit=1
 		;;
 			
 		green)
-			ansiCode=2
+			ansiColorCodeBit=2
 		;;
 		
 		yellow)
-			ansiCode=3
+			ansiColorCodeBit=3
 		;;
 		
 		blue)
-			ansiCode=4
+			ansiColorCodeBit=4
 		;;
 		
 		magenta)
-			ansiCode=5
+			ansiColorCodeBit=5
 		;;
 		
 		cyan)
-			ansiCode=6
+			ansiColorCodeBit=6
 		;;
 		
 		white)
-			ansiCode=7
+			ansiColorCodeBit=7
 		;;
 		
 		default)
-			ansiCode=9
+			ansiColorCodeBit=9
 		;;
 	esac
 
 	if core_terminal_ansiSupported; then
-		core_terminal_ansiSequence $ansiMajorCode $ansiCode
+		core_terminal_ansiSequence ${ansiGroundCodeBit}${ansiColorCodeBit}
 	elif core_compatibility_whichNoOutput tput; then
-		core_terminal_tput $terminfoCommand $ansiCode
+		core_terminal_tput $terminfoCommand $ansiColorCodeBit
 	fi
 }
 
