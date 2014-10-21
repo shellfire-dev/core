@@ -460,7 +460,8 @@ core_init_setSaneEnvironmentDefaults()
 	set +o noexec
 	# aka set -f; disable globbing by default. Note that this is the opposite of usual behaviour
 	set -o noglob
-	set +o nolog
+	# Does not work on FreeBSD sh; fine on dash, bash, etc
+	# set +o nolog
 	set +o notify
 	set -o nounset
 	set +o verbose
