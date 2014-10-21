@@ -132,10 +132,27 @@ core_init_language()
 	fi
 }
 
+# We're supposed to use tput, but:-
+# - It isn't present in BusyBox and Toybox (and other minimal systems without ncurses)
+# - It doesn't work on a FreeBSD 10 default install (terminfo db probably missing)
+# - terminfo databases are notorious for being broken and incomplete
+# So we use ANSI sequences if we recognise the 'TERM' variable
+# That stick to a small VT102 / ECMA-48 subset
+# And fallback to tput if available
+# http://wiki.bash-hackers.org/scripting/terminalcodes
+# http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+# http://www.termsys.demon.co.uk/vtansi.htm
+# https://www.gnu.org/software/termutils/manual/termutils-2.0/html_chapter/tput_1.html
+# https://en.wikipedia.org/wiki/ANSI_escape_code
+# http://mywiki.wooledge.org/BashFAQ/037?highlight=%28ps1%29
+# “\e[x,y,zm” with x=brightness, y=foreground, z=background. For example:
+# “\e[0;33;40m” shows dark (=0) yellow (=33) characters on black (=40) background
 core_terminal_ansiSupported()
 {
 	case "$TERM" in
 		
+		# xterm-color, xterm-256color, linux-16color, etc
+		# dtterm on AIX? kterm? others?
 		xterm*|rxvt*|urxvt*|linux*|vt*)
 			return 0
 		;;
@@ -145,13 +162,13 @@ core_terminal_ansiSupported()
 	return 1
 }
 
-# http://wiki.bash-hackers.org/scripting/terminalcodes
-# http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-# http://www.termsys.demon.co.uk/vtansi.htm
-# We fallback to colouring output using ANSI sequences if tput isn't present (eg on BusyBox)
-# Linux console is mostly VT102 / ECMA-48 compliant
-# https://www.gnu.org/software/termutils/manual/termutils-2.0/html_chapter/tput_1.html
-# https://en.wikipedia.org/wiki/ANSI_escape_code
+core_terminal_tput()
+{
+	# Defensive syntax (|| true) for systems such as FreeBSD 10 where tput doesn't seem to support 'setaf' et al
+	# Defensive setting of terminal so unset or empty TERM uses 'dumb', which disables option generation
+	tput -T"${TERM:-dumb}" "$@" 2>/dev/null || true
+}
+
 core_terminal_colour()
 {
 	if [ ! -t $1 ]; then
@@ -212,12 +229,11 @@ core_terminal_colour()
 			ansiCode=9
 		;;
 	esac
-	
-	# Are there non-VT102-alike terminals still out there, such that we can't just use ANSI codes?
-	if core_compatibility_whichNoOutput tput; then
-		tput $terminfoCommand $ansiCode
-	elif core_terminal_ansiSupported; then
+
+	if core_terminal_ansiSupported; then
 		printf '\033[${ansiMajorCode}${ansiCode}m'
+	elif core_compatibility_whichNoOutput tput; then
+		core_terminal_tput $terminfoCommand $ansiCode
 	fi
 }
 
@@ -269,11 +285,11 @@ core_terminal_effect()
 			;;
 			
 		esac
-		
-		if core_compatibility_whichNoOutput tput; then
-			tput $terminfoCommand
-		elif core_terminal_ansiSupported; then
+
+		if core_terminal_ansiSupported; then
 			printf "\033[${ansiCode}m"
+		elif core_compatibility_whichNoOutput tput; then
+			core_terminal_tput $terminfoCommand
 		fi
 	done
 }
@@ -281,10 +297,10 @@ core_terminal_effect()
 core_terminal_reset()
 {
 	if [ -t $1 ]; then
-		if core_compatibility_whichNoOutput tput; then
-			tput sgr0
-		elif core_terminal_ansiSupported; then
+		if core_terminal_ansiSupported; then
 			printf '\033[0m'
+		elif core_compatibility_whichNoOutput tput; then
+			core_terminal_tput sgr0
 		fi
 	fi
 }
