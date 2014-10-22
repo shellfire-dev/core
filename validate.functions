@@ -66,11 +66,14 @@ core_validate_parentFolderPathReadableAndSearchable()
 	local category="$2"
 	local name="$3"
 	local value="$4"
-	
+
+	if [ "$value" = '/' ]; then
+		core_validate_exit "The $category '$name' specifies a path '$value' with no parent"
+	fi
 	if [ "$(core_compatibility_basename "$value")" = "$value" ]; then
-		local parentPath="$(pwd)"
+		local parentPath="$(pwd)"/..
 	else
-		local parentPath="$value"/..
+		local parentPath="$(core_compatibility_dirname "$value")"
 	fi
 	
 	local messageFragment="The $category '$name' specifies a path '$value' with a parent which"
@@ -96,11 +99,14 @@ core_validate_parentFolderPathReadableAndSearchableAndWritable()
 	local category="$2"
 	local name="$3"
 	local value="$4"
-	
+
+	if [ "$value" = '/' ]; then
+		core_validate_exit "The $category '$name' specifies a path '$value' with no parent"
+	fi
 	if [ -z "$(core_compatibility_basename "$value")" = "$value" ]; then
-		local parentPath="$(pwd)"
+		local parentPath="$(pwd)"/..
 	else
-		local parentPath="$value"/..
+		local parentPath="$(core_compatibility_dirname "$value")"
 	fi
 	
 	if [ ! -w "$parentPath" ]; then
