@@ -102,12 +102,12 @@ core_validate_parentFolderPathReadableAndSearchableAndWritable()
 
 core_validate_folderPathIsReadableAndSearchableAndWritableOrCanBeCreated()
 {
-	core_validate_parentFolderPathReadableAndSearchableAndWritable "$@"
-	
 	local value="$4"
 	
 	if [ -d "$value" ]; then
 		core_validate_folderPathReadableAndSearchableAndWritable "$@"
+	else
+		core_validate_parentFolderPathReadableAndSearchableAndWritable "$@"
 	fi
 }
 
