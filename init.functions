@@ -118,10 +118,10 @@ core_init_verbosity()
 			core_variable_indirectValue ${_program_namespace}_verbose
 			printf '%s' $core_variable_indirectValue_result
 		else
-			printf '%s' 3
+			printf '%s' 0
 		fi
 	else
-		printf '%s' 3
+		printf '%s' 0
 	fi
 }
 
