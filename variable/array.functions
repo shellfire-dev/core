@@ -101,7 +101,7 @@ _core_variable_array_isEmpty()
 {
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "${variableName}_initialised"
-	[ $core_variable_indirectValue -gt 0 ]
+	[ $core_variable_indirectValue_result -gt 0 ]
 }
 
 core_variable_array_isEmpty()
