@@ -67,7 +67,7 @@ core_validate_parentFolderPathReadableAndSearchable()
 	local name="$3"
 	local value="$4"
 	
-	if [ -z "$(core_compatibility_basename "$value")" ]; then
+	if [ "$(core_compatibility_basename "$value")" = "$value" ]; then
 		local parentPath="$(pwd)"
 	else
 		local parentPath="$value"/..
@@ -97,7 +97,7 @@ core_validate_parentFolderPathReadableAndSearchableAndWritable()
 	local name="$3"
 	local value="$4"
 	
-	if [ -z "$(core_compatibility_basename "$value")" ]; then
+	if [ -z "$(core_compatibility_basename "$value")" = "$value" ]; then
 		local parentPath="$(pwd)"
 	else
 		local parentPath="$value"/..
