@@ -487,16 +487,16 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 
 		case "$(core_commandLine_optionExists "$optionName")" in
 			
-			no)
-				core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
-			;;
-			
 			yes-argumentless|yes-optionally-argumented)
 				core_commandLine_processOptionWithoutArgument
 			;;
 			
 			yes-argumented)
 				core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which could not be specified"
+			;;
+			
+			no|'')
+				core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
 			;;
 			
 			*)
@@ -542,16 +542,16 @@ core_commandLine_parse()
 					
 					case "$(core_commandLine_optionExists "$optionName")" in
 						
-						no)
-							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not exist"
-						;;
-						
 						yes-argumentless)
 							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not take values (such as '$optionValue')"
 						;;
 						
 						yes-argumented|yes-optionally-argumented)
 							core_commandLine_processOptionWithArgument
+						;;
+						
+						no|'')
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not exist"
 						;;
 						
 						*)
@@ -566,10 +566,6 @@ core_commandLine_parse()
 					local optionName="${argument##--}"
 	
 					case "$(core_commandLine_optionExists "$optionName")" in
-						
-						no)
-							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
-						;;
 						
 						yes-argumentless)
 							core_commandLine_processOptionWithoutArgument
@@ -595,6 +591,10 @@ core_commandLine_parse()
 								shift 1
 								core_commandLine_processOptionWithArgument
 							fi
+						;;
+						
+						no|'')
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
 						;;
 						
 						*)
@@ -634,16 +634,16 @@ core_commandLine_parse()
 					
 					case "$(core_commandLine_optionExists "$optionName")" in
 						
-						no)
-							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' is not known"
-						;;
-						
 						yes-argumentless)
 							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' does not take values (such as '$optionValue')"
 						;;
 						
 						yes-argumented|yes-optionally-argumented)
 							core_commandLine_processOptionWithArgument
+						;;
+						
+						no|'')
+							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' is not known"
 						;;
 						
 						*)
@@ -685,10 +685,6 @@ core_commandLine_parse()
 	
 					case "$(core_commandLine_optionExists "$optionName")" in
 						
-						no)
-							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
-						;;
-						
 						yes-argumentless)
 							core_commandLine_processOptionWithoutArgument
 						;;
@@ -713,6 +709,10 @@ core_commandLine_parse()
 								shift 1
 								core_commandLine_processOptionWithArgument
 							fi
+						;;
+						
+						no|'')
+							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
 						;;
 						
 						*)
