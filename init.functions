@@ -112,7 +112,7 @@ core_dependency_fallback()
 
 core_init_verbosity()
 {
-	if core_variable_isSet ${_program_namespace}; then
+	if core_variable_isSet _program_namespace; then
 		if core_variable_isSet ${_program_namespace}_verbose; then
 			local core_variable_indirectValue_result
 			core_variable_indirectValue ${_program_namespace}_verbose
@@ -127,7 +127,7 @@ core_init_verbosity()
 
 core_init_language()
 {
-	if core_variable_isSet ${_program_namespace}; then
+	if core_variable_isSet _program_namespace; then
 		if core_variable_isSet ${_program_namespace}_language; then
 			local core_variable_indirectValue_result
 			core_variable_indirectValue ${_program_namespace}_language
