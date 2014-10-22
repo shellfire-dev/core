@@ -34,6 +34,29 @@ core_path_isReadableNonEmptyExecutableFilePath()
 	return 1
 }
 
+core_path_isReadableAndSearchableFolderPath()
+{
+	local folderPath="$1"
+	
+	if [ ! -e "$folderPath" ]; then
+		return 1
+	fi
+	
+	if [ ! -d "$folderPath" ]; then
+		return 1
+	fi
+	
+	if [ ! -r "$folderPath" ]; then
+		return 1
+	fi
+	
+	if [ -x "$folderPath" ]; then
+		return 0
+	fi
+	
+	return 1
+}
+
 core_path_iterateOverFolderPath()
 {
 	local folderPath="$1"

@@ -2,7 +2,10 @@
 core_variable_array_initialise()
 {
 	local variableName="$1"
+	local variableNameInitialised="${variableName}_initialised"
+	
 	eval "${variableName}=()"
+	core_variable_setVariable "$variableNameInitialised" 0
 }
 
 # bash is weird when it comes to checking empty vs undeclared arrays: https://unix.stackexchange.com/questions/56837/how-to-test-if-a-variable-is-defined-at-all-in-bash-prior-to-version-4-2-with-th
