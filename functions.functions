@@ -36,6 +36,7 @@ core_functions_exists()
 	IFS=' ' read -r arg0 arg1 arg2 arg3 arg4 <<-EOF
 		$(type "$functionName")
 	EOF
+	
 	case "$arg3" in
 		
 		# dash
@@ -47,6 +48,11 @@ core_functions_exists()
 		
 		# bash
 		function)
+			return 0
+		;;
+		
+		# AIX shell
+		'function.')
 			return 0
 		;;
 		

@@ -390,6 +390,7 @@ core_commandLine_optionExists()
 if ! core_functions_exists _program_commandLine_optionExists; then
 	_program_commandLine_optionExists()
 	{
+		echo NO OPTIONS 1>&2
 		echo 'no'
 	}
 fi
@@ -443,12 +444,11 @@ core_commandLine_processOptionWithArgument()
 }
 
 if ! core_functions_exists _program_commandLine_processOptionWithArgument; then
-	_program_commandLine_optionExists()
+	_program_commandLine_processOptionWithArgument()
 	{
 		:
 	}
 fi
-
 
 # This can be confused with XF86-style long options (eg -find)
 core_commandLine_parseConcatenatedOptionsWithoutEquals()
@@ -496,7 +496,7 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 			;;
 			
 			no|'')
-				core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
+				core_commandLine_exitBadCommandLine "The short option (concatenated with others) '${optionNameIncludingHyphens}' is not known"
 			;;
 			
 			*)
@@ -551,7 +551,7 @@ core_commandLine_parse()
 						;;
 						
 						no|'')
-							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not exist"
+							core_commandLine_exitBadCommandLine "The long option (with =value) '${optionNameIncludingHyphens}' does not exist"
 						;;
 						
 						*)
@@ -594,7 +594,7 @@ core_commandLine_parse()
 						;;
 						
 						no|'')
-							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
+							core_commandLine_exitBadCommandLine "The long option '${optionNameIncludingHyphens}' is not known"
 						;;
 						
 						*)
@@ -643,7 +643,7 @@ core_commandLine_parse()
 						;;
 						
 						no|'')
-							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' is not known"
+							core_commandLine_exitBadCommandLine "The short option '$optionNameIncludingHyphens' is not known"
 						;;
 						
 						*)
@@ -712,7 +712,7 @@ core_commandLine_parse()
 						;;
 						
 						no|'')
-							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' is not known"
+							core_commandLine_exitBadCommandLine "The short option '${optionNameIncludingHyphens}' is not known"
 						;;
 						
 						*)
