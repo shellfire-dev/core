@@ -16,6 +16,8 @@ core_temporaryFiles_initialise()
 	
 	core_validate_folderPathReadableAndSearchableAndWritable $core_commandLine_exitCode_CONFIG "environment variable (or default, '/tmp')" 'TMPDIR' "$TMPDIR"
 	
+	# we don't use tempfile, as it only creates files, not folders and isn't common
+	
 	# mktemp doesn't exist on AIX or Solaris, and doesn't create files w/o -c on HP-UX
 	# This logic won't work on HP-UX.
 	if core_compatibility_whichNoOutput mktemp; then
