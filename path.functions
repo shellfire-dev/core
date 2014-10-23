@@ -57,6 +57,19 @@ core_path_isReadableAndSearchableFolderPath()
 	return 1
 }
 
+core_path_isReadableAndSearchableAndWritableFolderPath()
+{
+	core_path_isReadableAndSearchableFolderPath "$1"
+	
+	local folderPath="$1"
+	
+	if [ -w "$folderPath" ]; then
+		return 0
+	fi
+	
+	return 1
+}
+
 core_path_iterateOverFolderPath()
 {
 	local folderPath="$1"

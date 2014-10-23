@@ -6,10 +6,126 @@ core_temporaryFiles_initialise()
 {
 	core_trap_addOnCleanUp core_temporaryFiles_removeAll
 	
-	# Set a global TMPDIR if unset; an alternative is to create under the HOME folder
+	# Ensure TMPDIR is set
 	: ${TMPDIR:=/tmp}
 	
-	core_validate_folderPathReadableAndSearchableAndWritable $core_commandLine_exitCode_CONFIG 'environment variable' 'TMPDIR' "$TMPDIR"
+	# Mac OS X
+	if [ core_variable_endsWith "$TMPDIR" '/' ]; then
+		TMPDIR="$(core_variable_allButLast "$TMPDIR")"
+	fi
+	
+	core_validate_folderPathReadableAndSearchableAndWritable $core_commandLine_exitCode_CONFIG "environment variable (or default, '/tmp')" 'TMPDIR' "$TMPDIR"
+	
+	# mktemp doesn't exist on AIX or Solaris, and doesn't create files w/o -c on HP-UX
+	# This logic won't work on HP-UX.
+	if core_compatibility_whichNoOutput mktemp; then
+		
+		core_temporaryFiles_newFileToRemoveOnExit()
+		{
+			local umaskOriginal="$(umask)"
+			umask 077
+			
+			# was mktemp -t "$_program_name".XXXXXXXXXXXX
+			# still won't work for HP-UX, as -c not specified. That said, HP-UX mktemp doesn't seem to be very safe (http://nixdoc.net/man-pages/HP-UX/man1/mktemp.1.html)
+			TMP_FILE="$(mktemp "$TMPDIR"/"$_program_name".XXXXXXXXXXXX)" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary file"
+			core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
+			
+			umask "$umaskOriginal"
+		}
+
+		core_temporaryFiles_newFolderToRemoveOnExit()
+		{
+			local umaskOriginal="$(umask)"
+			umask 077
+			
+			# was mktemp -d -t "$_program_name".XXXXXXXXXXXX
+			# still won't work for HP-UX, as -c not specified. That said, HP-UX mktemp doesn't seem to be very safe
+			TMP_FOLDER="$(mktemp -d "$TMPDIR"/"$_program_name".XXXXXXXXXXXX)" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary folder"
+			core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FOLDER"
+			
+			umask "$umaskOriginal"
+		}
+		
+		return 0
+	fi
+	
+	# There are other sources of randomness, but it starts to get silly (eg http://mywiki.wooledge.org/BashFAQ/062)
+	
+	if core_variable_isSet RANDOM; then
+
+		core_message WARN "Your system doesn't have mktemp - we're creating temporary files INSECURELY in '$TMPDIR'"
+		
+		core_temporaryFiles_newFileToRemoveOnExit()
+		{
+			local umaskOriginal="$(umask)"
+			umask 077
+			
+			TMP_FILE="$TMPDIR"/"${_program_name}.file.$$.${RANDOM}"
+			printf '' >"$TMP_FILE" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary file"
+			core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
+			
+			umask "$umaskOriginal"
+		}
+
+		core_temporaryFiles_newFolderToRemoveOnExit()
+		{
+			local umaskOriginal="$(umask)"
+			umask 077
+			
+			TMP_FOLDER="$TMPDIR"/"${_program_name}.folder.$$.${RANDOM}"
+			mkdir -m 0700 -p "$TMP_FOLDER" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary folder"
+			core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FOLDER"
+			
+			umask "$umaskOriginal"
+		}
+		
+		return 0
+	fi
+	
+	if core_variable_isSet HOME; then
+		
+		if ! core_path_isReadableAndSearchableAndWritableFolderPath "$HOME"; then
+			core_exitError $core_commandLine_exitCode_CANTCREAT "Your shell doesn't have RANDOM, mktemp isn't available and your HOME '$HOME' isn't writable. We've got no where left to put temporary files."
+		fi
+		
+		TMPDIR="$HOME"/"$_program_name/$$"
+		
+		core_message WARN "Your shell doesn't have RANDOM, and mktemp isn't available. - we're creating temporary files beneath your HOME at '$TMPDIR'"
+		
+		rm -rf "$TMPDIR" 2>/dev/null || true
+		mkdir -m 0700 "$TMPDIR" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary folder"
+		core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMPDIR"
+		
+		_core_temporaryFiles_fileCounter=0
+		core_temporaryFiles_newFileToRemoveOnExit()
+		{
+			local umaskOriginal="$(umask)"
+			umask 077
+			
+			TMP_FILE="$TMPDIR"/file."$_core_temporaryFiles_fileCounter"
+			_core_temporaryFiles_fileCounter=$((_core_temporaryFiles_fileCounter+1))
+			printf '' >"$TMP_FILE" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary file"
+			
+			umask "$umaskOriginal"
+		}
+		
+		_core_temporaryFiles_folderCounter=0
+		core_temporaryFiles_newFolderToRemoveOnExit()
+		{
+			local umaskOriginal="$(umask)"
+			umask 077
+			
+			TMP_FOLDER="$TMPDIR"/folder."$_core_temporaryFiles_folderCounter"
+			_core_temporaryFiles_folderCounter=$((_core_temporaryFiles_folderCounter+1))
+			mkdir -m 0700 -p "$TMP_FOLDER" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary folder"
+			
+			umask "$umaskOriginal"
+		}
+		
+		return 0
+	fi
+	
+	core_exitError $core_commandLine_exitCode_CANTCREAT "Your shell doesn't have RANDOM, mktemp isn't available and your HOME isn't set. We've got no where left to put temporary files."
 }
 core_functions_register _core_functions core_temporaryFiles_initialise
 
@@ -24,24 +140,4 @@ core_temporaryFiles_removeAll()
 	if core_variable_array_isSet _core_temporaryFiles_filesToRemoveOnExit; then
 		core_variable_array_passToFunctionAsArguments _core_temporaryFiles_filesToRemoveOnExit _core_temporaryFiles_removeAll_callback
 	fi
-}
-
-core_dependency_requires '*' mktemp
-core_temporaryFiles_newFileToRemoveOnExit()
-{
-	local umaskOriginal="$(umask)"
-	umask 077
-	TMP_FILE="$(mktemp -t "$_program_name".XXXXXXXXXXXX)" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary file"
-	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FILE"
-	umask "$umaskOriginal"
-}
-
-core_dependency_requires '*' mktemp
-core_temporaryFiles_newFolderToRemoveOnExit()
-{
-	local umaskOriginal="$(umask)"
-	umask 077
-	TMP_FOLDER="$(mktemp -d -t "$_program_name".XXXXXXXXXXXX)" || core_exitError $core_commandLine_exitCode_CANTCREAT "Could not create a temporary folder"
-	core_variable_array_append _core_temporaryFiles_filesToRemoveOnExit "$TMP_FOLDER"
-	umask "$umaskOriginal"
 }
