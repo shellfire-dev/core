@@ -100,3 +100,8 @@ core_compability_installSource()
 }
 core_functions_register _core_compatibility_functions core_compability_installSource
 
+core_dependency_requires '*' sleep
+core_compatibility_sleepSupportsFractionalSeconds()
+{
+	sleep 0.0001 2>/dev/null
+}
