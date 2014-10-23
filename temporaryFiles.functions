@@ -10,7 +10,7 @@ core_temporaryFiles_initialise()
 	: ${TMPDIR:=/tmp}
 	
 	# Mac OS X
-	if [ core_variable_endsWith "$TMPDIR" '/' ]; then
+	if core_variable_endsWith "$TMPDIR" '/'; then
 		TMPDIR="$(core_variable_allButLast "$TMPDIR")"
 	fi
 	
