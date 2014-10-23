@@ -112,14 +112,10 @@ core_dependency_fallback()
 
 core_init_verbosity()
 {
-	if core_variable_isSet _program_namespace; then
-		if core_variable_isSet ${_program_namespace}_verbose; then
-			local core_variable_indirectValue_result
-			core_variable_indirectValue ${_program_namespace}_verbose
-			printf '%s' $core_variable_indirectValue_result
-		else
-			printf '%s' 0
-		fi
+	if core_variable_isSet ${_program_namespace}_verbose; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_verbose
+		printf '%s' $core_variable_indirectValue_result
 	else
 		printf '%s' 0
 	fi
@@ -127,14 +123,10 @@ core_init_verbosity()
 
 core_init_language()
 {
-	if core_variable_isSet _program_namespace; then
-		if core_variable_isSet ${_program_namespace}_language; then
-			local core_variable_indirectValue_result
-			core_variable_indirectValue ${_program_namespace}_language
-			printf '%s' $core_variable_indirectValue_result
-		else
-			printf '%s' 'en_US.UTF-8'
-		fi
+	if core_variable_isSet ${_program_namespace}_language; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_language
+		printf '%s' $core_variable_indirectValue_result
 	else
 		printf '%s' 'en_US.UTF-8'
 	fi
@@ -534,17 +526,18 @@ core_init_findOurNameAndPath()
 	if [ -z "$_local_ourSymlinkPathRaw" ]; then
 		# core_commandLine_exitCode_USAGE
 		core_exitError 64 "Do not invoke this program either by specifying a shell interpreter on a file in the current working directory (eg bash '$0') or redirecting from a pipe into a shell interpreter (eg bash [-c] <'$0') or by using ksh with a PATH containing '.'"
+	elif [ "$_local_ourSymlinkPathRaw" = "$0" ]; then
+		# core_commandLine_exitCode_USAGE
+		core_exitError 64 "Do not invoke this program either by specifying a shell interpreter on a file in the current working directory (eg bash '$0') or redirecting from a pipe into a shell interpreter (eg bash [-c] <'$0') or by using ksh with a PATH containing '.'"
 	fi
 	
 	# At this point, we resolve $0 vs the current working directory
 	# If we were exec'd, we have either a relative or an absolute path
+	# cd does not take switches in AIX!
 	cd "$_local_ourSymlinkPathRaw" 1>/dev/null
 		core_init_ourSymlinkPath="$(pwd)"
-	cd - >/dev/null
-	
-	cd -P "$_local_ourSymlinkPathRaw" 1>/dev/null
-		core_init_ourPath="$(pwd)"
-	cd - >/dev/null
+		core_init_ourPath="$(pwd -P)"
+	cd - 1>/dev/null
 	
 	core_init_ourSymlinkExecutablePath="$core_init_ourSymlinkPath"/"$core_init_ourSymlinkName"
 	
@@ -617,10 +610,14 @@ core_init_rexecUnderCorrectShell()
 
 	# exec -a doesn't work in dash
 	if [ "$core_init_preferredShell" = 'bash' ]; then
-		# Forces a privileged shell. Not a great defence.
+		# ksh on AIX does not export  core_init_shell_rexecing  when run as  core_init_shell_rexecing=$$ exec $program ...
+		
+		# Forces a privileged shell. Not a great defence to Shellshock, but has some value.
 		# Also possible for ksh but ksh doesn't export functions
-		core_init_shell_rexecing=$$ exec "$_local_shellPath" -p "$core_init_ourSymlinkExecutablePath" "$@"
+		export core_init_shell_rexecing=$$
+		exec "$_local_shellPath" -p "$core_init_ourSymlinkExecutablePath" "$@"
 	else
+		export core_init_shell_rexecing=$$
 		core_init_shell_rexecing=$$ exec "$_local_shellPath" "$core_init_ourSymlinkExecutablePath" "$@"
 	fi
 	
