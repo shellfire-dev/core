@@ -379,11 +379,6 @@ core_TODO()
 	core_message TODO "$*"
 }
 
-# Does not work as a delimiter when running bash as /bin/sh on Mac - seems to be an IFS bug in bash 3.2
-#core_variable_array_delimiter="$(printf '\001')"
-core_variable_array_delimiter="$(printf '\r')"
-core_dependency_declares core_variable_array_delimiter
-
 core_dependency_declares _core_uses_alreadySourced
 # Duplicates logic in core/variable/array, but that is a hefty piece to pull in and breaks code (as the bash overrides handle arrays differently)
 # Has a defect such that function paths containing '0x01' can be loaded more than once [highly unlikely except as a potential security defect]
@@ -624,36 +619,6 @@ core_init_rexecUnderCorrectShell()
 	unset _local_shellPath
 }
 
-core_init_setTracing()
-{
-	case "$-" in
-		
-		*x*)
-			if core_variable_isSet shellfire_trace; then
-				export shellfire_trace="$shellfire_trace $_program_name"
-			else
-				export shellfire_trace="$_program_name"
-			fi
-		;;
-		
-		*)
-			# Known to not be correct for space-delimited program names
-			if core_variable_isSet shellfire_trace; then
-				_local_program
-				for _core_init_setTracing_program in $shellfire_trace
-				do
-					if [ "$program" = "$_program_name" ]; then
-						set -x
-						break
-					fi
-				done
-			fi
-			unset _local_program
-		;;
-		
-	esac
-}
-
 # https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh
 core_init_setLocalSupport()
 {
@@ -671,6 +636,23 @@ core_init_setLocalSupport()
 	esac
 }
 
+core_init_initialiseArrayDelimiter()
+{
+	# We want to use '\001' in IFS as it's rare enough to delimit array elements safely.
+	# However, some 'popular' versions of bash have IFS bugs which often manifest when bash is run as 'sh'
+	core_variable_array_delimiter="$(printf '\001')"
+	if core_variable_isSet BASH_VERSION; then
+		if [ "${BASH_VERSINFO[0]}" = '3' ]; then
+			# Various bash-on-windows utilities (Gow, MSYS, etc)
+			if [ "${BASH_VERSINFO[1]}" = '1' ]; then
+				core_variable_array_delimiter=','
+			# Mac OS X is most cruelly afflicted (also hurts AIX 6 / 7 with default Linux Toolkit)
+			elif [ "${BASH_VERSINFO[1]}" = '2' ]; then
+				core_variable_array_delimiter="$(printf '\r')"
+			fi
+		fi
+	fi
+}
 core_init_main()
 {
 	core_init_init
@@ -679,8 +661,8 @@ core_init_main()
 	core_init_setLocalSupport
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
-	core_init_setTracing
 	core_init_setLocalSupport
+	core_init_initialiseArrayDelimiter
 	
 	core_usesIn core
 	if core_functions_exists _program; then
