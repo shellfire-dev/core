@@ -6,11 +6,19 @@ core_temporaryFiles_initialise()
 {
 	core_trap_addOnCleanUp core_temporaryFiles_removeAll
 	
-	# Ensure TMPDIR is set
-	: ${TMPDIR:=/tmp}
-	
+	if core_variable_isUnset TMPDIR; then
+		# Typically on Windows; Cygwin prefers TMP and re-writes to an Unix path
+		# Git-Bash et al use TMP and TEMP and may be DOS-paths which they *should* convert
+		if core_variable_isSet TMP; then
+			TMPDIR="$TMP"
+		elif core_variable_isSet TEMP; then
+			TMPDIR="$TEMP"
+		else
+			core_message WARN "Defaulting TMPDIR to '/tmp'"
+			TMPDIR='/tmp'
+		fi
 	# Mac OS X
-	if core_variable_endsWith "$TMPDIR" '/'; then
+	elif core_variable_endsWith "$TMPDIR" '/'; then
 		TMPDIR="$(core_variable_allButLast "$TMPDIR")"
 	fi
 	
