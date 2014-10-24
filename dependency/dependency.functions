@@ -77,12 +77,20 @@ _core_dependency_addFromExternalDataSources()
 	local externalDataSourceFolderPath
 	local externalDataSourceFilePath
 	
+	if core_variable_isSet HOME; then
+		set -- \
+			"$HOME"/."$_program_name" \
+			"$HOME"/."$core_libraryName" \
+			"$_program_etcPath"/"$_program_name" \
+			"$_program_etcPath"/"$core_libraryName"
+	else
+		set -- \
+			"$_program_etcPath"/"$_program_name" \
+			"$_program_etcPath"/"$core_libraryName"
+	fi
+	
 	# First encountered path wins
-	for externalDataSourceFolderPath in \
-		"$HOME"/."$_program_name" \
-		"$HOME"/."$core_libraryName" \
-		"$_program_etcPath"/"$_program_name" \
-		"$_program_etcPath"/"$core_libraryName"
+	for externalDataSourceFolderPath in "$@"
 	do
 		externalDataSourceFilePath="$externalDataSourceFolderPath"/paths.d/"$packageManager"/"$programName".path
 		if ! core_path_isReadableNonEmptyFilePath "$externalDataSourceFilePath"; then
