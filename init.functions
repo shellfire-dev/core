@@ -695,7 +695,6 @@ core_init_main()
 	core_init_kshTweaks
 	core_init_setSaneEnvironmentDefaults
 	core_init_findOurNameAndPath
-	core_init_setLocalSupport
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
 	core_init_initialiseArrayDelimiter
