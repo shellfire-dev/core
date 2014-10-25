@@ -100,7 +100,7 @@ core_variable_allButLastN()
 	
 	local count=0
 	local match=''
-	local copy
+	local copy=''
 	_core_variable_copy '?' $endLength
 	
 	local suffix="${value#$copy}"
@@ -125,7 +125,7 @@ core_variable_allButFirstN()
 	
 	local count=0
 	local match=''
-	local copy
+	local copy=''
 	_core_variable_copy '?' $endLength
 	
 	local prefix="${value%$copy}"
