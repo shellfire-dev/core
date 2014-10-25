@@ -472,6 +472,45 @@ core_init_init()
 	set -u
 }
 
+core_init_kshTweaks()
+{
+	if [ "${KSH_VERSION+set}" = 'set' ]; then
+		_local_core_init_kshSetLocalSupport_version
+		_local_core_init_kshSetLocalSupport_garbage
+		
+		# ksh93:  Version JM 93u 2011-02-08
+		# ksh93:  Version AJM 93u+ 2012-08-01
+		# pdksh:  @(#)PD KSH v5.2.14 99/07/13.2
+		IFS=' ' read -r _local_core_init_kshSetLocalSupport_version _local_core_init_kshSetLocalSupport_garbage <<-EOF
+			${KSH_VERSION}
+		EOF
+		
+		case "$_local_core_init_kshSetLocalSupport_version" in
+		
+			# ksh93
+			'Version')
+				# Set aliases for ksh93
+				# https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh
+				alias local='typeset'
+			;;
+			
+			'@(#)PD')
+				# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
+				unset()
+				{
+					set +e
+					builtin unset "$1"
+					set -e
+				}
+			;;
+			
+		esac
+		
+		unset _local_core_init_kshSetLocalSupport_version
+		unset _local_core_init_kshSetLocalSupport_garbage
+	fi
+}
+
 core_init_setSaneEnvironmentDefaults()
 {
 	set +o allexport
@@ -616,7 +655,7 @@ core_init_rexecUnderCorrectShell()
 		# ksh on AIX does not export  core_init_shell_rexecing  when run as  core_init_shell_rexecing=$$ exec $program ...
 		
 		# Forces a privileged shell. Not a great defence to Shellshock, but has some value.
-		# Also possible for ksh but ksh doesn't export functions
+		# Also possible for ksh and pdksh (?mksh) but ksh doesn't export functions
 		export core_init_shell_rexecing=$$
 		exec "$_local_shellPath" -p "$core_init_ourSymlinkExecutablePath" "$@"
 	else
@@ -625,23 +664,6 @@ core_init_rexecUnderCorrectShell()
 	fi
 	
 	unset _local_shellPath
-}
-
-# https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh
-core_init_setLocalSupport()
-{
-	case "$core_init_preferredShell" in
-		
-		# Note: Supporting ksh93 is painful (eg https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh)
-		# Needed for ksh93 (tested on ksh93u+).
-		# * pdksh, mksh have this alias by default and expected visibility.
-		# * dash, bash, ash in BusyBox and zsh support local natively.
-		# * OpenBSD ksh, and oksh (derived from OpenBSD ksh) local support is unknown.
-		ksh|ksh93|ksh93u)
-			alias local='typeset'
-		;;
-		
-	esac
 }
 
 core_init_initialiseArrayDelimiter()
@@ -661,15 +683,16 @@ core_init_initialiseArrayDelimiter()
 		fi
 	fi
 }
+
 core_init_main()
 {
 	core_init_init
+	core_init_kshTweaks
 	core_init_setSaneEnvironmentDefaults
 	core_init_findOurNameAndPath
 	core_init_setLocalSupport
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
-	core_init_setLocalSupport
 	core_init_initialiseArrayDelimiter
 	
 	core_usesIn core
