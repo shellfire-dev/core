@@ -9,7 +9,7 @@ core_functions_register _core_functions core_children_initialise
 
 core_dependency_requires '*' kill
 _core_children_killAll_callback()
-{
+{	
 	local pid
 	for pid in "$@"
 	do

@@ -507,6 +507,10 @@ core_init_kshTweaks()
 					unset "$1"
 					set -e
 				}
+				
+				# pdksh does not understand that in POSIX '$@' can be unset or empty but is still valid to reference
+				# As a workaround, we disable unbound checks
+				set +u
 			;;
 			
 		esac
@@ -530,7 +534,6 @@ core_init_setSaneEnvironmentDefaults()
 	# Does not work on FreeBSD sh; fine on dash, bash, etc
 	# set +o nolog
 	set +o notify
-	set -o nounset
 	set +o verbose
 	set +o vi
 	
