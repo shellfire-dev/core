@@ -482,6 +482,13 @@ core_init_kshTweaks()
 		IFS=' ' read -r _local_core_init_kshTweaks_version _local_core_init_kshTweaks_garbage <<-EOF
 			${KSH_VERSION}
 		EOF
+
+		# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
+		# Worse, it refuses to let us override unset with a function. Hence this workaround everyone else has to use
+		core_variable_unset()
+		{
+			unset "$@"
+		}
 		
 		case "$_local_core_init_kshTweaks_version" in
 		
@@ -494,10 +501,10 @@ core_init_kshTweaks()
 			
 			'@(#)PD')
 				# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
-				unset()
+				core_variable_unset()
 				{
 					set +e
-					builtin unset "$1"
+					unset "$1"
 					set -e
 				}
 			;;
@@ -530,29 +537,29 @@ core_init_setSaneEnvironmentDefaults()
 	# unset will fail if, and only if, we've been source'd and they have been made readonly. Unlikely.
 	
 	# MUST be unset before making use of cd
-	unset CDPATH
-	unset HISTSIZE
-	unset MAILCHECK
-	unset MAILPATH
-	unset ENV
+	core_variable_unset CDPATH
+	core_variable_unset HISTSIZE
+	core_variable_unset MAILCHECK
+	core_variable_unset MAILPATH
+	core_variable_unset ENV
 	
-	# bash specific, but since at this stage of execution we can't be sure we're running under bash, we do nothing
-	unset BASH_ENV
-	unset BASH_XTRACEFD
-	unset FCEDIT
-	unset FIGNORE
-	unset FUNCNEST
-	unset GLOBIGNORE
-	unset HISTCONTROL
-	unset HISTFILE
-	unset HISTFILESIZE
-	unset HISTIGNORE
-	unset HISTTIMEFORMAT
-	unset HOSTFILE
-	unset IGNOREEOF
-	unset INPUTRC
-	unset MAIL
-	unset TMOUT
+	# bash specific
+	core_variable_unset BASH_ENV
+	core_variable_unset BASH_XTRACEFD
+	core_variable_unset FCEDIT
+	core_variable_unset FIGNORE
+	core_variable_unset FUNCNEST
+	core_variable_unset GLOBIGNORE
+	core_variable_unset HISTCONTROL
+	core_variable_unset HISTFILE
+	core_variable_unset HISTFILESIZE
+	core_variable_unset HISTIGNORE
+	core_variable_unset HISTTIMEFORMAT
+	core_variable_unset HOSTFILE
+	core_variable_unset IGNOREEOF
+	core_variable_unset INPUTRC
+	core_variable_unset MAIL
+	core_variable_unset TMOUT
 }
 
 # http://mywiki.wooledge.org/BashFAQ/028 on $0

@@ -37,8 +37,8 @@ core_variable_array_unset()
 {
 	local variableName="$1"
 	local variableNameInitialised="${variableName}_initialised"
-	unset "$variableName"
-	unset "$variableNameInitialised"
+	core_variable_unset "$variableName"
+	core_variable_unset "$variableNameInitialised"
 }
 
 core_variable_array_isSet()

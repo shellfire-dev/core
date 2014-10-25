@@ -1,6 +1,7 @@
 core_init_defines core_variable_isSet
 core_init_defines core_variable_isUnset
 core_init_defines core_variable_indirectValue
+core_init_defines core_variable_unset
 
 core_variable_setVariable()
 {

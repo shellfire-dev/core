@@ -332,14 +332,14 @@ core_commandLine_exitBadCommandLine()
 
 core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogicIsReliable()
 {
-	unset LANG
-	unset LC_COLLATE
-	unset LC_CTYPE
-	unset LC_MESSAGES
-	unset LC_MONETARY
-	unset LC_NUMERIC
-	unset LC_TIME
-	unset LC_ALL
+	core_variable_unset LANG
+	core_variable_unset LC_COLLATE
+	core_variable_unset LC_CTYPE
+	core_variable_unset LC_MESSAGES
+	core_variable_unset LC_MONETARY
+	core_variable_unset LC_NUMERIC
+	core_variable_unset LC_TIME
+	core_variable_unset LC_ALL
 	
 	local language="$(core_init_language)"
 	
