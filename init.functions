@@ -20,12 +20,20 @@ core_compatibility_whichNoOutput()
 
 core_variable_isSet()
 {
-	eval "[ \"\${$1+set}\" = 'set' ]"
+	# These expressions work in all shells bar pdksh 5.2.14, which treats expanded emptiness as unset...
+	# Other techniques here: http://mywiki.wooledge.org/BashFAQ/083
+	# eval "[ \"\${$1+set}\" = 'set' ]"
+	# eval "$(printf '[ "${%s+set}" = '%s' ]' "$1" "set")"
+	
+	local x
+	eval x="\"\${$1+set}\""
+	[ "$x" = 'set' ]
 }
 
 core_variable_isUnset()
 {
-	eval "[ \"\${$1+unset}\" != 'unset' ]"
+	# eval "[ \"\${$1+unset}\" != 'unset' ]"
+	! core_variable_isSet "$1"
 }
 
 core_variable_indirectValue()
