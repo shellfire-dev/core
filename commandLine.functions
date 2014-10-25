@@ -330,7 +330,7 @@ core_commandLine_exitBadCommandLine()
 	exit $core_commandLine_exitCode_USAGE
 }
 
-core_commandLine_setLanguageDefaultsSoSortIsStableAndAnyErrorMessageParsingLogicIsReliable()
+core_commandLine_setLanguageDefaults()
 {
 	core_variable_unset LANG
 	core_variable_unset LC_COLLATE
