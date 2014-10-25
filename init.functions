@@ -475,8 +475,6 @@ core_init_init()
 core_init_kshTweaks()
 {
 	if [ "${KSH_VERSION+set}" = 'set' ]; then
-		_local_core_init_kshTweaks_version
-		_local_core_init_kshTweaks_garbage
 		
 		# ksh93:  Version JM 93u 2011-02-08
 		# ksh93:  Version AJM 93u+ 2012-08-01
