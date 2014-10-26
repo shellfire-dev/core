@@ -556,11 +556,11 @@ core_init_enableShellTweaks()
 			set +u
 			
 			# AIX pdksh also doesn't understand var=value exec command syntax... (it doesn't export var)!
-		
-			mksh)
-				# See pdksh entry
-				set +u
-			;;
+		;;
+			
+		mksh)
+			# See pdksh entry
+			set +u
 		;;
 		
 	esac
