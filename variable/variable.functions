@@ -39,12 +39,14 @@ core_variable_setVariableIfUnset()
 #fi
 core_variable_startsWith()
 {
-	[ "${1#${2}}" != "$1" ]
+	# Does not work in pdksh: [ "${1#${2}}" != "$1" ]
+	[ "$(core_variable_allButLastN "$1" $((${#1}-${#2})))" = "$2" ]
 }
 
 core_variable_doesNotStartWith()
 {
-	[ "${1#${2}}" = "$1" ]
+	# Does not work in pdksh: [ "${1#${2}}" = "$1" ]
+	[ "$(core_variable_allButLastN "$1" $((${#1}-${#2})))" != "$2" ]
 }
 
 #if core_variable_endsWith "/etc/path/to/file" "/file"; then
@@ -52,12 +54,14 @@ core_variable_doesNotStartWith()
 #fi
 core_variable_endsWith()
 {
-	[ "${1%${2}}" != "$1" ]
+	# Does not work in pdksh: [ "${1%${2}}" != "$1" ]
+	[ "$(core_variable_allButFirstN "$1" $((${#1}-${#2})))" = "$2" ]
 }
 
 core_variable_doesNotEndWith()
 {
-	[ "${1%${2}}" = "$1" ]
+	# Does not work in pdksh: [ "${1%${2}}" = "$1" ]
+	[ "$(core_variable_allButFirstN "$1" $((${#1}-${#2})))" != "$2" ]
 }
 
 core_variable_firstCharacter()
