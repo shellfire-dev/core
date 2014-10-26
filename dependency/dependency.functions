@@ -212,5 +212,11 @@ core_functions_register _core_dependency_functions core_dependency_setUpPathAndI
 
 core_dependency_installDependencies()
 {
-	core_functions_execute _core_dependency_functions "$@"
+	if core_variable_isUnset _program_ignore_dependencies; then
+		_program_ignore_dependencies=1
+	fi
+	
+	if core_variable_isFalse "$_program_ignore_dependencies"; then
+		core_functions_execute _core_dependency_functions "$@"
+	fi
 }
