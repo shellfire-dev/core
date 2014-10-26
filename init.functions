@@ -429,7 +429,7 @@ core_uses()
 		# Source
 		moduleName="$(core_compatibility_basename "$namespacedModule")"
 		sourced=0
-		for relativeFunctionsFilePath in "$namespacedModule" "$namespacedModule"."$core_init_preferredShell" "$namespacedModule"/"$moduleName" "$namespacedModule"/"$moduleName"."$core_init_preferredShell"
+		for relativeFunctionsFilePath in "$namespacedModule" "$namespacedModule"."$core_init_shellPreferred" "$namespacedModule"/"$moduleName" "$namespacedModule"/"$moduleName"."$core_init_shellPreferred"
 		do
 			functionsFilePath="$libPath"/"$relativeFunctionsFilePath".functions
 			if [ -f "$functionsFilePath" ]; then
@@ -472,7 +472,7 @@ core_init_init()
 	set -u
 }
 
-core_init_kshTweaks()
+core_init_shellDetection()
 {
 	if [ "${KSH_VERSION+set}" = 'set' ]; then
 		
@@ -482,42 +482,73 @@ core_init_kshTweaks()
 		IFS=' ' read -r _local_core_init_kshTweaks_version _local_core_init_kshTweaks_garbage <<-EOF
 			${KSH_VERSION}
 		EOF
-
-		# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
-		# Worse, it refuses to let us override unset with a function. Hence this workaround everyone else has to use
-		core_variable_unset()
-		{
-			unset "$@"
-		}
 		
 		case "$_local_core_init_kshTweaks_version" in
 		
 			# ksh93
 			'Version')
-				# Set aliases for ksh93
-				# https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh
-				alias local='typeset'
+				core_init_shellDetected=ksh93
 			;;
 			
 			'@(#)PD')
-				# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
-				core_variable_unset()
-				{
-					set +e
-					unset "$1"
-					set -e
-				}
-				
-				# pdksh does not understand that in POSIX '$@' can be unset or empty but is still valid to reference
-				# As a workaround, we disable unbound checks
-				set +u
+				core_init_shellDetected=pdksh
+			;;
+			
+			'@(#)MIRBSD')
+				core_init_shellDetected=mksh
+			;;
+			
+			*)
+				core_init_shellDetected=unknown-ksh
 			;;
 			
 		esac
 		
 		unset _local_core_init_kshTweaks_version
 		unset _local_core_init_kshTweaks_garbage
+	elif [ "${BASH_VERSION+set}" = 'set' ]; then
+		core_init_shellDetected=bash
+	elif [ "${ZSH_VERSION+set}" = 'set' ]; then
+		core_init_shellDetected=zsh
+	else
+		core_init_shellDetected=sh
 	fi
+}
+
+core_init_enableShellTweaks()
+{
+	# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
+	# Worse, it refuses to let us override unset with a function. Hence this workaround everyone else has to use
+	core_variable_unset()
+	{
+		unset "$@"
+	}
+	
+	case "$core_init_shellDetected" in
+		
+		ksh93)
+			# Set aliases for ksh93
+			# https://stackoverflow.com/questions/12000949/scope-of-variables-in-ksh
+			alias local='typeset'
+		;;
+		
+		pdksh)
+			# pdksh 5.2.14 barfs if the variable to unset is not set, even if set +u!
+			core_variable_unset()
+			{
+				set +e
+				unset "$1"
+				set -e
+			}
+			
+			# pdksh does not understand that in POSIX '$@' can be unset or empty but is still valid to reference
+			# As a workaround, we disable unbound checks
+			set +u
+			
+			# AIX pdksh also doesn't understand var=value exec command syntax... (it doesn't export var)!
+		;;
+		
+	esac
 }
 
 core_init_setSaneEnvironmentDefaults()
@@ -611,7 +642,7 @@ core_init_doNotRunAsSetUidOrSetGid()
 	fi
 }
 
-core_init_preferredShell=''
+core_init_shellPreferred='sh'
 core_init_determinePreferredShell()
 {
 	IFS=' ' read -r _local_commented_shebang_path _local_shebang_shell _local_remainder <"$core_init_ourSymlinkExecutablePath"
@@ -624,13 +655,13 @@ core_init_determinePreferredShell()
 	EOF
 	
 	if [ -z "$_local_shebang_shell" ]; then
-		core_init_preferredShell="$(core_compatibility_basename "$_local_shebang_path")"
+		core_init_shellPreferred="$(core_compatibility_basename "$_local_shebang_path")"
 	else
 		if [ "$_local_shebang_path" != '/usr/bin/env' ]; then
 			# core_commandLine_exitCode_SOFTWARE
 			core_exitError 70 "All shell scripts should use '/usr/bin/env' with a shell, not #!$_local_shebang_path $shebang_shell"
 		fi
-		core_init_preferredShell="$_local_shebang_shell"
+		core_init_shellPreferred="$_local_shebang_shell"
 	fi
 	
 	unset _local_commented_shebang_path
@@ -651,15 +682,20 @@ core_init_rexecUnderCorrectShell()
 			return 0
 		fi
 	fi
-
-	if ! core_compatibility_whichNoOutput "$core_init_preferredShell"; then
-		#core_commandLine_exitCode_OSFILE
-		core_exitError 72 "Preferred shell '$core_init_preferredShell' does not exist on the PATH"
+	
+	# Doesn't defend against bash as sh bugs
+	if [ "$core_init_shellDetected" = "$core_init_shellPreferred" ]; then
+		return 0
 	fi
-	_local_shellPath="$(core_compatibility_which "$core_init_preferredShell")"
+
+	if ! core_compatibility_whichNoOutput "$core_init_shellPreferred"; then
+		#core_commandLine_exitCode_OSFILE
+		core_exitError 72 "Preferred shell '$core_init_shellPreferred' does not exist on the PATH"
+	fi
+	_local_shellPath="$(core_compatibility_which "$core_init_shellPreferred")"
 
 	# exec -a doesn't work in dash
-	if [ "$core_init_preferredShell" = 'bash' ]; then
+	if [ "$core_init_shellDetected" = 'bash' ]; then
 		# ksh on AIX does not export  core_init_shell_rexecing  when run as  core_init_shell_rexecing=$$ exec $program ...
 		
 		# Forces a privileged shell. Not a great defence to Shellshock, but has some value.
@@ -695,7 +731,8 @@ core_init_initialiseArrayDelimiter()
 core_init_main()
 {
 	core_init_init
-	core_init_kshTweaks
+	core_init_shellDetection
+	core_init_enableShellTweaks
 	core_init_setSaneEnvironmentDefaults
 	core_init_findOurNameAndPath
 	core_init_determinePreferredShell
