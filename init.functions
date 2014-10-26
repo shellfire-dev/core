@@ -521,6 +521,8 @@ core_init_shellDetection()
 	else
 		core_init_shellDetected=sh
 	fi
+	
+	unset _local_core_init_shellDetection_kshVersion
 }
 
 core_init_enableShellTweaks()
