@@ -488,7 +488,7 @@ core_init_shellDetection()
 		# ksh93:  Version AJM 93u+ 2012-08-01
 		# pdksh:  @(#)PD KSH v5.2.14 99/07/13.2
 		IFS=' ' read -r _local_core_init_shellDetection_version _local_core_init_shellDetection_garbage <<-EOF
-			${KSH_VERSION}
+			${_local_core_init_shellDetection_kshVersion}
 		EOF
 		
 		case "$_local_core_init_shellDetection_version" in
