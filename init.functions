@@ -475,18 +475,26 @@ core_init_init()
 core_init_shellDetection()
 {
 	if [ "${KSH_VERSION+set}" = 'set' ]; then
-		
+		_local_core_init_shellDetection_kshVersion="$KSH_VERSION"
+	elif [ "${SH_VERSION+set}" = 'set' ]; then
+		# seems to be set for pdksh when run as sh on OpenBSD (OpenBSD pdksh is modified)
+		_local_core_init_shellDetection_kshVersion="$SH_VERSION"
+	else
+		_local_core_init_shellDetection_kshVersion=''
+	fi
+	
+	if [ -n "$_local_core_init_shellDetection_kshVersion" ]; then
 		# ksh93:  Version JM 93u 2011-02-08
 		# ksh93:  Version AJM 93u+ 2012-08-01
 		# pdksh:  @(#)PD KSH v5.2.14 99/07/13.2
-		IFS=' ' read -r _local_core_init_kshTweaks_version _local_core_init_kshTweaks_garbage <<-EOF
+		IFS=' ' read -r _local_core_init_shellDetection_version _local_core_init_shellDetection_garbage <<-EOF
 			${KSH_VERSION}
 		EOF
 		
-		case "$_local_core_init_kshTweaks_version" in
+		case "$_local_core_init_shellDetection_version" in
 		
 			# ksh93
-			'Version')
+			'Version'|'.sh.version')
 				core_init_shellDetected=ksh93
 			;;
 			
@@ -504,8 +512,8 @@ core_init_shellDetection()
 			
 		esac
 		
-		unset _local_core_init_kshTweaks_version
-		unset _local_core_init_kshTweaks_garbage
+		unset _local_core_init_shellDetection_version
+		unset _local_core_init_shellDetection_garbage
 	elif [ "${BASH_VERSION+set}" = 'set' ]; then
 		core_init_shellDetected=bash
 	elif [ "${ZSH_VERSION+set}" = 'set' ]; then
