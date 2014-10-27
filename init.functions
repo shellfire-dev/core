@@ -518,6 +518,8 @@ core_init_shellDetection()
 		core_init_shellDetected=bash
 	elif [ "${ZSH_VERSION+set}" = 'set' ]; then
 		core_init_shellDetected=zsh
+	elif [ "${YASH_VERSION+set}" = 'set' ]; then
+		core_init_shellDetected=yash
 	else
 		core_init_shellDetected=sh
 	fi
@@ -561,6 +563,10 @@ core_init_enableShellTweaks()
 		mksh)
 			# See pdksh entry
 			set +u
+		;;
+		
+		yash)
+			alias local='typeset'
 		;;
 		
 	esac
