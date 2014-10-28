@@ -82,9 +82,10 @@ core_snippet_retrieveAndSourceAsHereDoc()
 	local snippetFilePath="$TMP_FILE"
 	
 	printf '%s\n' 'cat <<EOF' >"$snippetFilePath"
-	core_snippet_retrieve "$snippetName" "$snippetFilePath" yes
-	printf 'EOF' >>"$snippetFilePath"
+	core_snippet_retrieve "$snippetName" yes "$snippetFilePath"
+	printf '\nEOF' >>"$snippetFilePath"
 	
+	cat "$snippetFilePath" 1>&2
 	. "$snippetFilePath"
 	rm "$snippetFilePath" || true
 }
