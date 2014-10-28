@@ -52,7 +52,7 @@ core_snippet_embed()
 			continue
 		fi
 		
-		snippetFilePath="$_program_libPath"/"${_program_name}"/"$snippetName".snippet
+		snippetFilePath="$_program_libPath"/"${_program_namespace}"/"$snippetName".snippet
 		if ! core_path_isReadableNonEmptyFilePath "$snippetFilePath"; then
 			core_exitError $core_commandLine_exitCode_SOFTWARE "Snippet '$snippetName' does not exist as a readable, non-empty file at '$snippetFilePath'"
 		fi
