@@ -735,6 +735,10 @@ core_init_initialiseArrayDelimiter()
 {
 	# We want to use '\001' in IFS as it's rare enough to delimit array elements safely.
 	# However, some 'popular' versions of bash have IFS bugs which often manifest when bash is run as 'sh'
+	if core_variable_isSet core_variable_array_delimiter; then
+		return 0
+	fi
+	
 	core_variable_array_delimiter="$(printf '\001')"
 	if core_variable_isSet BASH_VERSION; then
 		if [ "${BASH_VERSINFO[0]}" = '3' ]; then
@@ -747,6 +751,8 @@ core_init_initialiseArrayDelimiter()
 			fi
 		fi
 	fi
+	
+	core_dependency_declares core_variable_array_delimiter
 }
 
 core_init_main()
