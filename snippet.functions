@@ -85,7 +85,6 @@ core_snippet_retrieveAndSourceAsHereDoc()
 	core_snippet_retrieve "$snippetName" yes "$snippetFilePath"
 	printf '\nEOF' >>"$snippetFilePath"
 	
-	cat "$snippetFilePath" 1>&2
 	. "$snippetFilePath"
 	rm "$snippetFilePath" || true
 }
