@@ -1,4 +1,4 @@
-core_usesIn core base64/decode variable
+core_usesIn core base64/decode variable temporaryFiles
 
 # Unfortunately, strips trailing LFs
 core_snippet_raw_encoder()
@@ -61,8 +61,8 @@ core_snippet_embed()
 core_snippet_retrieve()
 {
 	local snippetName="$1"
-	local snippetFilePath="$2"
-	local snippetAppend="$3"
+	local snippetAppend="$2"
+	local snippetFilePath="$3"
 	local core_variable_indirectValue_result
 	local codec
 	local decoder
@@ -71,4 +71,20 @@ core_snippet_retrieve()
 	codec="$core_variable_indirectValue_result"
 	decoder="core_snippet_${codec}_decoder"
 	${decoder}
+}
+
+core_snippet_retrieveAndSourceAsHereDoc()
+{
+	local snippetName="$1"
+	
+	local TMP_FILE
+	core_temporaryFiles_newFileToRemoveOnExit
+	local snippetFilePath="$TMP_FILE"
+	
+	printf '%s\n' 'cat <<EOF' >"$snippetFilePath"
+	core_snippet_retrieve "$snippetName" "$snippetFilePath" yes
+	printf 'EOF' >>"$snippetFilePath"
+	
+	. "$snippetFilePath"
+	rm "$snippetFilePath" || true
 }
