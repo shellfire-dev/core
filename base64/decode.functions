@@ -1,0 +1,461 @@
+core_usesIn core temporaryFiles variable
+
+core_base64_decode_string()
+{
+	local string="$1"
+	local decodedFilePath="$2"
+	local append="$3"
+	local index62Character="$4"
+	local index63Character="$5"
+	shift 5
+	
+	local TMP_FILE
+	core_temporaryFiles_newFileToRemoveOnExit
+	printf '%s' "$string" >"$TMP_FILE"
+	
+	core_base64_decode_file "$TMP_FILE" "$decodedFilePath" "$append" "$index62Character" "$index63Character"
+	
+	# Otherwise we can run out of tmpfs space
+	rm -f "$TMP_FILE" || true
+}
+
+core_base64_decode_file()
+{
+	local encodedFilePath="$1"
+	local decodedFilePath="$2"
+	local append="$3"
+	local index62Character="$4"
+	local index63Character="$5"
+	
+	if core_compatibility_whichNoOutput openssl; then
+		if core_variable_isTrue "$append"; then
+			openssl enc -base64 -d -in "$encodedFilePath" >>"$decodedFilePath"
+		else
+			openssl enc -base64 -d -in "$encodedFilePath" >"$decodedFilePath"
+		fi
+		return 0
+	fi
+	
+	if core_compatibility_whichNoOutput gbase64; then
+		if core_variable_isTrue "$append"; then
+			gbase64 -d "$encodedFilePath" >>"$decodedFilePath"
+		else
+			gbase64 -d "$encodedFilePath" >"$decodedFilePath"
+		fi
+		return 0
+	fi
+
+	# GNU base64 uses -d but BSD uses -D!
+	# Other implementations, eg http://www.fourmilab.ch/webtools/base64/, use -d
+	if core_compatibility_whichNoOutput base64; then
+		local exitCode
+		if core_variable_isTrue "$append"; then
+			set +e
+			base64 -D "$encodedFilePath" >>"$decodedFilePath" 2>/dev/null
+			exitCode=$?
+			set -e
+		else
+			set +e
+			base64 -D "$encodedFilePath" >"$decodedFilePath" 2>/dev/null
+			exitCode=$?
+			set -e
+		fi
+		
+		if [ $exitCode -eq 0 ]; then
+			return 0
+		fi
+
+		if core_variable_isTrue "$append"; then
+			set +e
+			base64 -d "$encodedFilePath" >>"$decodedFilePath" 2>/dev/null
+			exitCode=$?
+			set -e
+		else
+			set +e
+			base64 -d "$encodedFilePath" >"$decodedFilePath" 2>/dev/null
+			exitCode=$?
+			set -e
+		fi
+		
+		if [ $exitCode -eq 0 ]; then
+			return 0
+		fi
+		
+		core_message WARN "We don't recognise your 'base64' binary (or data is corrupt); use fallbacks"
+	fi
+	
+	if core_compatibility_whichNoOutput fold; then
+		if core_variable_isTrue "$append"; then
+			_core_base64_decode_file "$@" _core_base64_decode_file_fold >>"$decodedFilePath"
+		else
+			_core_base64_decode_file "$@" _core_base64_decode_file_fold >"$decodedFilePath"
+		fi
+		return 0
+	fi
+	
+	if core_compatibility_whichNoOutput awk; then
+		if core_variable_isTrue "$append"; then
+			_core_base64_decode_file "$@" _core_base64_decode_file_awk >>"$decodedFilePath"
+		else
+			_core_base64_decode_file "$@" _core_base64_decode_file_awk >"$decodedFilePath"
+		fi
+		return 0
+	fi
+	
+	core_exitError $core_commandLine_exitCode_OSFILE "No utility to decode base64 found (openssl, gbase64, base64, fold, awk)"
+}
+
+_core_base64_decode_file_fold()
+{
+	fold -b -w 1 "$encodedFilePath"
+}
+
+_core_base64_decode_file_awk()
+{
+	awk '{for(i=1;i<=length;i++) print substr($0, i, 1)}' "$encodedFilePath"
+}
+
+_core_base64_decode_file()
+{
+	local index62Character="$1"
+	local index63Character="$2"
+	local singleByteLineMethod="$3"
+	
+	local carriageReturn="$(printf '\r')"
+	
+	local accumulatedValue
+	local value
+	local valueShift
+	local character
+	accumulatedValue=0
+	valueShift=18
+	local equalsCount=0
+	# || tries to deal with a final line not \n terminated
+	$singleByteLineMethod | while IFS='' read -r character || [ -n "$character" ]
+	do
+		if [ -z "$character" ]; then
+			continue
+		fi
+
+		if [ $equalsCount -eq 2 ]; then
+			core_exitError $core_commandLine_exitCode_DATAERR "'=' embedded in base64-encoded data, not at end"
+		fi
+		
+		case "$character" in
+			
+			"$carriageReturn")
+				continue
+			;;
+			
+			A)
+				value=0
+			;;
+			
+			B)
+				value=1
+			;;
+			
+			C)
+				value=2
+			;;
+			
+			D)
+				value=3
+			;;
+			
+			E)
+				value=4
+			;;
+			
+			F)
+				value=5
+			;;
+			
+			G)
+				value=6
+			;;
+			
+			H)
+				value=7
+			;;
+			
+			I)
+				value=8
+			;;
+			
+			J)
+				value=9
+			;;
+			
+			K)
+				value=10
+			;;
+			
+			L)
+				value=11
+			;;
+			
+			M)
+				value=12
+			;;
+			
+			N)
+				value=13
+			;;
+			
+			O)
+				value=14
+			;;
+			
+			P)
+				value=15
+			;;
+			
+			Q)
+				value=16
+			;;
+			
+			R)
+				value=17
+			;;
+			
+			S)
+				value=18
+			;;
+			
+			T)
+				value=19
+			;;
+			
+			U)
+				value=20
+			;;
+			
+			V)
+				value=21
+			;;
+			
+			W)
+				value=22
+			;;
+			
+			X)
+				value=23
+			;;
+			
+			Y)
+				value=24
+			;;
+			
+			Z)
+				value=25
+			;;
+			
+			a)
+				value=26
+			;;
+			
+			b)
+				value=27
+			;;
+			
+			c)
+				value=28
+			;;
+			
+			d)
+				value=29
+			;;
+			
+			e)
+				value=30
+			;;
+			
+			f)
+				value=31
+			;;
+			
+			g)
+				value=32
+			;;
+			
+			h)
+				value=33
+			;;
+			
+			i)
+				value=34
+			;;
+			
+			j)
+				value=35
+			;;
+			
+			k)
+				value=36
+			;;
+			
+			l)
+				value=37
+			;;
+			
+			m)
+				value=38
+			;;
+			
+			n)
+				value=39
+			;;
+			
+			o)
+				value=40
+			;;
+			
+			p)
+				value=41
+			;;
+			
+			q)
+				value=42
+			;;
+			
+			r)
+				value=43
+			;;
+			
+			s)
+				value=44
+			;;
+			
+			t)
+				value=45
+			;;
+			
+			u)
+				value=46
+			;;
+			
+			v)
+				value=47
+			;;
+			
+			w)
+				value=48
+			;;
+			
+			x)
+				value=49
+			;;
+			
+			y)
+				value=50
+			;;
+			
+			z)
+				value=51
+			;;
+			
+			0)
+				value=52
+			;;
+			
+			1)
+				value=53
+			;;
+			
+			2)
+				value=54
+			;;
+			
+			3)
+				value=55
+			;;
+			
+			4)
+				value=56
+			;;
+			
+			5)
+				value=57
+			;;
+			
+			6)
+				value=58
+			;;
+			
+			7)
+				value=59
+			;;
+			
+			8)
+				value=60
+			;;
+			
+			9)
+				value=61
+			;;
+			
+			"$index62Character")
+				value=62
+			;;
+			
+			"$index63Character")
+				value=63
+			;;
+			
+			'=')
+				if [ $valueSift -eq 18 ]; then
+					core_exitError $core_commandLine_exitCode_DATAERR "'=' can start a triple in base64-encoded data"
+				fi
+				equalsCount=$((equalsCount+1))
+				value=0
+			;;
+			
+			*)
+				core_exitError $core_commandLine_exitCode_DATAERR "Unexpected character '$character' in base64-encoded data"
+			;;
+			
+		esac
+		
+		accumulatedValue=$(( (value << valueShift) + accumulatedValue))
+		
+		if [ $valueShift -ne 0 ]; then
+			valueShift=$((valueShift-6))
+			continue
+		fi
+		
+		valueShift=18
+
+		# First byte
+		printf "\\$(printf '%o' $((accumulatedValue >> 16)))"
+
+		# Second byte
+		printf "\\$(printf '%o' $(((accumulatedValue >> 8) & 255)))"
+
+		# Third byte
+		printf "\\$(printf '%o' $((accumulatedValue & 255)))"
+		
+	done
+	
+	case $valueShift in
+		
+		18)
+			:
+		;;
+		
+		12)
+			core_exitError $core_commandLine_exitCode_DATAERR "Missing final character in base64-encoded data"
+		;;
+		
+		8)
+			printf "\\$(printf '%o' $((accumulatedValue >> 16)))"
+		;;
+		
+		0)
+			printf "\\$(printf '%o' $((accumulatedValue >> 16)))"
+			printf "\\$(printf '%o' $(((accumulatedValue >> 8) & 255)))"
+		;;
+		
+	esac
+	
+}
