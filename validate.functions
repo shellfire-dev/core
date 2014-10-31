@@ -103,7 +103,7 @@ core_validate_parentFolderPathReadableAndSearchableAndWritable()
 	if [ "$value" = '/' ]; then
 		core_validate_exit "The $category '$name' specifies a path '$value' with no parent"
 	fi
-	if [ -z "$(core_compatibility_basename "$value")" = "$value" ]; then
+	if [ "$(core_compatibility_basename "$value")" = "$value" ]; then
 		local parentPath="$(pwd)"/..
 	else
 		local parentPath="$(core_compatibility_dirname "$value")"
