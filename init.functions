@@ -120,14 +120,10 @@ core_dependency_fallback()
 
 core_init_verbosity()
 {
-	if core_variable_isSet _program_namespace; then
-		if core_variable_isSet ${_program_namespace}_verbose; then
-			local core_variable_indirectValue_result
-			core_variable_indirectValue ${_program_namespace}_verbose
-			printf '%s' $core_variable_indirectValue_result
-		else
-			printf '%s' 0
-		fi
+	if core_variable_isSet ${_program_namespace}_verbose; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_verbose
+		printf '%s' $core_variable_indirectValue_result
 	else
 		printf '%s' 0
 	fi
@@ -474,6 +470,10 @@ core_init_init()
 {
 	set -e
 	set -u
+	
+	if [ "${_program_namespace+set}" != 'set' ]; then
+		_program_namespace="${_program_name}"
+	fi
 }
 
 core_init_shellDetection()
