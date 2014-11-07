@@ -159,9 +159,11 @@ core_dependency_setUpPathAndInstallMissing()
 	fi
 	
 	local alreadyHandledProgramNames
+	local alreadyHandledProgramNames_initialised
 	core_variable_array_initialise alreadyHandledProgramNames
 	
 	local packagesToInstall
+	local packagesToInstall_initialised
 	core_variable_array_initialise packagesToInstall
 	
 	local temporaryPathForWeirdlyLinkedFiles=''
