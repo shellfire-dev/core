@@ -500,7 +500,7 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 			;;
 			
 			*)
-				core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+				core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 			;;
 			
 		esac
@@ -555,7 +555,7 @@ core_commandLine_parse()
 						;;
 						
 						*)
-							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
 					esac
 				;;
@@ -598,7 +598,7 @@ core_commandLine_parse()
 						;;
 						
 						*)
-							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
 						
 					esac
@@ -647,7 +647,7 @@ core_commandLine_parse()
 						;;
 						
 						*)
-							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
 						
 					esac
@@ -716,7 +716,7 @@ core_commandLine_parse()
 						;;
 						
 						*)
-							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-argument-optional or no for option '$optionName' in _program_commandLine_optionExists()"
+							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
 						
 					esac
