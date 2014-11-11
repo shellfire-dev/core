@@ -582,6 +582,7 @@ core_commandLine_parse()
 						
 						yes-optionally-argumented)
 							if [ $# -eq 0 ]; then
+								core_commandLine_processOptionWithoutArgument
 								break
 							fi
 							local optionValue="$1"
@@ -700,6 +701,7 @@ core_commandLine_parse()
 						
 						yes-optionally-argumented)
 							if [ $# -eq 0 ]; then
+								core_commandLine_processOptionWithoutArgument
 								break
 							fi
 							local optionValue="$1"
