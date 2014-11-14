@@ -34,19 +34,42 @@ core_variable_setVariableIfUnset()
 	fi
 }
 
+core_variable_contains()
+{
+	local value="$1"
+	local contains="$2"
+	case "$value" in
+		
+		*"$contains"*)
+			return 0
+		;;
+		
+	esac
+	
+	return 1
+}
+
 #if core_variable_startsWith "/etc/path/to/file" "/home/"; then
 #	echo 'yes'
 #fi
 core_variable_startsWith()
 {
-	# Does not work in pdksh: [ "${1#${2}}" != "$1" ]
-	[ "$(core_variable_allButLastN "$1" $((${#1}-${#2})))" = "$2" ]
+	local value="$1"
+	local contains="$2"
+	case "$value" in
+		
+		"$contains"*)
+			return 0
+		;;
+		
+	esac
+	
+	return 1
 }
 
 core_variable_doesNotStartWith()
 {
-	# Does not work in pdksh: [ "${1#${2}}" = "$1" ]
-	[ "$(core_variable_allButLastN "$1" $((${#1}-${#2})))" != "$2" ]
+	! core_variable_startsWith "$@"
 }
 
 #if core_variable_endsWith "/etc/path/to/file" "/file"; then
@@ -54,14 +77,22 @@ core_variable_doesNotStartWith()
 #fi
 core_variable_endsWith()
 {
-	# Does not work in pdksh: [ "${1%${2}}" != "$1" ]
-	[ "$(core_variable_allButFirstN "$1" $((${#1}-${#2})))" = "$2" ]
+	local value="$1"
+	local contains="$2"
+	case "$value" in
+		
+		*"$contains")
+			return 0
+		;;
+		
+	esac
+	
+	return 1
 }
 
 core_variable_doesNotEndWith()
 {
-	# Does not work in pdksh: [ "${1%${2}}" = "$1" ]
-	[ "$(core_variable_allButFirstN "$1" $((${#1}-${#2})))" != "$2" ]
+	! core_variable_endsWith "$@"
 }
 
 core_variable_firstCharacter()
