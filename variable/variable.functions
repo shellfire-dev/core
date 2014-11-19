@@ -49,6 +49,21 @@ core_variable_contains()
 	return 1
 }
 
+core_variable_matches()
+{
+	local value="$1"
+	local match="$2"
+	case "$value" in
+		
+		$match)
+			return 0
+		;;
+		
+	esac
+	
+	return 1
+}
+
 #if core_variable_startsWith "/etc/path/to/file" "/home/"; then
 #	echo 'yes'
 #fi
