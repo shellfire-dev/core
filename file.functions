@@ -1,0 +1,43 @@
+core_usesIn core temporaryFiles
+core_dependency_requires '*' awk
+core_file_characterByCharacter()
+{
+	local filePath="$1"
+	shift 1
+
+	local TMP_FILE
+	core_temporaryFiles_newFileToRemoveOnExit
+	local singleCharactersFile="$TMP_FILE"
+	
+	core_file_characterByCharacterCreate "$filePath" "$singleCharactersFile"
+
+	{
+		local callback
+		for callback in "$@"
+		do
+			$callback
+		done
+	} <"$singleCharactersFile"
+
+	rm -f "$singleCharactersFile"
+}
+
+core_file_characterByCharacterCreate()
+{
+	local inputFile="$1"
+	local outputFile="$2"
+	
+	awk '
+BEGIN {
+	srand()
+	FS=""
+	RS="n/o/m/a/t/c/h" rand()
+}
+
+{
+	for (i = 1; i <= NF; i++)
+	{
+		print $i
+	}
+}' <"$inputFile" >"$outputFile"
+}
