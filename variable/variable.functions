@@ -187,17 +187,33 @@ core_variable_allButFirst()
 	core_variable_allButFirstN "$1" 1
 }
 
+_core_variable_characterByCharacter()
+{
+	local index=0
+	local core_variable_character
+	while IFS='' read -r core_variable_character
+	do
+		if [ -z "$character" ]; then
+			character="
+"
+		fi
+		$callback
+		index=$((index+1))
+	done
+}
+
 core_usesIn core file
 core_variable_characterByCharacter()
 {
 	local value="$1"
+	local callback="$2"
 	
 	local TMP_FILE
 	core_temporaryFiles_newFileToRemoveOnExit
 	local inputFile="$TMP_FILE"
 	prinf '%s' "$value" >"$inputFile"
 	
-	core_file_characterByCharacter "$inputFile"
+	core_file_characterByCharacter "$inputFile" _core_variable_characterByCharacter
 	
 	rm -f "$inputFile"
 }
