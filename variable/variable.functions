@@ -202,7 +202,6 @@ _core_variable_characterByCharacter()
 	done
 }
 
-core_usesIn core file
 core_variable_characterByCharacter()
 {
 	local value="$1"

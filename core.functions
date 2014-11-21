@@ -4,7 +4,7 @@ core_init_defines core_TODO
 core_init_defines core_uses
 core_init_defines core_usesIn
 
-core_usesIn core functions configuration commandLine compatibility dependency path snippet trap umask validate variable
+core_usesIn core configuration commandLine compatibility dependency functions file path snippet trap umask validate variable
 core_usesIn core children temporaryFiles
 
 core_functions_register _core_functions \
