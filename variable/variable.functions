@@ -187,6 +187,21 @@ core_variable_allButFirst()
 	core_variable_allButFirstN "$1" 1
 }
 
+core_usesIn core file
+core_variable_characterByCharacter()
+{
+	local value="$1"
+	
+	local TMP_FILE
+	core_temporaryFiles_newFileToRemoveOnExit
+	local inputFile="$TMP_FILE"
+	prinf '%s' "$value" >"$inputFile"
+	
+	core_file_characterByCharacter "$inputFile"
+	
+	rm -f "$inputFile"
+}
+
 core_variable_isTrue()
 {
 	_core_variable_parseBoolean "$1" 0 1 2
