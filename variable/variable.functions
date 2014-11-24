@@ -124,6 +124,28 @@ core_variable_lastCharacter()
 	printf '%s' "${value#$prefix}"
 }
 
+core_variable_trimSpaceAndHorizontalTab()
+{
+	local value="$1"
+	
+	# Remove trailing characters
+	value="${value#"${value%%[![:blank:]]*}"}"
+	
+	# Remove leading characters
+	printf '%s' "${value%"${value##*[![:blank:]]}"}"
+}
+
+core_variable_trimWhitespace()
+{
+	local value="$1"
+	
+	# Remove trailing characters
+	value="${value#"${value%%[![:space:]]*}"}"
+	
+	# Remove leading characters
+	printf '%s' "${value%"${value##*[![:space:]]}"}"
+}
+
 _core_variable_copy()
 {
 	local valueToCopy="$1"
