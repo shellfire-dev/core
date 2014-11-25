@@ -4,11 +4,16 @@ This module provides an essential framework for every [shellfire] application. I
 
 The framework includes functions for most common needs, difficulties and complexities when writing shell script. The major areas it covers are:-
 
-* [Temporary File handling](#namespace-core_temporaryFiles)
-* [Umasks](#namespace-core_umask)
+* [Temporary File handling](#namespace-core_temporaryfiles)
+* [Signal Handling](#namespace-core_trap)
+* [umasks](#namespace-core_umask)
 * [Argument validation](#namespace-core_validate)
 
 ## Overview
+
+### Overridding a module's function(s)
+
+If, for some reason, one of the functions isn't to your own liking then you can override its definition. Simply provide your own inside your [shellfire] application's `_program()` function. This override will then also be used for [fatten]ing automatically. Of course, we'd encourage you to submit a pull request to improve our definition for the benfit of everybody.
 
 ### Namespaces
 
@@ -123,6 +128,335 @@ local TMP_FOLDER
 core_temporaryFiles_newFolderToRemoveOnExit
 ourTemporaryFolderPath="$TMP_FOLDER"
 ```
+
+
+## Namespace `core_trap`
+
+This namespace exposes functions to manage signals (traps). It also sets up and registers internal logic to make clean up of common resources straightforward and error-free.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_trap_addOnCleanUp()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`handler`|The name of a handler function to callback|_No_|
+
+Use this function to register a callback for signals that cause the application to exit, and where a clean up action is needed. There is no need to use this method for temporary file clean up; that's internally registered.
+
+***
+#### `core_trap_addHandler()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`handler`|The name of a handler function to callback|_No_|
+|`…`|Zero or more signal names|_Yes, but specify at least one for to be useful!_
+
+Use this function to register a callback for zero or more signals. Signal names that are cross-platform are:-
+
+|Signal Name|
+|-----|
+|`EXIT`|
+|`HUP`|
+|`INT`|
+|`QUIT`|
+|`ABRT`|
+|`PIPE`|
+|`TERM`|
+|`TSTP`|
+|`USR1`|
+|`USR2`|
+|`INFO`|
+
+***
+
+## Namespace `core_umask`
+
+This namespace is used internally to ensure a sensible default umask of `0022` is set.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+There are no public functions.
+
+
+## Namespace `core_validate`
+
+This namespace exposes functions that validate a supplied value. If the validation fails, the program exits. The intended use case is for validating command line and configuration arguments at program initialisation. Some [shellfire] applications supplement these with additional validate functions in their own namespaces; by convention, this is done as `${_program_name}_validate_FUNCTIONNAME` in a file `${_program_name}/validate.functions`.
+
+All of the functions for validation follow the same pattern, and take the same four arguments: `code`, `category`, `name` and `value`. For example, to validate that the `--output-path` command line switch was given a valid folder path, you might do this inside your [shellfire] application, `example`:-
+
+```bash
+_program_commandLine_processOptionWithArgument()
+{
+	case "$optionName" in
+		
+		…
+		
+		o|output-path)
+			core_validate_folderPathIsReadableAndSearchableAndWritableOrCanBeCreated $core_commandLine_exitCode_USAGE 'option' "$optionNameIncludingHyphens" "$optionValue"
+			example_outputPath="$optionValue"
+		;;
+		
+		…
+		
+	esac
+}
+```
+
+Of course, it'd be nice if users could specify a default `--output-path` in a configuration file. They can do this by creating, say `/etc/example/rc` (one of many possibilities) with the content:-
+
+```bash
+example_outputPath='/var/tmp/example'
+```
+
+You'd then want to be able to validate that the configured value _or_ the value specified on the command line was right. Inside your [shellfire] application, you could add the following:-
+
+```bash
+_program_commandLine_validate()
+{
+	…
+
+	if core_variable_isSet example_outputPath; then
+		core_validate_folderPathIsReadableAndSearchableAndWritableOrCanBeCreated $core_commandLine_exitCode_CONFIG 'configuration setting' 'example_outputPath' "$example_outputPath"
+	else
+		core_message INFO "Defaulting --output-path to current working directory"
+		example_outputPath="$(pwd)"
+	fi
+	
+	…
+}
+```
+
+This works because we follow a _convention_: a command-line _long_ option is named `${_program_name}_lowercaseUppercase`. If your program was `overdrive` and you had a long option `--number-of-gears`, then the option would be `overdrive_numberOfGears`.
+
+### Conventions
+
+#### `code`
+Conventions for `code` are:-
+
+* Never use `0`
+* Avoid `1` and `2`
+* Always use the most apt value from the `commandLine` interface exit codes (`core_commandLine_exitCode_*`)
+* Never use values above `127`
+* Use `core_commandLine_exitCode_USAGE` if `category` is `option`
+* Use `core_commandLine_exitCode_CONFIG` if `category` is `configuration setting`
+
+#### `category`
+Conventions for `category` are:-
+
+* `option` for command line options (switches) such as `-o` and `--output-path` above
+* `configuration setting` for configuration settings such as `example_outputPath`
+* `argument` if being used for validating function arguments (not a common use case)
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_validate_pathNotEmpty()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that a path (`value`) is not empty (`''`) . Exits with `code` if validation fails.
+
+***
+#### `core_validate_folderPathReadableAndSearchable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that a path (`value`) is a readable, searchable (and so extant) folder. Exits with `code` if validation fails.
+
+***
+#### `core_validate_folderPathReadableAndSearchableAndWritable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that a path (`value`) is a readable, searchable, writable (and so extant) folder. Exits with `code` if validation fails.
+
+***
+#### `core_validate_parentFolderPathReadableAndSearchable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the parent of the path (`value`) is a readable, searchable (and so extant) folder. Exits with `code` if validation fails.
+
+***
+#### `core_validate_parentFolderPathReadableAndSearchableAndWritable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the parent of the path (`value`) is a readable, searchable, writable (and so extant) folder. Exits with `code` if validation fails. Useful for checking that a path that _might_ be created will succeed.
+
+***
+#### `core_validate_folderPathIsReadableAndSearchableAndWritableOrCanBeCreated()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the path (`value`) is a readable, searchable, writable (and so extant) folder _or_ it can be created. Exits with `code` if validation fails. Useful for things like output paths.
+
+
+***
+#### `core_validate_filePathReadable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the path (`value`) is a readable (and so extant) file. Exits with `code` if validation fails.
+
+
+***
+#### `core_validate_filePathReadableAndExecutable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the path (`value`) is a readable, executable (and so extant) file. Exits with `code` if validation fails.
+
+
+***
+#### `core_validate_filePathReadableAndExecutableAndNotEmpty()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the path (`value`) is a readable, executable (and so extant), not empty file (as most executables should be). Exits with `code` if validation fails.
+
+***
+#### `core_validate_socketPathReadableAndWritable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the path (`value`) is a readable, writable (and so extant) Unix domain socket. Exits with `code` if validation fails.
+
+***
+#### `core_validate_characterDeviceFileReadableAndWritable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the path (`value`) is a readable, writable (and so extant) character device. Exits with `code` if validation fails.
+
+***
+#### `core_validate_isBoolean()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the `value` is a Boolean. Exits with `code` if validation fails.
+
+Of course, there are no such things as booleans in shell script, but we can model booleans as strings. Booleans are used in many places in [shellfire], as they document behaviour much better.
+
+A `value` is a boolean and true if it is
+* `true`, `TRUE`, `True` or `T`
+* `yes`, `YES`, `Yes`, `Y`
+* `on`, `ON`, `On`
+* `1`
+
+A `value` is a boolean and false if it is
+* `false`, `FALSE`, `False` or `F`
+* `no`, `NO`, `No`, `N`
+* `off`, `OFF`, `Off`
+* `0`
+
+
+***
+#### `core_validate_isUnsignedInteger()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the `value` is an unsigned integer. Exits with `code` if validation fails. An unsigned integer is considered to be any unprefix decimal value greater than or equal to 0.
+
+
+
+***
+#### `core_validate_nonDynamicPort()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`code`|An exit code (should not be zero). Ideally use one of the constants `core_commandLine_exitCode_*`.|_No_|
+|`category`|What you are validating.|_No_|
+|`name`|Name of what you are validating, eg `--output-path` or `example_outputPath`|_No_|
+|`value`|Raw, supplied value of what you are validating|_No_|
+
+Use this function to validate that the the `value` is a non-dynamic port. Exits with `code` if validation fails. A non-dynamic port is one between 1 and 65535 inclusive.
+
+
+
+
+
+
+
 
 
 [swaddle]: https://github.com/raphaelcohn/swaddle "Swaddle homepage"
