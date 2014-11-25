@@ -88,6 +88,52 @@ You will also need to add paths - include the module [paths.d].
 
 
 
+## Namespace `core_init`
+
+These are mostly functions used internally.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_init_defines`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|Zero or more functions or global constants|_Yes_|
+
+This function should only be called from global scope or immediately inside the function `_program()`. It is used to document that a function or global constant, that should be found inside a functions file, is actually to be found in `init.functions`.
+
+***
+#### `core_init_verbosity`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+This function writes to standard out a positive integer number representing the current verbosity level set by `--verbose` for a [shellfire] application. It is typically used to decide if to output debugging information, eg
+
+```bash
+if [ "$(core_init_verbosity)" -gt 2 ]; then
+	cat "/path/to/some/file" 1>&2
+fi
+```
+
+If using `core_message()`, then this is checked internally - there's no need to guard calls to `core_message()` with this function.
+
+***
+#### `core_init_language`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+This function writes to standard out the current language setting, or `en_US.UTF-8` if there isn't one. Useful if you need to manipulate language sensitive programs which don't use `LC_*` or `LANG` variables (which we set automatically).
 
 
 ## Namespace `core_path`
