@@ -389,8 +389,8 @@ core_TODO()
 
 core_dependency_declares _core_uses_alreadySourced
 # Duplicates logic in core/variable/array, but that is a hefty piece to pull in and breaks code (as the bash overrides handle arrays differently)
-# Has a defect such that function paths containing '0x01' can be loaded more than once [highly unlikely except as a potential security defect]
-# By specifying $1 as not , say, /usr/lib, and $2 as something other than core_libraryName, this code can be used for plugins
+# Has a defect such that function paths containing $delimiter can be loaded more than once [highly unlikely except as a potential security defect]
+# By specifying $1 as not, say, /usr/lib, and $2 as something other than core_libraryName, this code can be used for plugins
 core_uses()
 {
 	local libPath="$1"

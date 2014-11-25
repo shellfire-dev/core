@@ -4,6 +4,11 @@ This module provides an essential framework for every [shellfire] application. I
 
 The framework includes functions for most common needs, difficulties and complexities when writing shell script. The major areas it covers are:-
 
+
+TODO: core_terminal
+
+* [Core utilities](#namespace-core)
+
 * [File reading utilities](#namespace-file)
 * [Function manipulation, including existence and plugin registration](#namespace-functions)
 * [Miscellaneous init functions](#namespace-init)
@@ -13,6 +18,7 @@ The framework includes functions for most common needs, difficulties and complex
 * [Signal Handling](#namespace-core_trap)
 * [umasks](#namespace-core_umask)
 * [Argument validation](#namespace-core_validate)
+
 
 ## Overview
 
@@ -87,6 +93,101 @@ git submodule init --update
 You may need to change the url `https://github.com/shellfire-dev/core.git` above if using a fork.
 
 You will also need to add paths - include the module [paths.d].
+
+
+
+
+
+
+## Namespace `core`
+
+These are helper functions to manipulate files character-by-character in shells that don't support a sophisticated `read`.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required. All of these functions are actually defined in `core/init.functions`.
+
+### Functions
+
+***
+#### `core_message`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`messageKind`|Category of the message|_No_|
+|`message`|Text of the message|_No_|
+
+Writes `message` to standard out, with a prefix of `messageKind`. Colour-codes the message if standard out is a supported terminal. Does not write the message if the `messageKind` is not suitable for the current verbosity. Valid values of `messageKind` are:-
+
+|`messageKind`|Written When|
+|-------------|------------|
+|`FAIL`|Always written|
+|`WARN`|Always written|
+|`NOTICE`|`core_init_verbosity()` is at least `1`|
+|`INFO`|`core_init_verbosity()` is at least `2`|
+|`TODO`|`core_init_verbosity()` is at least `2`|
+|`DEBUG`|`core_init_verbosity()` is at least `3`|
+
+If `messageKind`is unrecognised the message is always written.
+
+***
+#### `core_exitError`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`exitCode`|Non-zero exit code of the application, ideally one of the constants `core_commandLine_exitCode_*`|_No_|
+|`message`|Text of the message|_No_|
+
+Writes `message` as a `messageKind` of `FAIL` and then exits the application with exit code `exitCode`.
+
+***
+#### `core_TODO`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`message`|Text of the message|_No_|
+
+Writes `message` as a `messageKind` of `TODO`. Useful for documenting incomplete features and being reminded when the application runs.
+
+***
+#### `core_uses`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`parentNamespace`|Absolute path containing functions to load|_No_|
+
+_or_
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`parentNamespace`|Root namsepace|_No_|
+|`…`|Zero or more relative namespaces to load, specified as relative paths if nested, with no leading `/`. Should not end in `.functions`.|_Yes_|
+
+This function should only be called from global scope or immediately inside the function `_program()`.
+
+Examples:-
+```bash
+# Load the `urlencode` namespace from lib/shellfire/urlencode
+core_usesIn urlencode
+# Load the `urlencode_template` namespace from lib/shellfire/urlencode
+core_usesIn urlencode template
+# Load the `github_api_v3_releases` namespace
+core_usesIn github/api/v3 releases
+# Or, if two namespaces are wanted
+core_usesIn github/api v3 v3/releases
+```
+
+
+***
+#### `core_uses`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`libPath`|Absolute path containing functions to load|_No_|
+|`libraryName`|A folder that should exist under `libPath`|_No_|
+|`…`|Zero or more libraries to dynamically load as plug ins; specified as relative paths if nested, with no leading `/`. Should not end in `.functions`.|_Yes_|
+
+This is an advanced function for implementing which can be used to implement run-time plugin loading. Handles circular dependencies. Can cause havoc; use with care.
 
 
 
