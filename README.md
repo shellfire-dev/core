@@ -4,6 +4,7 @@ This module provides an essential framework for every [shellfire] application. I
 
 The framework includes functions for most common needs, difficulties and complexities when writing shell script. The major areas it covers are:-
 
+* [Embedding snippets](#namespace-snippet)
 * [Temporary File handling](#namespace-core_temporaryfiles)
 * [Signal Handling](#namespace-core_trap)
 * [umasks](#namespace-core_umask)
@@ -82,6 +83,74 @@ git submodule init --update
 You may need to change the url `https://github.com/shellfire-dev/core.git` above if using a fork.
 
 You will also need to add paths - include the module [paths.d].
+
+
+
+## Namespace `core_snippet`
+
+This namespace allows you to embed plain text and binary snippets inside shell scripts - a bit like shell archives. Snippets can be retrieved and used as temporary files, variable values or even interpreted as here docs (they make excellent simple templates)! Snippets let you separate functionality from data, and so source control and version data separately. They also let you deploy unusual compiled binaries with your code - just make sure you've statically linked everything…
+
+Binary snippets are base64 encoded. Plain text snippets are embedded as is (they are called raw), although trailing line feeds are stripped on retrieval due to fundamental shell limitations - watch out! For advanced use cases, it is possible to define your own storage codec. Perhaps Ascii85? If so, please contribute a patch if others could benefit.
+
+Snippets are stored in `lib/shellfire/${_program_name}` as files ending in `.snippet`. File names can consist only of A-Z, a-z, 0-9 and underscores to maximise cross-shell compatibility. For a `_program_name=example`, you might use a snippet as follows:-
+
+```bash
+core_snippet_embed raw my_snippet
+example_useMySnippet()
+{
+	# Extract to a file
+	# 'no' here means do not append. Specify 'yes' to append to the end of /path/to/extract/to
+	core_snippet_retrieve my_snippet 'no' /path/to/extract/to
+	
+	# Extract to a temporary file
+	local TMP_FILE
+	core_temporaryFiles_newFileToRemoveOnExit
+	local mySnippetTemporaryFilePath="$TMP_FILE"
+	core_snippet_retrieve my_snippet 'no' "$mySnippetTemporaryFilePath"
+	
+	# Use as a heredoc - make sure any functions $(somefunc) and variables ${somevar} are defined, or your program will exit!
+	# This allows you to store templates as snippets
+	core_snippet_retrieveAndSourceAsHereDoc my_snippet
+}
+```
+By convention, the embed statement 'decorates' the function that'll use the snippet. The codec here is `raw` - it could also be `base64`.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_snippet_embed()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`codecName`|`raw` or `base64`|_No_|
+|`…`|Zero or more `snippetName` snippet names|_Yes, although at least one is needed to be useful_|
+
+You _must_ call this function _only_ from global scope or immediately inside the function `_program()`. If you define your own codec, then you must define the functions `core_snippet_${codecName}_encoder` and `core_snippet_${codecName}_decoder`. These do not take arguments, but the variables `snippetName` and `snippetFilePath` are in scope (and `snippetAppend`, a boolean, for `core_snippet_${codecName}_decoder`).
+
+***
+#### `core_snippet_retrieve()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`snippetName`|Name of the snippet used in `core_snippet_embed()`|_No_|
+|`snippetAppend`|Specify `no` to overwrite any existing file or `yes` to append to the end.|_No_|
+|`snippetFilePath`|Where to write the snippet to.|_No_|
+
+Retrieves a snippet and writes it to `snippetFilePath`. If the `raw` codec was used when embedding the snippet with `core_snippet_embed()`, then the resultant data will have any trailing line feeds stripped and ASCII NUL characters will have been ignored.
+
+***
+#### `core_snippet_retrieveAndSourceAsHereDoc()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`snippetName`|Name of the snippet used in `core_snippet_embed()`|_No_|
+
+Retrieves a snippet and treats it as if it was a here doc (ie `<<EOF`). If the `raw` codec was used when embedding the snippet with `core_snippet_embed()`, then the resultant data will have any trailing line feeds stripped and ASCII NUL characters will have been ignored.
+
 
 ## Namespace `core_temporaryFiles`
 
