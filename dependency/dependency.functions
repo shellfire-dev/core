@@ -2,8 +2,10 @@ core_usesIn core functions path compatibility
 core_usesIn core/dependency check languagePackageManagers
 core_usesIn core/variable array
 
+core_init_defines core_dependency_declares
 core_init_defines core_dependency_requires
 core_init_defines core_dependency_fallback
+core_init_defines core_dependency_oneOf
 
 core_dependency_fallback !'*' lsb_release
 core_dependency_determinePackageManager()
