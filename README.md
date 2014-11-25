@@ -4,6 +4,7 @@ This module provides an essential framework for every [shellfire] application. I
 
 The framework includes functions for most common needs, difficulties and complexities when writing shell script. The major areas it covers are:-
 
+* [Path utility functions](#namespace-path)
 * [Embedding snippets](#namespace-snippet)
 * [Temporary File handling](#namespace-core_temporaryfiles)
 * [Signal Handling](#namespace-core_trap)
@@ -83,6 +84,11 @@ git submodule init --update
 You may need to change the url `https://github.com/shellfire-dev/core.git` above if using a fork.
 
 You will also need to add paths - include the module [paths.d].
+
+
+
+## Namespace `core_path`
+
 
 
 
