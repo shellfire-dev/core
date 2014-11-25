@@ -9,11 +9,12 @@ TODO: core_terminal
 
 * [Core utilities](#namespace-core)
 
-* [File reading utilities](#namespace-file)
-* [Function manipulation, including existence and plugin registration](#namespace-functions)
-* [Miscellaneous init functions](#namespace-init)
-* [Path utility functions](#namespace-path)
-* [Embedding snippets](#namespace-snippet)
+* [Configuration](#namespace-core_configuration)
+* [File reading utilities](#namespace-core_file)
+* [Function manipulation, including existence and plugin registration](#namespace-core_functions)
+* [Miscellaneous init functions](#namespace-core_init)
+* [Path utility functions](#namespace-core_path)
+* [Embedding snippets](#namespace-core_snippet)
 * [Temporary File handling](#namespace-core_temporaryfiles)
 * [Signal Handling](#namespace-core_trap)
 * [umasks](#namespace-core_umask)
@@ -97,6 +98,68 @@ You will also need to add paths - include the module [paths.d].
 
 
 
+## Namespace `configuration`
+
+A [shellfire] application can have any of its command line options set in configuration files. These can be monolithic or composed of fragments (like Debian's run-parts). Or both. And they can exist in many locations. The approach lets an administrator of your application manage settings per-machine, per-user and per-environment; and they can still override settings per-run using command line options. Using fragments, sensitive passwords or credentials can be managed separately to more mundance configuration, so minimising failure when moving from development to production, say, or making it difficult to accidentally check in sensitive data to source control.
+
+Nearly all the functions in this namespace are used internally to configure your [shellfire] application. The only one you need to know about is `core_configuration_blacklist`, which lets you state that an environment variable path is no longer to be overridden. And, if paranoid, you can also use `readonly` to prevent configuration settings from being changed.
+
+Configuration files are just regular shell script, although it's advisable to avoid doing anything more mundane than:-
+
+```bash
+myapp_inputPath="/path/to/input"
+myapp_outputPath="/path/to/output"
+# etc
+
+# But you can also blacklist, to prevent these locations being used
+core_configuration_blacklist HOME SHELLFIRE_RC SHELLFIRE_RC_D
+```
+
+### Configuration Locations
+Anything you can do with a command line switch, you can do as configuration. But configuration can also be used with scripts. Indeed, the configuration syntax is simply shell script. Configuration files _should not_ be executable. This means that if you _really_ want to, you can let an administrator override just about any feature or behaviour of a program - although that's not explicitly supported. Configuration can be in any number of locations. Configuration may be a single file, or a folder of files; in the latter case, every file in the folder is parsed in 'shell glob-expansion order' (typically ASCII sort order of file names). Locations are searched in order as follows:-
+
+1. Global (Per-machine)
+  1. The file `INSTALL_PREFIX/etc/shellfire/rc` where `INSTALL_PREFIX` is where `${_program_name}` has been installed.
+  2. Any files in the folder `INSTALL_PREFIX/etc/shellfire/rc.d`
+  3. The file `INSTALL_PREFIX/etc/${_program_name}/rc` where `INSTALL_PREFIX` is where `${_program_name}` has been installed.
+  4. Any files in the folder `INSTALL_PREFIX/etc/${_program_name}/rc.d`
+2. Per User, where `HOME` is your home folder path\*
+  1. The file `HOME/.shellfire/rc`
+  2. Any files in the folder `HOME/.shellfire/rc.d`
+  3. The file `HOME/.${_program_name}/rc`
+  4. Any files in the folder `HOME/.${_program_name}/rc.d`
+3. Per Environment
+  1. The file in the environment variable `shellfire_RC` (if the environment variable is set and the path is readable)
+  2. Any files in the folder in the environment variable `shellfire_RC_D` (if the environment variable is set and the path is searchable)
+  3. The file in the environment variable `${_program_name}_RC` (if the environment variable is set and the path is readable)
+  4. Any files in the folder in the environment variable `${_program_name}_RC_D` (if the environment variable is set and the path is searchable)
+
+Nothing stops any of these paths, or files in them, being symlinks.
+
+_\* An installation as a daemon using a service account would normally set `HOME` to something like `/var/lib/bishbosh`._
+
+
+### To use in code
+
+This namespace is included by default. No additional actions are required. All of these functions are actually defined in `core/init.functions`.
+
+### Functions
+
+
+***
+#### `core_configuration_blacklist`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|Zero or more environment variables to blacklist|_Yes_|
+
+Use this function inside a configuration file (such as a per-machine one like `INSTALL_PREFIX/etc/${_program_name}/rc` above) and specify any environment variables that should not be used to load configuration from. This prevents an user overriding machine-level configuration. The environment variables you can blacklist are:-
+
+* `HOME`
+* `shellfire_RC`
+* `shellfire_RC_D`
+* `${_program_name}_RC`
+* `${_program_name}_RC_D`
 
 
 ## Namespace `core`
