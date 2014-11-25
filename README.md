@@ -87,7 +87,75 @@ You will also need to add paths - include the module [paths.d].
 
 
 
+
+
+
 ## Namespace `core_path`
+
+These are utility functions that check for certain properties of paths (files, folders, that sort of thing). Unlike the `core_validate` namespace functions, these ones do not exit the application. Instead, they return an exit code, and so are intended to be used from constructs such as `if` statements or `&&`.
+
+For example, to check if a path is a readable, searchable folder path:-
+
+```bash
+if ! core_path_isReadableAndSearchableFolderPath '/etc'; then
+	core_message WARN "'/etc' is not a readable, searchable folder path. This is very odd."
+fi
+```
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_path_isReadableFilePath()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`filePath`|Path to a potential file|_No_|
+
+Returns an exit code of `0` if `filePath` is a readable, extant file or `1` if it is not.
+
+
+***
+#### `core_path_isReadableNonEmptyFilePath()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`filePath`|Path to a potential file|_No_|
+
+Returns an exit code of `0` if `filePath` is a readable, non-empty extant file or `1` if it is not.
+
+***
+#### `core_path_isReadableNonEmptyExecutableFilePath()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`filePath`|Path to a potential file|_No_|
+
+Returns an exit code of `0` if `filePath` is a readable, non-empty executable extant file or `1` if it is not.
+
+***
+#### `core_path_isReadableAndSearchableFolderPath()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`folderPath`|Path to a potential folder|_No_|
+
+Returns an exit code of `0` if `folderPath` is a readable, searchable extant folder or `1` if it is not.
+
+***
+#### `core_path_isReadableAndSearchableAndWritableFolderPath()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`folderPath`|Path to a potential folder|_No_|
+
+Returns an exit code of `0` if `folderPath` is a readable, searchable and writable extant folder or `1` if it is not.
+
+
+
 
 
 
