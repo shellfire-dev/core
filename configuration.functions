@@ -101,7 +101,22 @@ _core_configuration_load()
 			core_message WARN "Configuration folder '$actualPath' is not searchable; ignoring"
 			return 0
 		fi
-		core_path_iterateOverFolderPath "$actualPath" _core_configuration_load
+		
+		local filePath
+		pushd "$actualPath"
+	
+			set +f
+				for filePath in *
+				do
+					set -f
+					if [ ! -e "$filePath" ]; then
+						continue
+					fi
+					_core_configuration_load "$filePath"
+				done
+			set -f
+	
+		popd
 	else
 		core_message WARN "Configuration path '$actualPath' resolves to neither a file or folder; ignoring"
 		return 0

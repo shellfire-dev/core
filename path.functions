@@ -78,25 +78,3 @@ core_path_isReadableAndSearchableAndWritableFolderPath()
 	
 	return 1
 }
-
-core_path_iterateOverFolderPath()
-{
-	local folderPath="$1"
-	local callback="$2"
-	shift 2
-	
-	local filePath
-	pushd "$folderPath"
-		set +o noglob
-		for filePath in *
-		do
-			set -o noglob
-			# occurs when there are no folder contents at all
-			if [ ! -e "$filePath" ]; then
-				continue
-			fi
-			$callback "$filePath" "$@"
-		done
-		set -o noglob
-	popd
-}
