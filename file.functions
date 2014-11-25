@@ -11,11 +11,15 @@ core_file_characterByCharacter()
 	
 	core_file_characterByCharacterCreate "$filePath" "$singleCharactersFile"
 
+	local callback
+	local character
 	{
-		local callback
-		for callback in "$@"
+		while IFS='' read -r character
 		do
-			$callback
+			for callback in "$@"
+			do
+				$callback
+			done
 		done
 	} <"$singleCharactersFile"
 
@@ -37,7 +41,14 @@ BEGIN {
 {
 	for (i = 1; i <= NF; i++)
 	{
-		print $i
+		if ($i ~ /\n/)
+		{
+			print
+		}
+		else
+		{
+			print $i
+		}
 	}
 }' <"$inputFile" >"$outputFile"
 }

@@ -4,6 +4,7 @@ This module provides an essential framework for every [shellfire] application. I
 
 The framework includes functions for most common needs, difficulties and complexities when writing shell script. The major areas it covers are:-
 
+* [File reading utilities](#namespace-file)
 * [Function manipulation, including existence and plugin registration](#namespace-functions)
 * [Miscellaneous init functions](#namespace-init)
 * [Path utility functions](#namespace-path)
@@ -88,9 +89,42 @@ You may need to change the url `https://github.com/shellfire-dev/core.git` above
 You will also need to add paths - include the module [paths.d].
 
 
+
+## Namespace `core_file`
+
+These are helper functions to manipulate files character-by-character in shells that don't support a sophisticated `read`.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_file_characterByCharacter`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`filePath`|A file to read character-by-character|_No_|
+|`…`|Zero or more function names to use as callbacks|_Yes_|
+
+Iterates over a file character-by-character. For each character, it calls each callback in `…` with the variable `character` set to the character. If the character is a line feed, then `character` is empty (this is a shell limitation, but not a problem in use).
+
+***
+#### `core_file_characterByCharacterCreate`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`inputFile`|A file to read character-by-character|_No_|
+|`outputFile`|A file to read character-by-character|_No_|
+
+Converts a file into a set of lines (line feed delimited), each of which contains one character (or, in the case of line feed, no character).
+
+
+
 ## Namespace `core_functions`
 
-These are helper functions to manipulate shell functions,
+These are helper functions to manipulate shell functions.
 
 ### To use in code
 
@@ -103,16 +137,16 @@ This namespace is included by default. No additional actions are required.
 
 |Parameter|Value|Optional|
 |---------|-----|--------|
-|`functionName`|A name of a function|_Yes_|
+|`functionName`|A name of a function|_No_|
 
-Returns an exit code of `0` if the function (not binary on the `PATH`) exists in the current program.
+Returns an exit code of `0` if the function (not binary on the `PATH`) exists in the current program, and `1` if it doesn't.
 
 ***
 #### `core_functions_register`
 
 |Parameter|Value|Optional|
 |---------|-----|--------|
-|`functionsVariableName`|A variable to use to store the function names|_Yes_|
+|`functionsVariableName`|A variable to use to store the function names|_No_|
 |`…`|Zero or more function names|_Yes_|
 
 Appends zero or more function names to use as callbacks, in order. A function can be added more than once. The list of functions will be included in any [fatten]ed binary. Use this to register callbacks and plugins on first load of modules. This function should only be called from global scope or immediately inside the function `_program()`. `functionsVariableName` is created and initialised as an array if it doesn't exist.
@@ -122,7 +156,7 @@ Appends zero or more function names to use as callbacks, in order. A function ca
 
 |Parameter|Value|Optional|
 |---------|-----|--------|
-|`functionsVariableName`|A variable to use to store the function names|_Yes_|
+|`functionsVariableName`|A variable to use to store the function names|_No_|
 |`…`|Zero or more arguments to pass to callbacks|_Yes_|
 
 This function executes all functions registered in `functionsVariableName` as callbacks, passing the value of `…` as arguments to them.
