@@ -21,8 +21,8 @@ The framework includes functions for most common needs, difficulties and complex
 * [Signal Handling](#namespace-core_trap)
 * [umasks](#namespace-core_umask)
 * [Argument validation](#namespace-core_validate)
+* [Variable and Value Helpers](#namespace-core_variable)
 TODO
-core_variable
 core_variable_array
 
 ## Overview
@@ -1537,13 +1537,266 @@ Use this function to validate that the the `value` is an unsigned integer. Exits
 
 Use this function to validate that the the `value` is a non-dynamic port. Exits with `code` if validation fails. A non-dynamic port is one between 1 and 65535 inclusive.
 
+***
+
+## Namespace `core_variable`
+
+This namespace provides a wide range of helper functions to work with variables and values.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_variable_isSet()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+
+Returns a non-zero exit code if the variable is set (defined) (but not empty or null), or `0` if it isn't. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
+
+***
+#### `core_variable_isUnset()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+
+Returns a non-zero exit code if the variable is unset (undefined) (but not empty or null), or `0` if it is. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
+
+***
+#### `core_variable_indirectValue()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+
+Sets the variable `core_variable_indirectValue_result` to the value pointed to by `variableName`. Exists because most shells don't provide a way to do this simply. Deliberately does not write to standard out, even though that would have been easier, as the caller, needs to capture standard out would then strip trailing line feeds and so end up with a different variable value.
+
+***
+#### `core_variable_unset()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+
+Unsets (undefines) the variable pointed to by `variableName`. This method exists because the normal `unset` built-in misbehaves on `pdksh` when trying to unset non-existent variables (even if `set +u` is used)! One could argue that these shells are more correct, but, since the common ones (bash included) don't behave this way, this is the only cross-shell way to be consistent. We do not redefine the `unset` built in as this doesn't work in `pdksh` (which, despite ceasing development in 1999, is still widely used in the BSDs).
+
+***
+#### `core_variable_setVariable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+|`value`|A value to set it to|_No_|
+
+Sets the variable pointed to by `variableName` to `value`.
 
 
+***
+#### `core_variable_isUnsetOrEmpty()`
 
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
 
+Returns a non-zero exit code if the variable is unset (undefined) or empty (null in Shell speak!), or `0` if it is. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
 
+***
+#### `core_variable_setVariableIfUnset()`
 
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+|`variableDefaultValue`|A value to set it to|_No_|
 
+Sets the variable pointed to by `variableName` to `value` if, and only if, it is unset.
+
+***
+#### `core_variable_contains()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`contains`|A value to check for|_No_|
+
+Returns a non-zero exit code if the `value` contains `contains`, or `0` otherwise.
+
+***
+#### `core_variable_matches()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`match`|A value to match|_No_|
+
+Returns a non-zero exit code if the the shell glob expression `match` matches the `value`, or `0` otherwise. Avoid using bashisms.
+
+***
+#### `core_variable_startsWith()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`startsWith`|A value to match|_No_|
+
+Returns a non-zero exit code if the `value` starts with `startsWith`, or `0` otherwise.
+
+***
+#### `core_variable_doesNotStartWith()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`startsWith`|A value to match|_No_|
+
+Returns a non-zero exit code if the `value` does not start with `startsWith`, or `0` otherwise.
+
+***
+#### `core_variable_endsWith()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`endsWith`|A value to match|_No_|
+
+Returns a non-zero exit code if the `value` ends with `endsWith`, or `0` otherwise.
+
+***
+#### `core_variable_doesNotEndWith()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`endsWith`|A value to match|_No_|
+
+Returns a non-zero exit code if the `value` does not end with `endsWith`, or `0` otherwise.
+
+***
+#### `core_variable_firstCharacter()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Writes to standard out the first character of `value`.
+
+***
+#### `core_variable_lastCharacter()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Writes to standard out the last character of `value`.
+
+***
+#### `core_variable_trimSpaceAndHorizontalTab()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Writes to standard out `value` with any leading or trailing spaces and horizontal tabs removed (POSIX character class `[:blank:]`).
+
+***
+#### `core_variable_trimWhitespace()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Writes to standard out `value` with any leading or trailing whitespace removed (POSIX character class `[:space:]`).
+
+***
+#### `core_variable_allButLastN()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`numberToOmit`|Number of characters to remove|_No_|
+
+Writes to standard out `value` with the trailing `numberToOmit` characters removed.
+
+***
+#### `core_variable_allButLast()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Writes to standard out `value` with the final character removed. Useful for stripping a trailing `/` from path prefixes.
+
+***
+#### `core_variable_allButFirstN()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`numberToOmit`|Number of characters to remove|_No_|
+
+Writes to standard out `value` with the leading `numberToOmit` characters removed.
+
+***
+#### `core_variable_allButFirst()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Writes to standard out `value` with the leading character removed. Useful for stripping a leading `/` from path prefixes.
+
+***
+#### `core_variable_characterByCharacter()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+|`callback`|A callback (function name)|_No_|
+
+Calls `callback` for each character `character` of `value`. Inefficient. Useful for building any manner of parsers in shell script, though.
+
+***
+#### `core_variable_isTrue()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Returns an exit code of:-
+
+* `0` if `value` is a boolean true (`T`, `t`, `true`, `True`, `TRUE`, `Y`, `y`, `yes`, `Yes`, `YES`, `on`, `On`, `ON`, `1`)
+* `1` if `value` is a boolean false (`F`, `f`, `false`, `False`, `FALSE`, `N`, `n`, `no`, `No`, `NO`, `off`, `Off`, `OFF`, `0`)
+* `2` if `value` is not valid
+
+***
+#### `core_variable_isFalse()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Returns an exit code of:-
+
+* `0` if `value` is a boolean false (`F`, `f`, `false`, `False`, `FALSE`, `N`, `n`, `no`, `No`, `NO`, `off`, `Off`, `OFF`, `0`)
+* `1` if `value` is a boolean true (`T`, `t`, `true`, `True`, `TRUE`, `Y`, `y`, `yes`, `Yes`, `YES`, `on`, `On`, `ON`, `1`)
+* `2` if `value` is not valid
+
+***
+#### `core_variable_isInvalidBoolean()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
+
+Returns an exit code of:-
+
+* `0` if `value` is not valid
+* `1` if `value` is a boolean false (`F`, `f`, `false`, `False`, `FALSE`, `N`, `n`, `no`, `No`, `NO`, `off`, `Off`, `OFF`, `0`)
+* `1` if `value` is a boolean true (`T`, `t`, `true`, `True`, `TRUE`, `Y`, `y`, `yes`, `Yes`, `YES`, `on`, `On`, `ON`, `1`)
 
 [swaddle]: https://github.com/raphaelcohn/swaddle "Swaddle homepage"
 [shellfire]: https://github.com/shellfire-dev "shellfire homepage"
