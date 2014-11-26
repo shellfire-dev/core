@@ -22,8 +22,7 @@ The framework includes functions for most common needs, difficulties and complex
 * [umasks](#namespace-core_umask)
 * [Argument validation](#namespace-core_validate)
 * [Variable and Value Helpers](#namespace-core_variable)
-TODO
-core_variable_array
+* [Arrays, even in non-bash shells](#namespace-core_variable_array)
 
 ## Overview
 
@@ -1556,7 +1555,7 @@ This namespace is included by default. No additional actions are required.
 |---------|-----|--------|
 |`variableName`|A variable name|_No_|
 
-Returns a non-zero exit code if the variable is set (defined) (but not empty or null), or `0` if it isn't. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
+Returns a `0` exit code if the variable is set (defined) (but not empty or null), or a non-zero one if it isn't. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
 
 ***
 #### `core_variable_isUnset()`
@@ -1565,7 +1564,7 @@ Returns a non-zero exit code if the variable is set (defined) (but not empty or 
 |---------|-----|--------|
 |`variableName`|A variable name|_No_|
 
-Returns a non-zero exit code if the variable is unset (undefined) (but not empty or null), or `0` if it is. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
+Returns a `0` exit code if the variable is unset (undefined) (but not empty or null), or non-zero one if it is. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
 
 ***
 #### `core_variable_indirectValue()`
@@ -1603,7 +1602,7 @@ Sets the variable pointed to by `variableName` to `value`.
 |---------|-----|--------|
 |`variableName`|A variable name|_No_|
 
-Returns a non-zero exit code if the variable is unset (undefined) or empty (null in Shell speak!), or `0` if it is. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
+Returns a `0` exit code if the variable is unset (undefined) or empty (null in Shell speak!), or non-zero one if it is. Be aware that there is a bug in bash 3.2 on Mac OS X when invoked as `sh` that treats a defined, but not set `local` variable, as if it is empty.
 
 ***
 #### `core_variable_setVariableIfUnset()`
@@ -1623,7 +1622,7 @@ Sets the variable pointed to by `variableName` to `value` if, and only if, it is
 |`value`|A value|_No_|
 |`contains`|A value to check for|_No_|
 
-Returns a non-zero exit code if the `value` contains `contains`, or `0` otherwise.
+Returns a `0` exit code if the `value` contains `contains`, or non-zero one otherwise.
 
 ***
 #### `core_variable_matches()`
@@ -1633,7 +1632,7 @@ Returns a non-zero exit code if the `value` contains `contains`, or `0` otherwis
 |`value`|A value|_No_|
 |`match`|A value to match|_No_|
 
-Returns a non-zero exit code if the the shell glob expression `match` matches the `value`, or `0` otherwise. Avoid using bashisms.
+Returns a `0` exit code if the the shell glob expression `match` matches the `value`, or non-zero one otherwise. Avoid using bashisms.
 
 ***
 #### `core_variable_startsWith()`
@@ -1643,7 +1642,7 @@ Returns a non-zero exit code if the the shell glob expression `match` matches th
 |`value`|A value|_No_|
 |`startsWith`|A value to match|_No_|
 
-Returns a non-zero exit code if the `value` starts with `startsWith`, or `0` otherwise.
+Returns a `0` exit code if the `value` starts with `startsWith`, or non-zero one otherwise.
 
 ***
 #### `core_variable_doesNotStartWith()`
@@ -1653,7 +1652,7 @@ Returns a non-zero exit code if the `value` starts with `startsWith`, or `0` oth
 |`value`|A value|_No_|
 |`startsWith`|A value to match|_No_|
 
-Returns a non-zero exit code if the `value` does not start with `startsWith`, or `0` otherwise.
+Returns a `0` exit code if the `value` does not start with `startsWith`, or non-zero one otherwise.
 
 ***
 #### `core_variable_endsWith()`
@@ -1663,7 +1662,7 @@ Returns a non-zero exit code if the `value` does not start with `startsWith`, or
 |`value`|A value|_No_|
 |`endsWith`|A value to match|_No_|
 
-Returns a non-zero exit code if the `value` ends with `endsWith`, or `0` otherwise.
+Returns a `0` exit code if the `value` ends with `endsWith`, or non-zero one otherwise.
 
 ***
 #### `core_variable_doesNotEndWith()`
@@ -1673,7 +1672,7 @@ Returns a non-zero exit code if the `value` ends with `endsWith`, or `0` otherwi
 |`value`|A value|_No_|
 |`endsWith`|A value to match|_No_|
 
-Returns a non-zero exit code if the `value` does not end with `endsWith`, or `0` otherwise.
+Returns a `0` exit code if the `value` does not end with `endsWith`, or non-zero one otherwise.
 
 ***
 #### `core_variable_firstCharacter()`
@@ -1797,6 +1796,259 @@ Returns an exit code of:-
 * `0` if `value` is not valid
 * `1` if `value` is a boolean false (`F`, `f`, `false`, `False`, `FALSE`, `N`, `n`, `no`, `No`, `NO`, `off`, `Off`, `OFF`, `0`)
 * `1` if `value` is a boolean true (`T`, `t`, `true`, `True`, `TRUE`, `Y`, `y`, `yes`, `Yes`, `YES`, `on`, `On`, `ON`, `1`)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***
+
+## Namespace `core_variable_array`
+
+This namespace provides a wide range of helper functions to pretend variables are arrays. It uses a bespoke separator character. There is experimental support to make bash arrays appear to work under this pretence. This module works hard to overcome serious bugs in bash 3.2 when run as `sh` (unset variables are empty; most control code separate characters don't work). Do not use arrays with file paths if there's any chance they could contain `\r`.
+
+To use arrays in global scope, one does:-
+
+```bash
+# Optional, core_variable_array_append initialises if necessary
+core_variable_array_initialise myArray
+
+# Append values - spaces are correctly handled
+core_variable_array_append myArray 'value1' 'value 2'
+core_variable_array_append myArray 'etc'
+
+length=$(core_variable_array_length myArray)
+if core_variable_array_isEmpty myArray; then
+	echo Empty!
+fi
+
+# will be `value 2`
+itemAtIndex1="$(core_variable_array_at myArray 1)"
+
+# will be 'value1, value2, etc'
+echo "$(core_variable_array_string myArray ', ')"
+
+# Use to call an executable or function with all arguments
+# Will do  cat 'value1' 'value 2' 'etc'
+core_variable_array_passToFunctionAsArguments myArray cat
+
+# Iterate
+index=0
+some_callback()
+{
+	echo "array element at index $index in $core_variable_array_element"
+	index=$((index+1))
+}
+core_variable_array_iterate myArray some_callback
+
+# Iterate as if members were callbacks
+core_variable_array_iterate myArray 'arg to pass to every callback'
+
+```
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_variable_array_initialise()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+
+Initialises an array. `variableName` will then exist. If a local array is desired, then a little more work is needed to work-around shell interpreter bugs; one needs to define a second variable `${variableName}_initialised`. This is because under the covers two variables are used to manage arrays (primarily because some versions of bash can't differentiate between undefined and defined local variables)
+
+```
+local myArray
+local myArray_initialised
+core_variable_array_initialise myArray
+```
+
+***
+#### `core_variable_array_append()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`…`|Zero or more elements to append|_Yes, but specify at least one for to be useful!_|
+
+Appends elements `…` to an array, initialising it if it doesn't already exist. Caveats as above about local arrays.
+
+```
+core_variable_array_append myArray 'value1' 'value 2'
+```
+
+***
+#### `core_variable_array_unset()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+
+Unsets an array.
+
+***
+#### `core_variable_array_isSet()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+
+Returns a `0` exit code if the array `variableName` is set or a non-zero one if it isn't.
+
+***
+#### `core_variable_array_isUnset()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+
+Returns a `0` exit code if the array `variableName` is unset or a non-zero one if it isn't.
+
+***
+#### `core_variable_array_isEmpty()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+
+Returns a `0` exit code if the array `variableName` is empty or a non-zero one if it isn't.
+
+***
+#### `core_variable_array_length()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+
+Writes the length of the array `variableName` to standard out.
+
+***
+#### `core_variable_array_at()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`index`|A zero-based index|_No_|
+
+Set the variable `core_variable_array_index_element` to the element value at index `index` in the array `variableName`.
+
+***
+#### `core_variable_array_string()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`separator`|A string to separate the array elements|_No_|
+
+Writes the concatenation of the elements of the array `variableName`, separated by `separator`, to standard out.
+
+***
+#### `core_variable_array_contains()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`containsValue`|An element value to find|_No_|
+
+Returns a `0` exit code if the array `variableName` contains an element matching the value `containsValue` or a non-zero one if it isn't.
+
+***
+#### `core_variable_array_iterate()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`callback`|A function name|_No_|
+|`…`|Zero or more elements to pass to `callback`|_Yes_|
+
+Iterates over each element of the array, setting the variable `core_variable_array_element` before calling `callback` with `…`.
+
+***
+#### `core_variable_array_iterateShortcut()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`callback`|A function name|_No_|
+|`…`|Zero or more elements to pass to `callback`|_Yes_|
+
+Iterates over each element of the array, setting the variable `core_variable_array_element` before calling `callback` with `…`.
+Expects the `callback` to return an exit code. If the exit code if `0`, then iteration is shortcircuited and the function returns `0`. If all callbacks are called and none return `0`, then the function returns an exit code of `1`.
+
+***
+#### `core_variable_array_iterateAsCallbacks()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`…`|Zero or more elements to pass to `callback`|_Yes_|
+
+Iterates over each element of the array, treating it as the name of function to callback. Calls each callback with `…`.
+
+***
+#### `core_variable_array_iterateAsCallbacksShortcut()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`…`|Zero or more elements to pass to `callback`|_Yes_|
+
+Iterates over each element of the array, treating it as the name of function to callback. Calls each callback with `…`. Expects callbacks to return an exit code. If the exit code if `0`, then iteration is shortcircuited and the function returns `0`. If all callbacks are called and none return `0`, then the function returns an exit code of `1`.
+
+***
+#### `core_variable_array_passToFunctionAsArguments()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`function`|Either a function name or an executable on the path|_No_|
+
+Passes all the elements of the array `variableName` to a function `function`. Useful for building up complex command lines, eg for `curl`:-
+
+
+```bash
+local optionsForCurl
+local optionsForCurlInitialised
+core_variable_array_initialise optionsForCurl
+
+if [ "$(core_init_verbosity)" -gt 0 ]; then
+	core_variable_array_append optionsForCurl --verbose
+fi
+core_variable_array_append optionsForCurl --url 'http://www.stormmq.com/'
+if [ -n "$myUserCredentials" ]; then
+	core_variable_array_append optionsForCurl --user "$myUserCredentials"
+fi
+
+# calls curl with, perhaps, curl --verbose --url 'http://www.stormmq.com/'
+# Spaces in arguments are correctly handled
+core_variable_array_passToFunctionAsArguments optionsForCurl curl
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [swaddle]: https://github.com/raphaelcohn/swaddle "Swaddle homepage"
 [shellfire]: https://github.com/shellfire-dev "shellfire homepage"
