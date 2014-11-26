@@ -4,11 +4,18 @@ This module provides an essential framework for every [shellfire] application. I
 
 The framework includes functions for most common needs, difficulties and complexities when writing shell script. The major areas it covers are:-
 
-
-TODO: core_terminal
+TODO
+core_dependency ?
+core_variable
+core_variable_array
+core_commandLine
+core_terminal
 
 * [Core utilities](#namespace-core)
 
+* [Base64 decoding](#namespace-core_base64)
+* [Managing child processes](#namespace-core_children)
+* [Compatibility across shells and distros](#namespace-core_compatibility)
 * [Configuration](#namespace-core_configuration)
 * [File reading utilities](#namespace-core_file)
 * [Function manipulation, including existence and plugin registration](#namespace-core_functions)
@@ -44,7 +51,6 @@ These are those functions:-
 #### `core_compatibility`
 
 * `core_compatibility_basename()`
-* `core_compatibility_dirname()`
 * `core_compatibility_which()`
 * `core_compatibility_whichNoOutput()`
 
@@ -96,9 +102,135 @@ You may need to change the url `https://github.com/shellfire-dev/core.git` above
 You will also need to add paths - include the module [paths.d].
 
 
+## Namespace `core_base64_decode`
+
+This namespace allows you to base64 decode strings and files in a cross-script, cross-distro way irrespective of the foibles of whatever `base64` programs (or none) you may have.
+
+### To use in code
+
+This namespace is included by default.
+
+### Functions
+
+***
+#### `core_base64_decode_string`
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`string`|Base64 encoded string to decode.|_No_|
+|`decodedFilePath`|Where to write decoded string to.|_No_|
+|`append`|Boolean; `yes` to append to `decodedFilePath`, `no` to overwrite.|_No_|
+|`index62Character`|Character for index 62 in base64. Typically `+`|_No_|
+|`index63Character`|Character for index 63 in base64. Typically `\`|_No_|
+
+Decoding to a file, `decodedFilePath`, sees counter-intuitive but is required because base64 encoded data can contain embedded ASCII NUL characters, which are incorrectly handled by most shells. `index*Character` allows you to use different base64 alphabets, such as base64url.
+
+***
+#### `core_base64_decode_file`
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`encodedFilePath`|Base64 encoded file to decode.|_No_|
+|`decodedFilePath`|Where to write decoded string to.|_No_|
+|`append`|Boolean; `yes` to append to `decodedFilePath`, `no` to overwrite.|_No_|
+|`index62Character`|Character for index 62 in base64. Typically `+`|_No_|
+|`index63Character`|Character for index 63 in base64. Typically `\`|_No_|
+
+Decodes `encodedFilePath` to `decodedFilePath`. `index*Character` allows you to use different base64 alphabets, such as base64url.
+
+## Namespace `core_children`
+
+This namespace exists to provide simple management of child processes.
+
+### To use in code
+
+This namespace is included by default.
+
+### Functions
+
+***
+#### `core_children_killOnExit()`
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|Zero or more PIDs of child processes to kill on application exit|_Yes_|
+
+After starting a background process, use this function to register child processes to clean up (kill) on exit using a `TERM` signal. For example:-
+
+```bash
+(
+	sleep 1
+	core_compatibility_echo 'tick-tock'
+) &
+core_children_killOnExit $?
+```
+
+## Namespace `core_compatibility`
+
+This namespace exists to ensure cross-shell and cross `PATH` compatibility. It creates the functions `pushd` and `popd` if they don't exist, and, if they do, redirects their standard out to `/dev/null`.
+
+### To use in code
+
+This namespace is included by default.
+
+### Functions
+
+***
+#### `core_compatibility_basename()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`path`|File path|_No_|
+
+Writes the file portion of `path` to standard out. If `path` is just an unqualified string (eg `my-file`), writes `my-file`. If `path`
+ is `/path/to/file`, writes `file`. Lastly, if file is `path/to/file`, writes `file`. Does not rely on the `basename` executable being on the `PATH`.
+
+***
+#### `core_compatibility_dirname()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`path`|File path|_No_|
+
+Writes the directory portion of `path` to standard out. If `path` is just an unqualified string (eg `my-file`), writes `.`, otherwise writes everything before the final `/`. Does not rely on the `dirname` executable being on the `PATH`.
+
+***
+#### `core_compatibility_which()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`executable`|executable|_No_|
+
+Acts like the `which` external command, but does not rely on it. Writes to standard out the full path to `executable` if it exists, otherwise writes to standard out `executable` if it is a function or built in. Returns an exit code of `0` if the `executable` exists (or is a function or built in) or returns `1` if not. Does not rely on the `which` executable being on the `PATH`.
+
+***
+#### `core_compatibility_whichNoOutput()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`executable`|executable|_No_|
+
+Acts like `core_compatibility_which()` but writes nothing to standard out.
+
+***
+#### `core_compatibility_echo()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`message`|string|_No_|
+
+Writes `message` followed by new line. Escape sequences in `message` are not acted on.
+
+***
+#### `core_compatibility_sleepSupportsFractionalSeconds()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Returns an exit code of `0` if fractional values are accepted by `sleep`, otherwise returns `1`. Most modern versions of `sleep` support fractional seconds, except on AIX (whose user binaries are horrendously dated - and IBM has the gall to charge for it, too)!
 
 
-## Namespace `configuration`
+
+## Namespace `core_configuration`
 
 A [shellfire] application can have any of its command line options set in configuration files. These can be monolithic or composed of fragments (like Debian's run-parts). Or both. And they can exist in many locations. The approach lets an administrator of your application manage settings per-machine, per-user and per-environment; and they can still override settings per-run using command line options. Using fragments, sensitive passwords or credentials can be managed separately to more mundance configuration, so minimising failure when moving from development to production, say, or making it difficult to accidentally check in sensitive data to source control.
 
@@ -141,7 +273,7 @@ _\* An installation as a daemon using a service account would normally set `HOME
 
 ### To use in code
 
-This namespace is included by default. No additional actions are required. All of these functions are actually defined in `core/init.functions`.
+This namespace is included by default. No additional actions are required.
 
 ### Functions
 
