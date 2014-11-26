@@ -13,6 +13,7 @@ core_commandLine
 * [Core utilities](#namespace-core)
 
 * [Base64 decoding](#namespace-core_base64)
+* [Command Line option parsing, including long options, help messages and exit codes](#namespace-core_commandline)
 * [Managing child processes](#namespace-core_children)
 * [Compatibility across shells and distros](#namespace-core_compatibility)
 * [Configuration](#namespace-core_configuration)
@@ -136,6 +137,340 @@ Decoding to a file, `decodedFilePath`, sees counter-intuitive but is required be
 
 Decodes `encodedFilePath` to `decodedFilePath`. `index*Character` allows you to use different base64 alphabets, such as base64url.
 
+
+
+
+
+
+
+## Namespace `core_commandLine`
+
+This namespace is mostly invisible, but provides a very rich and sophisticated command line parser so that you can use mixed short and long options, varargs, optional arguments and more. It provides semi-automatic help message generation, including licensing information. It does not depend on any external `getopt` programs.
+
+All of its behaviour is controlled by defining `_program_*` functions and setting `_program_*` variables in your [shellfire] application. By default, it includes several common options for `--help`, `--verbose` and `--version` use and parsing. Options can be 'golfed' (eg `-abc4` is supported, and can be interpreted as `-a bc4`, `-a -b -c -4` and `-a -b c4`, etc, depending on what's defined) but this isn't recommend as it's ambiguous. XFree86-style (eg as used by openssl) options with a single hyphen aren't supported. `--` for end-of-options is, too.
+
+Command line parsing happens after configuration has been loaded, so that command line options can override configured values. Implementations can take advantage of this to note if a value was set by configuration or command line when issuing error messages.
+
+### To use in code
+
+This namespace is included by default.
+
+### Global Constants
+
+#### Exit Codes
+
+This constants provide values for common exit conditions, and align with the BSD sysexits.h values, stdlib.h values and a value used by bash.
+
+|Constant|Value|Explanation|
+|--------|-----|-----------|
+|core_commandLine_exitCode_OK|0|successful termination (aka EXIT_SUCCESS in stdlib.h)|
+|core_commandLine_exitCode_FAILURE|1|Not in sysexist.h, but so commonly used (aka EXIT_FAILURE in stdlib.h)|
+|core_commandLine_exitCode_MISUSEBUILTIN|2|Not in sysexits.h, misuse of builtin (bash specific)|
+|core_commandLine_exitCode_USAGE|64|command line usage error|
+|core_commandLine_exitCode_DATAERR|65|data format error|
+|core_commandLine_exitCode_NOINPUT|66|cannot open input|
+|core_commandLine_exitCode_NOUSER|67|addressee unknown|
+|core_commandLine_exitCode_NOHOST|68|host name unknown|
+|core_commandLine_exitCode_UNAVAILABLE|69|service unavailable|
+|core_commandLine_exitCode_SOFTWARE|70|internal software error|
+|core_commandLine_exitCode_OSERR|71|system error (e.g., can't fork)|
+|core_commandLine_exitCode_OSFILE|72|critical OS file missing|
+|core_commandLine_exitCode_CANTCREAT|73|can't create (user) output file|
+|core_commandLine_exitCode_IOERR|74|input/output error|
+|core_commandLine_exitCode_TEMPFAIL|75|temp failure; user is invited to retry|
+|core_commandLine_exitCode_PROTOCOL|76|remote error in protocol|
+|core_commandLine_exitCode_NOPERM|77|permission denied|
+|core_commandLine_exitCode_CONFIG|78|configuration error|
+
+These constants are _not_ `readonly`, as this doesn't work in some ksh derivatives.
+
+### Functions
+
+There are no public functions.
+
+### User-Definable Functions
+
+User-Definable functions are intended to be implemented in the global scope of your [shellfire] application. You are not obligated to implement any of these functions; if you don't, a naive default is used instead.
+
+***
+#### `_program_commandLine_parseInitialise()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Implement this function if you need to define some variables or perform any actions before the command line is parsed. A typical use case is to define default values to be used if an option isn't specified and isn't configured. It can also be used to set any variables that wold be used in generated help message (see below).
+
+***
+#### `_program_commandLine_helpMessage()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Implement this function to argment the help message that is displayed when a user asks for help (`-h` or `--help`), or a command line parse error occurs. When this function is executed by the parser, you can set some `_program_commandLine_helpMessage_*` variables that can then be used to provide a richer help:-
+
+|Variable|Use|Example|
+|--------|---|-------|
+|`_program_commandLine_helpMessage_usage`|A one line usage message|`[OPTION]... -- [SCRIPTLETS]...`|
+|`_program_commandLine_helpMessage_description`|Multi-line description|`Connects to a MQTT server and runs SCRIPTLETS.\nMay be used as a command interpreter in scripts starting #!/usr/bin/env ${_program_name}\nif on the PATH.`\*|
+|`_program_commandLine_helpMessage_options`|Multi-line options|See below†|
+|`_program_commandLine_helpMessage_optionsSpacing`|Space characters to align things|`   `|
+|`_program_commandLine_helpMessage_configurationKeys`|Multi-line configuration settings|See below‡|
+|`_program_commandLine_helpMessage_examples`|A one line example usage|`${_program_name} --server test.mosquitto.org`|
+
+Note that using variables such as `${_program_name}` allows you to change your program name in the future without search-replace fury.
+
+\* The `'\n` represents a line feed; in shell script, you'd write:-
+
+```bash
+_program_commandLine_helpMessage_description="Connects to a MQTT server and runs SCRIPTLETS.
+May be used as a command interpreter in scripts starting #!/usr/bin/env ${_program_name}
+if on the PATH."
+```
+
+† Multi-line options:-
+
+```bash
+_program_commandLine_helpMessage_options="
+-t, --tunnel TUNNEL       Network tunnel TUNNEL to use. One of 'none', 'tls',
+                        'cryptcat'. Defaults to '${_program_default_tunnel}'.
+                        'WebSockets', 'WebSocketsSecure', 'SSH' and 'telnet'
+                        are unimplemented but possible if there's demand.
+-s, --server HOST         Server hostname, HOST, is a hostname,
+                        IPv4 address, IPv6 address, unix domain socket
+                        path or serial character device path."
+```
+
+‡ Multi-line configuration settings:-
+
+```bash
+_program_commandLine_helpMessage_configurationKeys="
+  bishbosh_tunnel         Equivalent to --tunnel
+  bishbosh_server         Equivalent to --server
+  bishbosh_port           Equivalent to --port
+"
+```
+
+***
+#### `_program_commandLine_optionExists()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Implement this function to tell the command line parser that a short or long option exists, and, if it does, what kind of argument it takes. The variable `optionName` is in scope, and contains the command line option without any leading hyphens and without any trailing spaces or equals sign, `=`. This function is usually implemented using a `case` statement.
+
+The function should write to standard out one of four values:-
+
+|Value|Description|
+|-----|-----------|
+|`yes-argumentless`|Option exists but does not take an argument (`--help` would be an example)|
+|`yes-argumented`|Option exists but requires an argument|
+|`yes-optionally-argumented`|Option exists but may have an argument. Use this with care, as it can lead to ambiguous results.|
+|`no`|Option doesn't exist.|
+
+The options `h`, `help`, `v`, `verbose`, `version` are handled for you and can not be overridden.
+
+An example illustrates best:-
+
+```bash
+_program_commandLine_optionExists()
+{
+	case "$optionName" in
+		
+		# c would be -c
+		# clean would be --clean
+		c|clean)
+			echo yes-argumentless
+		;;
+		
+		# eg -t mytunnel
+		# eg --tunnel=mytunnel
+		# eg --tunnel mytunnel
+		# If there are additional equals signs, they're handled correctly, eg
+		# eg --tunnel=mytunnel=something
+		t|tunnel)
+			echo 'yes-argumented'
+		;;
+		
+		tunnel-tls-use-der)
+			echo 'yes-optionally-argumented'
+		;;
+		
+		*)
+			echo 'no'
+		;;
+		
+	esac
+}
+```
+
+***
+#### `_program_commandLine_processOptionWithoutArgument()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Implement this function to be able to act on an option you specified as either `yes-argumentless` or `yes-optionally-argumented` (and which had no argument). The variable `optionName` is in scope. For example:-
+
+```bash
+_program_commandLine_processOptionWithoutArgument()
+{
+	case "$optionName" in
+		
+		r|random-client-id)
+			bishbosh_randomClientId=1
+		;;
+
+		tunnel-tls-use-der)
+			bishbosh_tunnelTlsUseDer=1
+		;;
+		
+		tunnel-tls-verify)
+			bishbosh_tunnelTlsVerify=1
+		;;
+		
+	esac
+}
+```
+
+There is not need for a default `*` case as it can not occur.
+
+***
+#### `_program_commandLine_processOptionWithArgument()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Implement this function to be able to act on an option you specified as either `yes-argumentless` or `yes-optionally-argumented` (and which had no argument). The variable `optionName` is in scope. For example:-
+
+```bash
+_program_commandLine_processOptionWithoutArgument()
+{
+	case "$optionName" in
+		
+		r|random-client-id)
+			bishbosh_randomClientId=1
+		;;
+
+		tunnel-tls-use-der)
+			bishbosh_tunnelTlsUseDer=1
+		;;
+		
+		tunnel-tls-verify)
+			bishbosh_tunnelTlsVerify=1
+		;;
+		
+	esac
+}
+```
+There is not need for a default `*` case as it can not occur.
+
+May be called more than once for a given `optionName` if it is present more than once on the command line. 
+
+***
+#### `_program_commandLine_processOptionWithArgument()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Implement this function to be able to act on an option you specified as `yes-argumented`. The variables `optionName` and `optionValue` are in scope. For example:-
+
+```bash
+_program_commandLine_processOptionWithArgument()
+{
+	case "$optionName" in
+		
+		p|port)
+			core_validate_nonDynamicPort $core_commandLine_exitCode_USAGE 'option' "$optionNameIncludingHyphens" "$optionValue"
+			bishbosh_port="$optionValue"
+		;;
+		
+		t|tunnel)
+			bishbosh_validate_tunnel $core_commandLine_exitCode_USAGE 'option' "$optionNameIncludingHyphens" "$optionValue"
+			bishbosh_tunnel="$optionValue"
+		;;
+		
+		s|server)
+			bishbosh_validate_address $core_commandLine_exitCode_USAGE 'option' "$optionNameIncludingHyphens" "$optionValue"
+			bishbosh_server="$optionValue"
+		;;
+		
+	esac
+}
+```
+
+There is not need for a default `*` case as it can not occur. Note the use of the `core_validate` namespace and a private `${_program_name}_validate` namespace.
+
+May be called more than once for a given `optionName` if it is present more than once on the command line.
+
+***
+#### `_program_commandLine_handleNonOptions()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|Zero or more non options|_Yes in the sense that there may be zero_|
+
+The command line parse calls this function once for the gathered set of non-options (ie all the values after `--` in the command line or when option parsing has ended) in the command line.
+
+Use the value as necessary; you can add them to a cross-shell compliant array with `core_variable_array_append my_non_options_array "$@"`.
+
+This example treats the non options as shell-source:-
+
+```bash
+_program_commandLine_handleNonOptions()
+{
+	local scriptletFilePath
+	local suitableForSourceBuiltInFilePath
+	for scriptletFilePath in "$@"
+	do
+		suitableForSourceBuiltInFilePath=$(core_compatibility_dirname "$scriptletFilePath")/"$(core_compatibility_basename "$scriptletFilePath")"
+		. "$suitableForSourceBuiltInFilePath" || core_exitError "Could not source SCRIPTLET '$scriptletFilePath'"
+	done
+}
+```
+
+***
+#### `_program_commandLine_validate()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+The command line parser calls function after all parsing is complete. Use this function to check for things like:-
+
+* a mandatory command line option has been passed
+* a given combination of options is valid
+* an option wasn't passed, but was set in configuration, so now we should validate the configuration value
+
+Typically, this logic makes calls to functions in the `core_validate` namespace. For example:-
+
+```bash
+_program_commandLine_validate()
+{
+	if core_variable_isUnset bishbosh_sessionPath; then
+		# _program_default_sessionPath might be specified in _program_commandLine_parseInitialise if it is a computed value
+		bishbosh_sessionPath="$_program_default_sessionPath"
+		core_validate_folderPathReadableAndSearchableAndWritable $core_commandLine_exitCode_CONFIG 'defaulted value for' '--session-path' "$bishbosh_sessionPath"
+	else
+		core_validate_folderPathReadableAndSearchable $core_commandLine_exitCode_CONFIG 'configuration setting' 'bishbosh_sessionPath' "$bishbosh_sessionPath"
+	fi
+}
+```
+
+***
+
 ## Namespace `core_children`
 
 This namespace exists to provide simple management of child processes.
@@ -148,6 +483,7 @@ This namespace is included by default.
 
 ***
 #### `core_children_killOnExit()`
+
 |Parameter|Value|Optional|
 |---------|-----|--------|
 |`…`|Zero or more PIDs of child processes to kill on application exit|_Yes_|
@@ -933,6 +1269,7 @@ Conventions for `category` are:-
 * `option` for command line options (switches) such as `-o` and `--output-path` above
 * `configuration setting` for configuration settings such as `example_outputPath`
 * `argument` if being used for validating function arguments (not a common use case)
+* `defaulted value for` if being used for a default when no configuration or command line option was set, and the default isn't valid (eg when an option might be a folder path, and the default folder path doesn't exist)
 
 ### To use in code
 

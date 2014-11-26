@@ -390,7 +390,6 @@ core_commandLine_optionExists()
 if ! core_functions_exists _program_commandLine_optionExists; then
 	_program_commandLine_optionExists()
 	{
-		echo NO OPTIONS 1>&2
 		echo 'no'
 	}
 fi
