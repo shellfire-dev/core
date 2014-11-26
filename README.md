@@ -8,7 +8,6 @@ TODO
 core_dependency ?
 core_variable
 core_variable_array
-core_commandLine
 
 * [Core utilities](#namespace-core)
 
@@ -17,6 +16,7 @@ core_commandLine
 * [Managing child processes](#namespace-core_children)
 * [Compatibility across shells and distros](#namespace-core_compatibility)
 * [Configuration](#namespace-core_configuration)
+* [Binary dependency management and documentation](#namespace-core_dependency)
 * [File reading utilities](#namespace-core_file)
 * [Function manipulation, including existence and plugin registration](#namespace-core_functions)
 * [Miscellaneous init functions](#namespace-core_init)
@@ -471,6 +471,10 @@ _program_commandLine_validate()
 
 ***
 
+
+
+
+
 ## Namespace `core_children`
 
 This namespace exists to provide simple management of child processes.
@@ -721,6 +725,78 @@ core_usesIn github/api v3 v3/releases
 This is an advanced function for implementing which can be used to implement run-time plugin loading. Handles circular dependencies. Can cause havoc; use with care.
 
 
+
+
+
+
+## Namespace `core_dependency`
+
+This namespace is mostly invisible but provides a powerful framework to:-
+
+* automatically install dependent executables (in packages) using distro-specific package managers
+* modify the `PATH` so that known-good executables are used
+* document global variables that need to be included in any [fatten]ed [shellfire] application.
+* document complex requirements
+
+### To use in code
+
+This namespace is included by default.
+
+### Functions
+
+***
+#### `core_dependency_declares()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|Zero or more global variables in to include in a [fatten]ed program|_Yes_|
+
+The processing of [fatten]ing a program needs to know if any global variables are required. This function should only be called from global scope or immediately inside the function `_program()` with the names of any variables. Commonly, this done immediately after declaring and setting a global variable (or constant). This is how the `core_commandLine` namespace exposes global constants for exit codes. For example:-
+
+```bash
+# command line usage error
+core_commandLine_exitCode_USAGE=64
+core_dependency_declares core_commandLine_exitCode_USAGE
+```
+
+***
+#### `core_dependency_requires()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`packageManager`|Name of a package manager, or `'*` for all known package managers.|_Yes_|
+|`…`|Zero or more executables|_Yes_|
+
+This function should only be called from global scope or immediately inside the function `_program()` with the names of any variables.
+
+This function informs the dependency management framework that a cerain executable (binary), as name in `…`, should be on the `PATH`. If it isn't, it arranges at application bootstrap time for it to be downloaded and installed. This depends on a `.path` file in `etc/shellfire/paths.d/${packageManager}`. For example, for the executable `dd` on Mac OS X, there should be `etc/shellfire/paths.d/Homebrew/dd.path` (this ensures that the `dd` is the same across multiple platforms with the same switches). It is usually used to 'decorate' a function (a bit like a Java annotation), so that there is an obvious and logical relationship to a function's implementation and its external dependencies.
+
+The `packageManager` denotes if this dependency is needed for all operating environments (`'*'`) or just a particular one (eg `Homebrew`).
+
+For example:-
+```bash
+core_dependency_requires '*' dd
+my_function()
+{
+	dd if=/path/to/input/file of=/path/to/output/file
+}
+```
+
+Using this approach, it becomes very easy to find all your programs dependencies and document them, even if you don't use the automatic installation process. A veru useful thing to do it you're looking to fine tune your BusyBox configuration, say.
+
+
+***
+#### `core_dependency_fallback()`
+
+Design subject to change; do not use. Explicitly not fully documented. Intended to provide a way to document fallbacks.
+
+***
+#### `core_dependency_oneOf()`
+
+Design may be subject to change; use with caution. Explicitly not fully documented. Intended to provide a way to document alternatives.
+
+
+***
 
 ## Namespace `core_file`
 
