@@ -9,7 +9,6 @@ core_dependency ?
 core_variable
 core_variable_array
 core_commandLine
-core_terminal
 
 * [Core utilities](#namespace-core)
 
@@ -23,6 +22,7 @@ core_terminal
 * [Path utility functions](#namespace-core_path)
 * [Embedding snippets](#namespace-core_snippet)
 * [Temporary File handling](#namespace-core_temporaryfiles)
+* [Coloured terminal output](#namespace-core_terminal)
 * [Signal Handling](#namespace-core_trap)
 * [umasks](#namespace-core_umask)
 * [Argument validation](#namespace-core_validate)
@@ -689,6 +689,124 @@ ourTemporaryFolderPath="$TMP_FOLDER"
 ```
 
 
+
+
+
+
+## Namespace `core_terminal`
+
+This namespace exposes functions to safely write coloured strings to a terminal on a file descriptor. If a terminal is not present, it outputs plain text without terminal escape sequences, so standard error (or whatever else) can be redirected to a file, logged, etc. It has a small list of known ANSI VT102 (ECMA-48) compliant terminals to which it outputs escape sequences directly. If your terminal isn't listed, it falls back to the `tput` program, and then to plain text. The odd reason for this counter-intuitive, apparently anti-best-practice behaviour is that `tput` is frequently missing (especially on BusyBox based systems), broken or incorrectly set up (as is commonly the case, especially on AIX and the BSDs).
+
+If you are using a terminal that supports ANSI escape sequences and isn't supported, please submit a pull request.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required. Please note that currently all functions are defined in `core/init.functions` as they are used during [shellfire] application bootstrapping.
+
+### Functions
+
+***
+#### `core_terminal_ansiSupported()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+
+_No parameters._
+
+Used to determine if a terminal supports ANSI escape sequences. Only currently used if `tput` is not available. Modify this function to detect your ANSI terminal type if we don't support it. Returns an exit code of `0` is supported and `1` otherwise.
+
+***
+#### `core_terminal_tput()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|One or more tput arguments|_No_|
+
+Defensive wrapping of `tput` in case it is missing, broken or incompletely installed.
+
+***
+#### `core_terminal_colour()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`fd`|File descriptor to check is a terminal. Use `1` for standard out and `2` for standard error.|_No_|
+|`ground`|What to colour: `foreground` or `background`|_No_|
+|`colour`|File descriptor to check is a terminal|_No_|
+
+`ground` may be one of:-
+
+|Value|Description|
+|-----|-----------|
+|`foreground`|Colour the foreground|
+|`background`|Colour the background|
+
+`colour` may be one of:-
+
+|Value|
+|-----|
+|`black`|
+|`red`|
+|`green`|
+|`yellow`|
+|`blue`|
+|`magenta`|
+|`cyan`|
+|`white`|
+|`default`|
+
+This functions write an escape sequence to standard out. Either redirect it the file descriptor specified in `fd`, or capture it in a string for latter use, eg
+
+```bash
+coloured="My $(core_terminal_colour 2 foreground red)red$(core_terminal_reset) string"
+printf '%s\n' "$coloured" 1>&2
+```
+
+***
+#### `core_terminal_effect()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`fd`|File descriptor to check is a terminal. Use `1` for standard out and `2` for standard error.|_No_|
+|`…`|Zero or more effect names|_Yes, but specify at least one for to be useful!_|
+
+`ground` may be one of:-
+
+|Value|Description|
+|-----|-----------|
+|`foreground`|Colour the foreground|
+|`background`|Colour the background|
+
+`effect` may be one of:-
+
+|Value|
+|-----|
+|`bold`|
+|`dim`|
+|`blink`|
+|`reversed`|
+|`invisible`|
+
+This functions write an escape sequence to standard out. Either redirect it the file descriptor specified in `fd`, or capture it in a string for latter use, eg
+
+```bash
+affected="My $(core_terminal_effect 2 bold blink)bold, blinking$(core_terminal_reset) string"
+printf '%s\n' "$affected" 1>&2
+```
+
+***
+#### `core_terminal_reset()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`fd`|File descriptor to check is a terminal. Use `1` for standard out and `2` for standard error.|_No_|
+
+Resets all terminal escape sequences by writing to standard out. Use this as in the examples above.
+
+***
+
+
+
+
 ## Namespace `core_trap`
 
 This namespace exposes functions to manage signals (traps). It also sets up and registers internal logic to make clean up of common resources straightforward and error-free.
@@ -714,7 +832,7 @@ Use this function to register a callback for signals that cause the application 
 |Parameter|Value|Optional|
 |---------|-----|--------|
 |`handler`|The name of a handler function to callback|_No_|
-|`…`|Zero or more signal names|_Yes, but specify at least one for to be useful!_
+|`…`|Zero or more signal names|_Yes, but specify at least one for to be useful!_|
 
 Use this function to register a callback for zero or more signals. Signal names that are cross-platform are:-
 
