@@ -43,7 +43,7 @@ BEGIN {
 	{
 		if ($i ~ /\n/)
 		{
-			print
+			printf "\n"
 		}
 		else
 		{
