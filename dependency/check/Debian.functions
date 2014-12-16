@@ -1,0 +1,32 @@
+core_dependency_check_Debian_checkFunction()
+{
+	core_dependency_check_releaseFile debian_version Debian
+}
+core_functions_register _core_dependency_check_functions core_dependency_check_Debian_checkFunction
+
+core_dependency_check_Debian_extractUnqualifiedPackageName()
+{
+	core_dependency_check_CentOS_extractUnqualifiedPackageName "$@"
+}
+
+core_dependency_requires Debian sudo apt-get
+core_dependency_check_Debian_packageManager()
+{
+	if [ $(core_init_verbosity) -gt 0 ]; then
+		local aptVerbosity=""
+	else
+		local aptVerbosity=" --quiet"
+	fi
+
+	core_message NOTICE "Updating apt-get package manager (may take some time)"
+	sudo -p "Please enter your password for sudo to apt-get update: " apt-get${aptVerbosity} update
+
+	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
+		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
+			core_message INFO "Upgrading apt-get package manager (may take some time)"
+			sudo -p "Please enter your password for sudo to run apt-get dist-upgrade: " apt-get${aptVerbosity} dist-upgrade
+		fi
+	fi
+	
+	sudo -p "Please enter your password for sudo to run apt-get install: " apt-get${aptVerbosity} --no-install-recommends --yes --no-upgrade install "$@"
+}

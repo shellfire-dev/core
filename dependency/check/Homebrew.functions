@@ -8,6 +8,12 @@ core_dependency_check_Homebrew_checkFunction()
 }
 core_functions_register _core_dependency_check_functions core_dependency_check_Homebrew_checkFunction
 
+core_dependency_check_Homebrew_extractUnqualifiedPackageName()
+{
+	local fullyQualifiedPackageName="$1"
+	core_compatibility_basename "$fullyQualifiedPackageName"
+}
+
 core_dependency_requires Homebrew brew
 core_dependency_check_Homebrew_packageManager()
 {

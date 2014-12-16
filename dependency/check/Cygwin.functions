@@ -8,6 +8,11 @@ core_dependency_check_Cygwin_checkFunction()
 }
 core_functions_register _core_dependency_check_functions core_dependency_check_Cygwin_checkFunction
 
+core_dependency_check_Cygwin_extractUnqualifiedPackageName()
+{
+	core_dependency_check_CentOS_extractUnqualifiedPackageName "$@"
+}
+
 #core_dependency_requires Cygwin setup-x86
 core_dependency_check_Cygwin_packageManager()
 {

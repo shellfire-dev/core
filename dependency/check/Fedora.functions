@@ -4,7 +4,12 @@ core_dependency_check_Fedora_checkFunction()
 }
 core_functions_register _core_dependency_check_functions core_dependency_check_Fedora_checkFunction
 
+core_dependency_check_Fedora_extractUnqualifiedPackageName()
+{
+	core_dependency_check_CentOS_extractUnqualifiedPackageName "$@"
+}
+
 core_dependency_check_Fedora_packageManager()
 {
-	core_dependency_check_CentOS_packageManager
+	core_dependency_check_CentOS_packageManager "$@"
 }
