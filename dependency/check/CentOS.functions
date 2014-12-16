@@ -16,10 +16,10 @@ core_dependency_check_CentOS_packageManager()
 	if [ $(core_init_verbosity) -gt 0 ]; then
 		local yumVerbosity=""
 	else
-		local yumVerbosity=" --quiet"
+		local yumVerbosity="--quiet"
 	fi
 	
-	sudo -p "Please enter your password for sudo to update yum: " yum${yumVerbosity} makecache
+	sudo -p "Please enter your password for sudo to update yum: " yum ${yumVerbosity} makecache
 	
-	sudo -p "Please enter your password for sudo to run yum install: " yum${yumVerbosity} --assumeyes install "$@"
+	sudo -p "Please enter your password for sudo to run yum install: " yum ${yumVerbosity} --assumeyes install "$@"
 }
