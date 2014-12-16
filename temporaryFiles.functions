@@ -14,7 +14,7 @@ core_temporaryFiles_initialise()
 		elif core_variable_isSet TEMP; then
 			TMPDIR="$TEMP"
 		else
-			core_message WARN "Defaulting TMPDIR to '/tmp'"
+			core_message NOTICE "Defaulting TMPDIR to '/tmp'"
 			TMPDIR='/tmp'
 		fi
 	# Mac OS X
