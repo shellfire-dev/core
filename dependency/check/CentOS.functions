@@ -50,37 +50,53 @@ core_dependency_check_CentOS_packageManager()
 			_core_dependency_check_CentOS_installRepository_${repositoryName}
 		fi
 	
-		sudo -p "Please enter your password for sudo to run yum install: " yum ${yumVerbosity} --assumeyes install "$packageName"
+		sudo -p "Please enter your password for sudo to run yum install $packageName: " yum ${yumVerbosity} --assumeyes install "$packageName"
 	done
 }
 
-core_dependency_requires CentOS sudo uname rpm curl grep
+core_dependency_requires CentOS rpm grep
+_core_dependency_check_CentOS_checkPackageInstalled()
+{
+	# doesn't work for packages installed by rpm (eg rpmforge)
+	#  yum --quiet list installed "$1" 1>/dev/null 2>/dev/null; then
+	# might work
+	#  yum list | grep "$1"
+	
+	local packageName="$1"
+	rpm -qa | grep -q "^${packageName}-"
+}
+
+core_dependency_requires CentOS sudo yum
+_core_dependency_check_CentOS_installRepository_epel()
+{
+	if _core_dependency_check_CentOS_checkPackageInstalled 'epel-release'; then
+		return 0
+	fi
+	
+	sudo -p "Please enter your password for sudo to run yum install epel-release: " yum ${yumVerbosity} --assumeyes install epel-release
+}
+
+core_dependency_requires CentOS sed uname sudo rpm curl yum
 _core_dependency_check_CentOS_installRepository_repoforge()
 {
-	local name
-	local version
-	local arch
-	local garbage
-	yum --quiet repolist | tail -n +2 |	while IFS='/ ' read -r name version arch garbage
-	do
-		# This should be 'rpmforge' event though the repo is 'repoforge'
-		if [ "$name" = 'rpmforge' ]; then
-			return 0
-		fi
-	done
-	
-	sudo -p "Please enter your password for sudo to import repoforge repository's key (please note this is only available over _HTTP_): " rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt 2>/dev/null || true	
-
+	if _core_dependency_check_CentOS_checkPackageInstalled 'rpmforge-release'; then
+		return 0
+	fi
 	local TMP_FILE
 	core_temporaryFiles_newFileToRemoveOnExit
 	local temporaryFile="$TMP_FILE"
 	
-	local VERSION_ID
-	grep '^VERSION_ID=' /etc/os-release >"$temporaryFile"
-	. "$temporaryFile"
-	local downloadUrl="http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.$VERSION_ID.rf.$(uname -a).rpm"
+	# We're supposed to use lsb_release -r, but it isn't installed by default on CentOS 6 or 7 (and the install pulls in 156 packages for the redhat-lsb package it's in)
+	sed -e 's/release /release./g' -e 's/.* release\.//g' -e 's/ .*$//g' /etc/redhat-release >"$temporaryFile"
+	local release
+	local garbage
+	IFS='.' read -r release garbage <"$temporaryFile"
+	
+	local downloadUrl="http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.$release.rf.$(uname -a).rpm"
 	
 	local repoForgeReleaseRpmFilePath="$temporaryFile"
+	
+	sudo -p "Please enter your password for sudo to import repoforge repository's key (please note this is only available over _HTTP_): " rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt 2>/dev/null || true	
 	
 	curl --location --url "$downloadUrl" >"$repoForgeReleaseRpmFilePath"
 	
