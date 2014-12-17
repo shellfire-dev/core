@@ -98,7 +98,7 @@ _core_dependency_check_CentOS_installRepository_repoforge()
 	local garbage
 	IFS='.' read -r release garbage <"$temporaryFile"
 	
-	local downloadUrl="http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.$release.rf.$(uname -a).rpm"
+	local downloadUrl="http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el${release}.rf.$(uname -m).rpm"
 	
 	local repoForgeReleaseRpmFilePath="$temporaryFile"
 	
