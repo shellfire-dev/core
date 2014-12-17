@@ -43,11 +43,15 @@ core_dependency_check_CentOS_packageManager()
 	local repositoryName
 	local packageName
 	local fullyQualifiedPackageName
+	local functionName
 	for fullyQualifiedPackageName in "$@"
 	do
 		_core_dependency_check_CentOS_parsePackageName
 		if [ -n "$repositoryName" ]; then
-			_core_dependency_check_CentOS_installRepository_${repositoryName}
+			functionName=_core_dependency_check_CentOS_installRepository_${repositoryName}
+			if ! core_functions_exists "$functionName"; then
+				core_exitError "Package '$packageName' is in an unsupported repository '$repositoryName'"
+			fi
 		fi
 	
 		sudo -p "Please enter your password for sudo to run yum install $packageName: " yum ${yumVerbosity} --assumeyes install "$packageName"
