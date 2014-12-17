@@ -104,7 +104,7 @@ _core_dependency_check_CentOS_installRepository_repoforge()
 	
 	sudo -p "Please enter your password for sudo to import repoforge repository's key (please note this is only available over _HTTP_): " rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt 2>/dev/null || true	
 	
-	curl --location --url "$downloadUrl" >"$repoForgeReleaseRpmFilePath"
+	curl --silent --location --url "$downloadUrl" >"$repoForgeReleaseRpmFilePath"
 	
 	rpm -K "$repoForgeReleaseRpmFilePath" 1>/dev/null 2>/dev/null || core_exitError $core_commandLine_exitCode_IOERR "Downloaded repoforge package corrupt or tampered with"
 	
