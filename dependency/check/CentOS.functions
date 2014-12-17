@@ -47,16 +47,21 @@ core_dependency_check_CentOS_packageManager()
 	for fullyQualifiedPackageName in "$@"
 	do
 		_core_dependency_check_CentOS_parsePackageName
-		if [ -n "$repositoryName" ]; then
+		if [ -z "$repositoryName" ]; then
+			sudo -p "Please enter your password for sudo to run yum install $packageName: " yum ${yumVerbosity} --assumeyes install "$packageName"
+		else
 			functionName=_core_dependency_check_CentOS_installRepository_${repositoryName}
 			if ! core_functions_exists "$functionName"; then
 				core_exitError "Package '$packageName' is in an unsupported repository '$repositoryName'"
 			else
 				${functionName}
 			fi
+			if [ "$repositoryName" = 'repoforge' ]; then
+				repositoryName=rpmforge
+			fi
+			sudo -p "Please enter your password for sudo to run yum install $packageName: " yum ${yumVerbosity} --assumeyes --disablerepo="*" --enablerepo="$repositoryName" install "$packageName"
 		fi
 	
-		sudo -p "Please enter your password for sudo to run yum install $packageName: " yum ${yumVerbosity} --assumeyes install "$packageName"
 	done
 }
 
