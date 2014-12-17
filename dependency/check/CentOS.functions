@@ -51,6 +51,8 @@ core_dependency_check_CentOS_packageManager()
 			functionName=_core_dependency_check_CentOS_installRepository_${repositoryName}
 			if ! core_functions_exists "$functionName"; then
 				core_exitError "Package '$packageName' is in an unsupported repository '$repositoryName'"
+			else
+				${functionName}
 			fi
 		fi
 	
