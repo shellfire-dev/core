@@ -106,7 +106,7 @@ _core_dependency_check_CentOS_installRepository_repoforge()
 	
 	curl --location --url "$downloadUrl" >"$repoForgeReleaseRpmFilePath"
 	
-	rpm -K "$repoForgeReleaseRpmFilePath" 1>/dev/null 2>/dev/null || core_exitError "Downloaded repoforge package corrupt or tampered with"
+	rpm -K "$repoForgeReleaseRpmFilePath" 1>/dev/null 2>/dev/null || core_exitError $core_commandLine_exitCode_IOERR "Downloaded repoforge package corrupt or tampered with"
 	
 	sudo -p "Please enter your password for sudo to add the repoforge repository" rpm -ivh "$repoForgeReleaseRpmFilePath"
 
