@@ -173,11 +173,11 @@ core_dependency_setUpPathAndInstallMissing()
 	local packageManager
 	local programName
 	local alreadyInstalledProgramName
-	local oldIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
-	while IFS="$core_variable_array_delimiter" read -r packageManager programName
+	local originalIFS="$IFS"
+	local IFS=' '
+	while IFS=' ' read -r packageManager programName
 	do
-		local IFS="$oldIFS"
+		IFS="$originalIFS"
 		case "$packageManager" in
 			
 			'*'|"$core_dependency_packageManager")
@@ -202,7 +202,7 @@ core_dependency_setUpPathAndInstallMissing()
 	done <<-EOF
 		${_core_dependency_requires}
 	EOF
-	local IFS="$oldIFS"
+	IFS="$originalIFS"
 
 	if ! core_variable_array_isEmpty packagesToInstall; then
 		core_message WARN "Installing missing packages '$(core_variable_array_string packagesToInstall " ")'"

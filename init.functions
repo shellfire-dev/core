@@ -74,7 +74,7 @@ core_dependency_requires()
 			# core_commandLine_exitCode_SOFTWARE
 			core_exitError 70 "programName can not be empty"
 		fi
-		_core_dependency_requires="${_core_dependency_requires}${_local_packageManager}${core_variable_array_delimiter}${_local_programName}
+		_core_dependency_requires="${_core_dependency_requires}${_local_packageManager} ${_local_programName}
 "
 		core_message DEBUG "Requires in packageManager '$_local_packageManager' program '$_local_programName'"
 	done
@@ -406,9 +406,10 @@ core_uses()
 	# TODO: Does NOT WORK when using /bin/sh on Mac - implying older bash run as sh is broken
 	local delimiter="$core_variable_array_delimiter"
 	
-	for namespacedModule in "$@"
+	local module
+	for module in "$@"
 	do
-		namespacedModule="$libraryName"/"$namespacedModule"
+		namespacedModule="$libraryName"/"$module"
 		
 		# Skip if already sourced
 		local originalIFS="$IFS"
@@ -737,25 +738,30 @@ core_init_rexecUnderCorrectShell()
 
 core_init_initialiseArrayDelimiter()
 {
+	# Choosing a delimiter is unreasonably hard.
+	# - It needs to work when set in IFS.
+	# - It has a lifetime longer than the instance run if used for fattening.
+	# - Various common bash versions have different IFS handling bugs.
+	# Ideally, we want to use '\000', as it never occurs in file names. However, this is only allowed by zsh
+	# Near Ideally, '\001' is so rare in file names as to be a good choice.
+	# - However, bash 3.2 when invoked as sh on Mac OS X or AIX 6 & 7 can't use this.
+	# - bash 4.1 on CentOS 6.11 seems to have similar issues.
+	# Fairly rare is `\r'
+	# - However bash 3.1.X in MinGW MSYS, Gow, etc (various bash-on-windows flavours) can't support this.
+	# ',' works but is fairly common
+	
+	
 	# We want to use '\001' in IFS as it's rare enough to delimit array elements safely.
 	# However, some 'popular' versions of bash have IFS bugs which often manifest when bash is run as 'sh'
 	if core_variable_isSet core_variable_array_delimiter; then
 		return 0
 	fi
 	
-	core_variable_array_delimiter="$(printf '\001')"
-	if core_variable_isSet BASH_VERSION; then
-		if [ "${BASH_VERSINFO[0]}" = '3' ]; then
-			# Various bash-on-windows utilities (Gow, MSYS, etc)
-			if [ "${BASH_VERSINFO[1]}" = '1' ]; then
-				core_variable_array_delimiter=','
-			# Mac OS X is most cruelly afflicted (also hurts AIX 6 / 7 with default Linux Toolkit)
-			elif [ "${BASH_VERSINFO[1]}" = '2' ]; then
-				core_variable_array_delimiter="$(printf '\r')"
-			fi
-		fi
+	if core_variable_isSet _program_arrayDelimiter; then
+		core_variable_array_delimiter="$_program_arrayDelimiter"
+	else
+		core_variable_array_delimiter="$(printf '\r')"
 	fi
-	
 	core_dependency_declares core_variable_array_delimiter
 }
 

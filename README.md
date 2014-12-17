@@ -38,6 +38,13 @@ Functions are namespaced, that is, they are prefixed by a hierarchial names sepa
 
 To use functions belonging to a namespace, all one has to do is `use` it, eg `core_usesIn core/variable array`. If there is only a single hierarchy, as there is for some modules (eg [urlencode]), then the syntax is `core_usesIn urlencode`. This logic automatically finds and loads the functions, and their dependencies, and so on. It can't enter a circular loop, either. And when a [shellfire] application is [fatten]ed (by which we make a complete standalone shell script from all these namespaces), only those functions so loaded are included.
 
+A very small number of user definable definitions (see next section) are not in any namespace. These are 'namespaceless'.
+
+If a variable or function starts with an underscore, `_`, then it is intended that its use is private to that namespace. The exception to this is `_program`, which is used for user definable definitions.
+
+### User Definable Definitions
+When a global constant or function starts `_program_`, it is intended to be defined by the [shellfire] application _outside_ of the `_program()` function. Most global functions are optional; defaults are assumed. Most global constants need to be defined. The [shellfire tutorial 'overdrive'](https://github.com/shellfire-dev/shellfire/tree/master/tutorial) shows all the common settings. Each namespace adds `_program_` definitions as `_program_<namespace>_`. Some `_program_` definitions are outside of any namespace - these are 'namespaceless'.
+
 ### A few criticial functions aren't where you'd expect
 
 Some functions in `core` are so important that they are used to bootstrap a [shellfire] application; this is called `init`. These functions live in `init.functions`. However, many of them are also useful during the runtime of a [shellfire] application, and naturally belong to a specific namespace, eg the function `core_variable_isSet()` logically belongs to `core_variable`. Where this is the case, the corresponding file, in this case `core/variable/variable.functions` will contain a one-line entry `core_init_defines core_variable_isSet` documenting the fact.
@@ -97,6 +104,40 @@ You may need to change the url `https://github.com/shellfire-dev/core.git` above
 
 You will also need to add paths - include the module [paths.d].
 
+## Namespaceless
+
+
+### User-Definable Constants
+
+User-Definable constants are intended to be implemented in the global scope of your [shellfire] application. Most of these constants are mandatory.
+
+|User Definable Constant|Optional?|Purpose|Example|Notes|
+|-----------------------|---------|-------|-------|-----|
+|`_program_name`|_No_|Name of your program once [fatten]ed|`_program_name='overdrive'`|Ideally, make this match the file name|
+|`_program_version`|_No_|Version of your program once [fatten]ed|`_program_name='unversioned'`|Always specify `unversioned`|
+|`_program_package_or_build`|_No_|branch or package variant details|`_program_package_or_build=''`|Always specify `''`. Used by custom packagers.|
+|`_program_copyright`|_No_|Copyright statement|`_program_copyright='(c) 2014 normanville'`||
+|`_program_licence`|_No_|Licence type|`_program_licence='MIT'`|Used to embed licensing information. Make it match your `LICENCE` file. See more in `core/commandLine.functions`|
+|`_program_written_by`|_No_|Authors|`_program_written_by='normanville'`|Ideally, should match `AUTHORS`.|
+|`_program_path`|_No_|Location of `_program_*Path` sub paths|`_program_path="$([ "${_program_fattening_program_path+set}" = 'set' ] && printf '%s\n' "$_program_fattening_program_path" || ([ "${0%/*}" = "${0}" ] && printf '%s\n' '.' || printf '%s\n' "${0%/*}"))"`|Only used by un[fatten]ed programs and during [fattten]ing. Not used once [fatten]ed. Example doesn't work for pdksh derivatives.|
+|`_program_libPath`|_No_|Location of `lib`|`_program_libPath="${_program_path}/lib"`||
+|`_program_varPath`|_No_|Location of `etc`|`_program_libPath="${_program_path}/etc"`||
+|`_program_etcPath`|_No_|Location of `var`|`_program_libPath="${_program_path}/var"`||
+|`_program_entrypoint`|_No_|Entry point for your program|`_program_entrypoint='overdrive'`|Ensure a function `overdrive()` exists inside `_program()`|
+|`_program_namespace`|_Yes_|Namespace of your program's functions|`_program_entrypoint='overdrive'`|Defaults to `_program_name`, but needed if this contains anything other than A-Z, a-z, 0-9 and underscore (eg hyphens)|
+|`_program_arrayDelimiter`|_Yes_|Override the array delimited in use to support older shells|`_program_arrayDelimiter=','`|Defaults to `\r`. Override with `,` to support MinGW / MSYS Bash 3.1.7 and GoW. Use "$(printf '\001')" if supporting bash 4.2+, ash or dash and you need to deal with data containing `\r`.|
+
+Going forward, it would be nice to make some of this information optional and have [fatten]ing pick it up from the `LICENCE` and `AUTHORS` files.
+
+***
+
+### User-Definable Functions
+
+#### `_program()`
+
+Mandatory. Define all your functions inside this, and any calls to `core_usesIn()`, `core_dependency_requires`, etc. Your entry point function (see above section [User-Definable Constants](#user-definable-constants), `_program_entrypoint`) should be in here.
+
+***
 ## Namespace `core`
 
 These are helper functions to manipulate files character-by-character in shells that don't support a sophisticated `read`.

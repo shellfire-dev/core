@@ -115,11 +115,14 @@ core_variable_array_at()
 	local variableName="$1"
 	local index=$2
 
-	local originalIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+
+	local originalIFS="$IFS"
+	local IFS="$core_variable_array_delimiter"
 	set -- $core_variable_indirectValue_result
+	IFS="$originalIFS"
+	
 	eval "core_variable_array_index_element=\"\$${index}\""
 }
 
@@ -132,14 +135,15 @@ core_variable_array_string()
 		return 0
 	fi
 	
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	
 	local count=0
 	local originalIFS="$IFS"
 	local IFS="$core_variable_array_delimiter"
-	local core_variable_indirectValue_result
-	core_variable_indirectValue "$variableName"
 	for core_variable_array_element in $core_variable_indirectValue_result
 	do
-		local IFS="$originalIFS"
+		IFS="$originalIFS"
 		if [ $count -eq 0 ]; then
 			printf '%s' "$core_variable_array_element"
 		else
@@ -147,6 +151,7 @@ core_variable_array_string()
 		fi
 		count=$((count+1))
 	done
+	IFS="$originalIFS"
 }
 
 # Does not allow passing any other arguments, though
@@ -164,10 +169,13 @@ core_variable_array_passToFunctionAsArguments()
 		return 0
 	fi
 	
+	local core_variable_indirectValue_result
+	core_variable_indirectValue "$variableName"
+	
 	local originalIFS="$IFS"
 	local IFS="$core_variable_array_delimiter"
-	core_variable_indirectValue "$variableName"
 	set -- $core_variable_indirectValue_result
+	IFS="$originalIFS"
 	
 	"$function" "$@"
 }
@@ -181,17 +189,19 @@ core_variable_array_iterate()
 	if _core_variable_array_isEmpty; then
 		return 0
 	fi
-	
-	local core_variable_array_element
-	local originalIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
+
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	
+	local originalIFS="$IFS"
+	local IFS="$core_variable_array_delimiter"
+	local core_variable_array_element
 	for core_variable_array_element in $core_variable_indirectValue_result
 	do
-		local IFS="$originalIFS"
+		IFS="$originalIFS"
 		$callback "$@"
 	done
+	IFS="$originalIFS"
 }
 
 core_variable_array_iterateAsCallbacks()
@@ -202,17 +212,19 @@ core_variable_array_iterateAsCallbacks()
 	if _core_variable_array_isEmpty; then
 		return 0
 	fi
-	
-	local callback
-	local originalIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
+
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	
+	local originalIFS="$IFS"
+	local IFS="$core_variable_array_delimiter"
+	local callback
 	for callback in $core_variable_indirectValue_result
 	do
-		local IFS="$originalIFS"
+		IFS="$originalIFS"
 		"$callback" "$@"
 	done
+	IFS="$originalIFS"
 }
 
 core_variable_array_iterateAsCallbacksShortcut()
@@ -224,18 +236,20 @@ core_variable_array_iterateAsCallbacksShortcut()
 		return 1
 	fi
 	
-	local callback
-	local originalIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	
+	local originalIFS="$IFS"
+	local IFS="$core_variable_array_delimiter"
+	local callback
 	for callback in $core_variable_indirectValue_result
 	do
-		local IFS="$originalIFS"
+		IFS="$originalIFS"
 		if "$callback" "$@"; then
 			return 0
 		fi
 	done
+	IFS="$originalIFS"
 	return 1
 }
 
@@ -249,19 +263,21 @@ core_variable_array_iterateShortcut()
 		return 1
 	fi
 	
-	local core_variable_array_element
-	local originalIFS="$IFS"
-	local IFS="$core_variable_array_delimiter"
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$variableName"
+	
+	local originalIFS="$IFS"
+	local IFS="$core_variable_array_delimiter"
+	local core_variable_array_element
 	for core_variable_array_element in $core_variable_indirectValue_result
 	do
-		local IFS="$originalIFS"
+		IFS="$originalIFS"
 		
 		if $callback "$@"; then
 			return 0
 		fi
 	done
+	IFS="$originalIFS"
 	return 1
 }
 
