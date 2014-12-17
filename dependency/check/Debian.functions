@@ -6,7 +6,8 @@ core_functions_register _core_dependency_check_functions core_dependency_check_D
 
 core_dependency_check_Debian_extractUnqualifiedPackageName()
 {
-	core_dependency_check_CentOS_extractUnqualifiedPackageName "$@"
+	local fullyQualifiedPackageName="$1"
+	printf '%s' "$fullyQualifiedPackageName"
 }
 
 core_dependency_requires Debian sudo apt-get

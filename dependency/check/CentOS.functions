@@ -4,10 +4,29 @@ core_dependency_check_CentOS_checkFunction()
 }
 core_functions_register _core_dependency_check_functions core_dependency_check_CentOS_checkFunction
 
+_core_dependency_check_CentOS_parsePackageName()
+{
+	repositoryName=''
+	packageName=''
+	IFS='/' read -r repositoryName packageName <<-EOF
+		${fullyQualifiedPackageName}
+	EOF
+	
+	if [ -z "$packageName" ]; then
+		packageName="$repositoryName"
+		repositoryName=''
+	fi
+}
+
 core_dependency_check_CentOS_extractUnqualifiedPackageName()
 {
 	local fullyQualifiedPackageName="$1"
-	printf '%s' "$fullyQualifiedPackageName"
+
+	local repositoryName
+	local packageName
+	_core_dependency_check_CentOS_parsePackageName
+	
+	printf '%s' "$packageName"
 }
 
 core_dependency_requires CentOS sudo yum
@@ -18,8 +37,56 @@ core_dependency_check_CentOS_packageManager()
 	else
 		local yumVerbosity="--quiet"
 	fi
-	
+
 	sudo -p "Please enter your password for sudo to update yum: " yum ${yumVerbosity} makecache
+		
+	local repositoryName
+	local packageName
+	local fullyQualifiedPackageName
+	for fullyQualifiedPackageName in "$@"
+	do
+		_core_dependency_check_CentOS_parsePackageName
+		if [ -n "$repositoryName" ]; then
+			_core_dependency_check_CentOS_installRepository_${repositoryName}
+		fi
 	
-	sudo -p "Please enter your password for sudo to run yum install: " yum ${yumVerbosity} --assumeyes install "$@"
+		sudo -p "Please enter your password for sudo to run yum install: " yum ${yumVerbosity} --assumeyes install "$packageName"
+	done
+}
+
+core_dependency_requires CentOS sudo uname rpm curl grep
+_core_dependency_check_CentOS_installRepository_repoforge()
+{
+	local name
+	local version
+	local arch
+	local garbage
+	yum --quiet repolist | tail -n +2 |	while IFS='/ ' read -r name version arch garbage
+	do
+		# This should be 'rpmforge' event though the repo is 'repoforge'
+		if [ "$name" = 'rpmforge' ]; then
+			return 0
+		fi
+	done
+	
+	sudo -p "Please enter your password for sudo to import repoforge repository's key (please note this is only available over _HTTP_): " rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt 2>/dev/null || true	
+
+	local TMP_FILE
+	core_temporaryFiles_newFileToRemoveOnExit
+	local temporaryFile="$TMP_FILE"
+	
+	local VERSION_ID
+	grep '^VERSION_ID=' /etc/os-release >"$temporaryFile"
+	. "$temporaryFile"
+	local downloadUrl="http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.$VERSION_ID.rf.$(uname -a).rpm"
+	
+	local repoForgeReleaseRpmFilePath="$temporaryFile"
+	
+	curl --location --url "$downloadUrl" >"$repoForgeReleaseRpmFilePath"
+	
+	rpm -K "$repoForgeReleaseRpmFilePath" 1>/dev/null 2>/dev/null || core_exitError "Downloaded repoforge package corrupt or tampered with"
+	
+	sudo -p "Please enter your password for sudo to add the repoforge repository" rpm -ivh "$repoForgeReleaseRpmFilePath"
+
+	sudo -p "Please enter your password for sudo to update yum: " yum ${yumVerbosity} makecache
 }
