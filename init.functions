@@ -313,12 +313,10 @@ core_TODO()
 if core_init_isFattening; then
 	core_dependency_declares()
 	{
-		core_message INFO "Declaring global variables '$@'"
 		_program_fattening_declares "$@"
 	}
 	core_dependency_declaresAsArray()
 	{
-		core_message INFO "Declaring global arrays '$@'"
 		local variableName
 		for variableName in "$@"
 		do
