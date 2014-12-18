@@ -320,6 +320,7 @@ if core_init_isFattening; then
 		local variableName
 		for variableName in "$@"
 		do
+			_program_fattening_declares "$variableName"
 			_program_fattening_declares "${variableName}_initialised"
 		done
 	}
