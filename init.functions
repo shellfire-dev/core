@@ -41,6 +41,28 @@ core_variable_indirectValue()
 	eval "core_variable_indirectValue_result=\"\$${1}\""
 }
 
+core_init_verbosity()
+{
+	if core_variable_isSet ${_program_namespace}_verbose; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_verbose
+		printf '%s' $core_variable_indirectValue_result
+	else
+		printf '%s' 0
+	fi
+}
+
+core_init_language()
+{
+	if core_variable_isSet ${_program_namespace}_language; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_language
+		printf '%s' $core_variable_indirectValue_result
+	else
+		printf '%s' 'en_US.UTF-8'
+	fi
+}
+
 # We're supposed to use tput, but:-
 # - It isn't present in BusyBox and Toybox (and other minimal systems without ncurses)
 # - It doesn't work on a FreeBSD 10 default install (terminfo db probably missing)
@@ -377,28 +399,6 @@ core_dependency_fallback()
 	
 	unset _local_condition
 	unset _local_programNameOnPath
-}
-
-core_init_verbosity()
-{
-	if core_variable_isSet ${_program_namespace}_verbose; then
-		local core_variable_indirectValue_result
-		core_variable_indirectValue ${_program_namespace}_verbose
-		printf '%s' $core_variable_indirectValue_result
-	else
-		printf '%s' 0
-	fi
-}
-
-core_init_language()
-{
-	if core_variable_isSet ${_program_namespace}_language; then
-		local core_variable_indirectValue_result
-		core_variable_indirectValue ${_program_namespace}_language
-		printf '%s' $core_variable_indirectValue_result
-	else
-		printf '%s' 'en_US.UTF-8'
-	fi
 }
 
 core_dependency_declares _core_uses_alreadySourced
