@@ -67,6 +67,7 @@ These are those functions:-
 #### `core_dependency`
 
 * `core_dependency_declares()`
+* `core_dependency_declaresAsArray()`
 * `core_dependency_requires()`
 * `core_dependency_oneOf()`
 * `core_dependency_fallback()`
@@ -794,6 +795,16 @@ The processing of [fatten]ing a program needs to know if any global variables ar
 core_commandLine_exitCode_USAGE=64
 core_dependency_declares core_commandLine_exitCode_USAGE
 ```
+
+***
+#### `core_dependency_declaresAsArray()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`…`|Zero or more global array variables in to include in a [fatten]ed program|_Yes_|
+
+This function operates like `core_dependency_declares()` above, but is for array variables. It exists because the declaration of a global array that needs to be included in a [fatten]ed program can occur before the array is defined.
+
 
 ***
 #### `core_dependency_requires()`

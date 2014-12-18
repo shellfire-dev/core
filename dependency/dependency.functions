@@ -3,6 +3,7 @@ core_usesIn core/dependency check languagePackageManagers
 core_usesIn core/variable array
 
 core_init_defines core_dependency_declares
+core_init_defines core_dependency_declaresAsArray
 core_init_defines core_dependency_requires
 core_init_defines core_dependency_fallback
 core_init_defines core_dependency_oneOf
