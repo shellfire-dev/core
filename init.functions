@@ -41,119 +41,6 @@ core_variable_indirectValue()
 	eval "core_variable_indirectValue_result=\"\$${1}\""
 }
 
-if core_init_isFattening; then
-	core_dependency_declares()
-	{
-		core_message INFO "Declaring global variables '$@'"
-		_program_fattening_declares "$@"
-	}
-	core_dependency_declaresAsArray()
-	{
-		core_message INFO "Declaring global arrays '$@'"
-		local variableName
-		for variableName in "$@"
-		do
-			_program_fattening_declares "${variableName}_initialised"
-		done
-	}
-else
-	core_dependency_declares()
-	{
-		:
-	}
-	core_dependency_declaresAsArray()
-	{
-		:
-	}
-fi
-
-core_libraryName=shellfire
-core_dependency_declares core_libraryName
-
-_core_dependency_requires=''
-core_dependency_declares _core_dependency_requires
-core_dependency_requires()
-{
-	# Or '*' for all
-	_local_packageManager="$1"
-	if [ -z "$_local_packageManager" ]; then
-		# core_commandLine_exitCode_SOFTWARE
-		core_exitError 70 "packageManager can not be empty"
-	fi
-	shift 1
-	
-	for _local_programName in "$@"
-	do
-		if [ -z "$_local_programName" ]; then
-			# core_commandLine_exitCode_SOFTWARE
-			core_exitError 70 "programName can not be empty"
-		fi
-		_core_dependency_requires="${_core_dependency_requires}${_local_packageManager} ${_local_programName}
-"
-		core_message DEBUG "Requires in packageManager '$_local_packageManager' program '$_local_programName'"
-	done
-	
-	unset _local_packageManager
-	unset _local_programName
-}
-
-# More for documentation than anything else for now
-core_dependency_oneOf()
-{
-	# Or '*' for all
-	_local_packageManager="$1"
-	if [ -z "$_local_packageManager" ]; then
-		# core_commandLine_exitCode_SOFTWARE
-		core_exitError 70 "packageManager can not be empty"
-	fi
-	shift 1
-	
-	for _local_programName in "$@"
-	do
-		:
-	done
-	
-	unset _local_packageManager
-	unset _local_programName
-}
-
-# More for documentation than anything else for now
-core_dependency_fallback()
-{
-	# eg !bash
-	_local_condition="$1"
-	
-	for _local_programNameOnPath in "$@"
-	do
-		:
-	done
-	
-	unset _local_condition
-	unset _local_programNameOnPath
-}
-
-core_init_verbosity()
-{
-	if core_variable_isSet ${_program_namespace}_verbose; then
-		local core_variable_indirectValue_result
-		core_variable_indirectValue ${_program_namespace}_verbose
-		printf '%s' $core_variable_indirectValue_result
-	else
-		printf '%s' 0
-	fi
-}
-
-core_init_language()
-{
-	if core_variable_isSet ${_program_namespace}_language; then
-		local core_variable_indirectValue_result
-		core_variable_indirectValue ${_program_namespace}_language
-		printf '%s' $core_variable_indirectValue_result
-	else
-		printf '%s' 'en_US.UTF-8'
-	fi
-}
-
 # We're supposed to use tput, but:-
 # - It isn't present in BusyBox and Toybox (and other minimal systems without ncurses)
 # - It doesn't work on a FreeBSD 10 default install (terminfo db probably missing)
@@ -399,6 +286,119 @@ core_exitError()
 core_TODO()
 {
 	core_message TODO "$*"
+}
+
+if core_init_isFattening; then
+	core_dependency_declares()
+	{
+		core_message INFO "Declaring global variables '$@'"
+		_program_fattening_declares "$@"
+	}
+	core_dependency_declaresAsArray()
+	{
+		core_message INFO "Declaring global arrays '$@'"
+		local variableName
+		for variableName in "$@"
+		do
+			_program_fattening_declares "${variableName}_initialised"
+		done
+	}
+else
+	core_dependency_declares()
+	{
+		:
+	}
+	core_dependency_declaresAsArray()
+	{
+		:
+	}
+fi
+
+core_libraryName=shellfire
+core_dependency_declares core_libraryName
+
+_core_dependency_requires=''
+core_dependency_declares _core_dependency_requires
+core_dependency_requires()
+{
+	# Or '*' for all
+	_local_packageManager="$1"
+	if [ -z "$_local_packageManager" ]; then
+		# core_commandLine_exitCode_SOFTWARE
+		core_exitError 70 "packageManager can not be empty"
+	fi
+	shift 1
+	
+	for _local_programName in "$@"
+	do
+		if [ -z "$_local_programName" ]; then
+			# core_commandLine_exitCode_SOFTWARE
+			core_exitError 70 "programName can not be empty"
+		fi
+		_core_dependency_requires="${_core_dependency_requires}${_local_packageManager} ${_local_programName}
+"
+		core_message DEBUG "Requires in packageManager '$_local_packageManager' program '$_local_programName'"
+	done
+	
+	unset _local_packageManager
+	unset _local_programName
+}
+
+# More for documentation than anything else for now
+core_dependency_oneOf()
+{
+	# Or '*' for all
+	_local_packageManager="$1"
+	if [ -z "$_local_packageManager" ]; then
+		# core_commandLine_exitCode_SOFTWARE
+		core_exitError 70 "packageManager can not be empty"
+	fi
+	shift 1
+	
+	for _local_programName in "$@"
+	do
+		:
+	done
+	
+	unset _local_packageManager
+	unset _local_programName
+}
+
+# More for documentation than anything else for now
+core_dependency_fallback()
+{
+	# eg !bash
+	_local_condition="$1"
+	
+	for _local_programNameOnPath in "$@"
+	do
+		:
+	done
+	
+	unset _local_condition
+	unset _local_programNameOnPath
+}
+
+core_init_verbosity()
+{
+	if core_variable_isSet ${_program_namespace}_verbose; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_verbose
+		printf '%s' $core_variable_indirectValue_result
+	else
+		printf '%s' 0
+	fi
+}
+
+core_init_language()
+{
+	if core_variable_isSet ${_program_namespace}_language; then
+		local core_variable_indirectValue_result
+		core_variable_indirectValue ${_program_namespace}_language
+		printf '%s' $core_variable_indirectValue_result
+	else
+		printf '%s' 'en_US.UTF-8'
+	fi
 }
 
 core_dependency_declares _core_uses_alreadySourced
