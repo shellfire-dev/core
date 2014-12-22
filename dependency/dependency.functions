@@ -54,25 +54,33 @@ _core_dependency_addToReplacementPathIfRequired()
 
 _core_dependency_addFromInternalDataSource()
 {
-	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}_${programName}"
+	local internalDataSourceName="_core_dependency_internalDataSource_${packageManager}"
 	
 	if core_variable_isUnset "$internalDataSourceName"; then
 		foundInternally=0
 		return 0
 	fi
-	foundInternally=1
-
+	
 	local core_variable_indirectValue_result
 	core_variable_indirectValue "$internalDataSourceName"
-	IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath <<-EOF
+	while IFS=' ' read -r pathProgramName pathPackage pathAbsoluteFilePath
+	do
+		if [ "$programName" = "$pathProgramName" ]; then
+			foundInternally=1
+	
+			# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
+			if [ ! -e "$pathAbsoluteFilePath" ]; then
+				_core_dependency_addToPackagesToInstallIfRequired
+			fi
+			_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
+		fi
+		:
+	done <<-EOF
 		$core_variable_indirectValue_result
 	EOF
-	
-	# We use an existence check. This allows for more complex installatons, eg brew-rmtree, which don't install binaries
-	if [ ! -e "$pathAbsoluteFilePath" ]; then
-		_core_dependency_addToPackagesToInstallIfRequired
-	fi
-	_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
+
+	foundInternally=0
+	return 0
 }
 
 _core_dependency_addFromExternalDataSources()
