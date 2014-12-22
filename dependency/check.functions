@@ -10,4 +10,7 @@ core_dependency_check_releaseFile()
 	return 1
 }
 
+core_variable_array_initialise core_dependency_check_packageManagersWithPaths
+core_dependency_declaresAsArray core_dependency_check_packageManagersWithPaths
+core_variable_array_append core_dependency_check_packageManagersWithPaths CentOS Cygwin Debian Homebrew SusSE
 core_usesIn core/dependency/check CentOS Cygwin Debian Fedora Homebrew RedHat SuSE
