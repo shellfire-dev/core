@@ -73,6 +73,7 @@ _core_dependency_addFromInternalDataSource()
 				_core_dependency_addToPackagesToInstallIfRequired
 			fi
 			_core_dependency_addToReplacementPathIfRequired	"$pathAbsoluteFilePath"
+			return 0
 		fi
 		:
 	done <<-EOF
