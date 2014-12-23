@@ -47,7 +47,7 @@ core_dependency_check_Homebrew_packageManager()
 			brew tap "$tap" 1>/dev/null 2>/dev/null
 		done
 	}
-	_core_dependency_check_Homebrew_packageManager_installTaps
+	_core_dependency_check_Homebrew_packageManager_installTaps "$@"
 
 	core_message NOTICE "Updating Homebrew package manager (may take some time)"
 	brew update
