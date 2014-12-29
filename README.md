@@ -1936,7 +1936,21 @@ core_variable_array_initialise myArray
 |`variableName`|An variable name|_No_|
 |`…`|Zero or more elements to append|_Yes, but specify at least one for to be useful!_|
 
-Appends elements `…` to an array, initialising it if it doesn't already exist. Caveats as above about local arrays.
+Appends elements `…` to an array. If the array doesn't yet exist, it is initialised if `…` has one or more elements. Caveats as above about local arrays.
+
+```
+core_variable_array_append myArray 'value1' 'value 2'
+```
+
+***
+#### `core_variable_array_appendUniquely()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|An variable name|_No_|
+|`…`|Zero or more elements to append|_Yes, but specify at least one for to be useful!_|
+
+Appends elements `…` to an array if they haven't already been added. If the array doesn't yet exist, it is initialised if `…` has one or more elements. Caveats as above about local arrays.
 
 ```
 core_variable_array_append myArray 'value1' 'value 2'

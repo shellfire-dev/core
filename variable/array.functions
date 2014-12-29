@@ -67,10 +67,10 @@ core_variable_array_isUnset()
 }
 
 core_variable_array_append()
-{	
+{
 	local variableName="$1"
 	shift 1
-		
+	
 	local argument
 	for argument in "$@"
 	do
@@ -83,6 +83,21 @@ core_variable_array_append()
 			core_variable_setVariable "${variableName}_initialised" $((core_variable_indirectValue_result+1))
 			core_variable_indirectValue "$variableName"
 			core_variable_setVariable "$variableName" "${core_variable_indirectValue_result}$core_variable_array_delimiter${argument}"
+		fi
+	done
+}
+
+
+core_variable_array_appendUniquely()
+{
+	local variableName="$1"
+	shift 1
+	
+	local argument
+	for argument in "$@"
+	do
+		if ! core_variable_array_contains "$variableName" "$argument"; then
+			core_variable_array_append "$variableName" "$argument"
 		fi
 	done
 }
