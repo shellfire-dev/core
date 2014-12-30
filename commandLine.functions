@@ -157,137 +157,78 @@ install any missing dependencies.
 "
 }
 
-_core_commandLine_versionMessageLookup()
+core_commandLine_setLicenceGlobals()
 {
-	case "$_program_licence" in
+	if core_variable_isUnset _program_licence_description; then
 		
-		AGPLv3)
-			_program_licence_description='GNU Affero GPL version 3 <http://www.gnu.org/licenses/agpl-3.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
+		case "$_program_licence" in
 		
-		AGPLv3+)
-			_program_licence_description='GNU Affero GPL version 3 or later <http://www.gnu.org/licenses/agpl-3.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
+			public-domain)
+				_program_licence_description='Public Domain.'
+			;;
 		
-		Apache2)
-			_program_licence_description='Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0.html>.'
-			_program_text=Apache
-			_program_openSourceLicensed=1
-		;;
+			unlicensed)
+				_program_licence_description='Unlicensed. All Rights Reserved.'
+			;;
 		
-		# BSD 2-clause, newest of the BSD licenses
-		SimplifiedBSD)
-			_program_licence_description='Simplified BSD License (BSD 2-Clause) <http://opensource.org/licenses/BSD-2-Clause>.'
-			_program_text=BSD
-			_program_openSourceLicensed=1
-		;;
+			licensed)
+				_program_licence_description='This is Software Licensed by Agreement. All Rights Reserved.'
+			;;
 		
-		# BSD 3-clause, middlin' of the BSD licenses
-		NewBSD)
-			_program_licence_description='New BSD License (BSD 3-Clause) <http://opensource.org/licenses/BSD-3-Clause>.'
-			_program_text=BSD
-			_program_openSourceLicensed=1
-		;;
+			*)
+				_program_licence_description="This is Open Source Software. License agreement is at <https://spdx.org/licenses/$_program_licence#licenseText>."
 		
-		GPLv2)
-			_program_licence_description='GNU GPL version 2 <http://www.gnu.org/licenses/gpl-2.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
+			;;
 		
-		GPLv2+)
-			_program_licence_description='GNU GPL version 2 or later <http://www.gnu.org/licenses/gpl-2.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		GPLv3)
-			_program_licence_description='GNU GPL version 3 <http://www.gnu.org/licenses/gpl-3.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		GPLv3+)
-			_program_licence_description='GNU GPL version 3 or later <http://www.gnu.org/licenses/gpl-3.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		LGPLv2.1)
-			_program_licence_description='GNU Lesser GPL version 2.1 <http://www.gnu.org/licenses/lgpl-2.1.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		LGPLv2.1+)
-			_program_licence_description='GNU Lesser GPL version 2.1 or later <http://www.gnu.org/licenses/lgpl-2.1.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		LGPLv3)
-			_program_licence_description='GNU Lesser GPL version 3 <http://www.gnu.org/licenses/lgpl-3.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		LGPLv3+)
-			_program_licence_description='GNU Lesser GPL version 3 or later <http://www.gnu.org/licenses/lgpl-3.0.html>.'
-			_program_text=GNU
-			_program_openSourceLicensed=1
-		;;
-		
-		MIT)
-			_program_licence_description='MIT License <http://opensource.org/licenses/MIT>.'
-			_program_text=MIT
-			_program_openSourceLicensed=1
-		;;
-		
-		'Public Domain')
-			_program_license_description='This software is in the public domain.'
-			_program_text='Public Domain'
-			_program_openSourceLicensed=0
-		;;
-		
-		Unlicensed)
-			_program_license_description='Unlicensed. All Rights Reserved.'
-			_program_openSourceLicensed=0
-		;;
-		
-		*)
-			_program_licence_description='Proprietary licence.'
-			_program_openSourceLicensed=0
-		;;
-		
-	esac
+		esac
+	fi
 	
-	case "$_program_text" in
+	if core_variable_isUnset _program_permission; then
 		
-		GNU|MIT|Apache|BSD)
-			_program_permission='This is free software: you are free to change and redistribute it.'
-			_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
-		;;
+		case "$_program_licence" in
 		
-		'Public Domain')
-			_program_permission='This software is in the public domain.'
-			_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
-		;;
+			public-domain)
+				_program_permission='This software is in the public domain.'
+			;;
 		
-		Unlicensed)
-			_program_permission='This software is unlicensed.'
-			_program_warranty='Warranty, if any, is as documented by the copyright holders.'
-		;;
+			unlicensed)
+				_program_permission='This software is unlicensed.'
+			;;
 		
-		*)
-			_program_permission='You may only make use of this software in accordance with the licence granted to you or your organisation.'
-			_program_warranty='Warranty, if any, is specified in the licence.'
-		;;
+			licensed)
+				_program_permission='This software is licensed to you or your business by agreement.'
+			;;
 		
-	esac
+			*)
+				_program_permission='This is free software: you are free to change and redistribute it.'
+			;;
+		
+		esac
+	fi
+	
+	if core_variable_isUnset _program_warranty; then
+		
+		case "$_program_licence" in
+		
+			public-domain)
+				_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
+			;;
+		
+			unlicensed)
+				_program_warranty='Warranty, if any, is as documented externally to this program or as communicated.'
+			;;
+		
+			licensed)
+				_program_warranty='Warranty is as documented in the license agreement.'
+			;;
+		
+			*)
+				_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
+		
+			;;
+		
+		esac
+	fi
 }
 
 core_commandLine_versionMessage()
@@ -297,8 +238,6 @@ core_commandLine_versionMessage()
 	else
 		local _program_package_or_build_x="($_program_package_or_build) "
 	fi
-	
-	_core_commandLine_versionMessageLookup
 	
 	printf '%s' \
 "$_program_name ${_program_package_or_build_x}$_program_version
