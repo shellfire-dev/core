@@ -157,6 +157,11 @@ install any missing dependencies.
 "
 }
 
+core_commandLine_genericOpenSourceLicenceDescription()
+{
+	printf '%s' "This is Open Source Software. License agreement is at <https://spdx.org/licenses/$_program_licence#licenseText>."
+}
+
 core_commandLine_setLicenceGlobals()
 {
 	if core_variable_isUnset _program_licence_description; then
@@ -176,7 +181,7 @@ core_commandLine_setLicenceGlobals()
 			;;
 		
 			*)
-				_program_licence_description="This is Open Source Software. License agreement is at <https://spdx.org/licenses/$_program_licence#licenseText>."
+				_program_licence_description="$(core_commandLine_genericOpenSourceLicenceDescription)"
 		
 			;;
 		
