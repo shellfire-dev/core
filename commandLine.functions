@@ -182,6 +182,7 @@ core_commandLine_versionMessage()
 	
 	printf '%s' \
 "$_program_name ${_program_package_or_build_x}$_program_version
+Created using shellfire (https://github.com/shellfire-dev/shellfire)
 $copyrightAndLicenseStatement"
 }
 
