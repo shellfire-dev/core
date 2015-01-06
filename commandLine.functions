@@ -161,6 +161,11 @@ install any missing dependencies.
 "
 }
 
+core_commandLine_defaultLicenseMessage()
+{
+	printf '%s' "LICENSE terms are documented in the COPYRIGHT file at the top-level directory of this distribution."
+}
+
 core_commandLine_versionMessage()
 {
 	if [ -z "$_program_package_or_build" ]; then
@@ -172,7 +177,7 @@ core_commandLine_versionMessage()
 	if core_variable_isSet _program_copyrightAndLicenseStatement; then
 		local copyrightAndLicenseStatement="$_program_copyrightAndLicenseStatement"
 	else
-		local copyrightAndLicenseStatement="LICENSE terms are documented in the COPYRIGHT file at the top-level directory of this distribution."
+		local copyrightAndLicenseStatement="$(core_commandLine_defaultLicenseMessage)"
 	fi
 	
 	printf '%s' \
