@@ -161,85 +161,6 @@ install any missing dependencies.
 "
 }
 
-core_commandLine_genericOpenSourceLicenceDescription()
-{
-	printf '%s' "This is Open Source Software. License agreement is at <https://spdx.org/licenses/$_program_licence#licenseText>."
-}
-
-core_commandLine_setLicenceGlobals()
-{
-	if core_variable_isUnset _program_licence_description; then
-		
-		case "$_program_licence" in
-		
-			public-domain)
-				_program_licence_description='Public Domain.'
-			;;
-		
-			unlicensed)
-				_program_licence_description='Unlicensed. All Rights Reserved.'
-			;;
-		
-			licensed)
-				_program_licence_description='This is Software Licensed by Agreement. All Rights Reserved.'
-			;;
-		
-			*)
-				_program_licence_description="$(core_commandLine_genericOpenSourceLicenceDescription)"
-		
-			;;
-		
-		esac
-	fi
-	
-	if core_variable_isUnset _program_permission; then
-		
-		case "$_program_licence" in
-		
-			public-domain)
-				_program_permission='This software is in the public domain.'
-			;;
-		
-			unlicensed)
-				_program_permission='This software is unlicensed.'
-			;;
-		
-			licensed)
-				_program_permission='This software is licensed to you or your business by agreement.'
-			;;
-		
-			*)
-				_program_permission='This is free software: you are free to change and redistribute it.'
-			;;
-		
-		esac
-	fi
-	
-	if core_variable_isUnset _program_warranty; then
-		
-		case "$_program_licence" in
-		
-			public-domain)
-				_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
-			;;
-		
-			unlicensed)
-				_program_warranty='Warranty, if any, is as documented externally to this program or as communicated.'
-			;;
-		
-			licensed)
-				_program_warranty='Warranty is as documented in the license agreement.'
-			;;
-		
-			*)
-				_program_warranty='There is NO WARRANTY, to the extent permitted by law.'
-		
-			;;
-		
-		esac
-	fi
-}
-
 core_commandLine_versionMessage()
 {
 	if [ -z "$_program_package_or_build" ]; then
@@ -248,15 +169,15 @@ core_commandLine_versionMessage()
 		local _program_package_or_build_x="($_program_package_or_build) "
 	fi
 	
+	if core_variable_isSet _program_copyrightAndLicenseStatement; then
+		local copyrightAndLicenseStatement="$_program_copyrightAndLicenseStatement"
+	else
+		local copyrightAndLicenseStatement="LICENSE terms are documented in the COPYRIGHT file at the top-level directory of this distribution."
+	fi
+	
 	printf '%s' \
 "$_program_name ${_program_package_or_build_x}$_program_version
-Copyright $_program_copyright
-Licence ${_program_licence}: $_program_licence_description
-${_program_permission}
-${_program_warranty}
-
-Written by ${_program_written_by}.
-"
+$copyrightAndLicenseStatement"
 }
 
 core_commandLine_exitVersion()
@@ -273,8 +194,8 @@ core_commandLine_exitHelp()
 
 core_commandLine_exitBadCommandLine()
 {
-	core_message FAIL "$1"
 	core_commandLine_helpMessage 1>&2
+	core_message FAIL "$1"
 	exit $core_commandLine_exitCode_USAGE
 }
 

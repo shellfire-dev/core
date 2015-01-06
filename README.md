@@ -117,12 +117,7 @@ User-Definable constants are intended to be implemented in the global scope of y
 |`_program_name`|_No_|Name of your program once [fatten]ed|`_program_name='overdrive'`|Ideally, make this match the file name|
 |`_program_version`|_No_|Version of your program once [fatten]ed|`_program_name='unversioned'`|Always specify `unversioned`|
 |`_program_package_or_build`|_No_|branch or package variant details|`_program_package_or_build=''`|Always specify `''`. Used by custom packagers.|
-|`_program_copyright`|_No_|Copyright statement|`_program_copyright='(c) 2014 normanville'`||
-|`_program_licence`|_No_|Licence type|`_program_licence='MIT'`|Should be either a [SPDX licence code](https://spdx.org/licenses/), `public-domain`, `unlicensed` or `license`. Used to embed licensing information. Make it match your `LICENSE` file. See more in `core/commandLine.functions`|
-|`_program_licence_description`|_Yes_|Licence Description|`_program_licence_description='MIT License'`|Set to a default value if not specified derived from `_program_licence`. Un[fatten]ed programs use a default value referencing a SPDX URL. [fatten]ed programs use the licence name.|
-|`_program_permission`|_Yes_|Permissions associated with licence.|`_program_permission='This is free software: you are free to change and redistribute it.'`|Set to a default value if not specified derived from `_program_licence`.|
-|`_program_warranty`|_Yes_|Warranty associated with licence.|`_program_warranty='There is NO WARRANTY, to the extent permitted by law.'`|Set to a default value if not specified derived from `_program_licence`.|
-|`_program_written_by`|_No_|Authors|`_program_written_by='normanville'`|Ideally, should match `AUTHORS`.|
+|`_program_copyrightAndLicenseStatement`|_Yes_|Copyright and license statement. Warranties, disclaimers and authorship.|May include line feeds.|[fatten]ing will embed your `COPYRIGHT` file if not specified.|
 |`_program_path`|_No_|Location of `_program_*Path` sub paths|`_program_path="$([ "${_program_fattening_program_path+set}" = 'set' ] && printf '%s\n' "$_program_fattening_program_path" || ([ "${0%/*}" = "${0}" ] && printf '%s\n' '.' || printf '%s\n' "${0%/*}"))"`|Only used by un[fatten]ed programs and during [fattten]ing. Not used once [fatten]ed. Example doesn't work for pdksh derivatives.|
 |`_program_libPath`|_No_|Location of `lib`|`_program_libPath="${_program_path}/lib"`||
 |`_program_etcPath`|_No_|Location of `etc`|`_program_etcPath="${_program_path}/etc"`||
