@@ -276,3 +276,18 @@ _core_variable_parseBoolean()
 		
 	esac
 }
+
+# eg local my_heredoc_value='$(core_variable_escapeForSingleQuotedLiteralInHeredoc "$my_value")'
+core_variable_escapeForSingleQuotedLiteralInHeredoc()
+{
+	local value="$1"
+
+	local singleQuote="'"
+	local doubleQuote='"'
+	
+	# '"'"'
+	local replacement="${singleQuote}${doubleQuote}${singleQuote}${doubleQuote}${singleQuote}"
+	
+	# Replaces any embedded ' symbols with '"'"'
+	printf '%s' "$value" | sed "s/${singleQuote}/${replacement}/g"
+}

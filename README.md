@@ -1845,17 +1845,23 @@ Returns an exit code of:-
 * `1` if `value` is a boolean false (`F`, `f`, `false`, `False`, `FALSE`, `N`, `n`, `no`, `No`, `NO`, `off`, `Off`, `OFF`, `0`)
 * `1` if `value` is a boolean true (`T`, `t`, `true`, `True`, `TRUE`, `Y`, `y`, `yes`, `Yes`, `YES`, `on`, `On`, `ON`, `1`)
 
+***
+#### `core_variable_escapeForSingleQuotedLiteralInHeredoc`
 
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`value`|A value|_No_|
 
+Writes a value to standard out suitable for use in a here doc that will itself become a bash script as a single quoted literal. In essence, escapes any `'` single quotes as `'"'"'`. For example, it could be used as:-
 
+```bash
 
-
-
-
-
-
-
-
+my_value="hello ' world"
+cat <<-EOF
+	# Note the SINGLE quotes surrounding $()
+	my_heredoc_value='$(core_variable_escapeForSingleQuotedLiteralInHeredoc "$my_value")'
+EOF
+```
 
 
 ***
