@@ -67,7 +67,7 @@ core_temporaryFiles_initialise()
 	
 	if core_variable_isSet RANDOM; then
 
-		core_message WARN "Your system doesn't have mktemp - we're creating temporary files INSECURELY in '$TMPDIR'"
+		core_message WARN "Your system doesn't have mktemp - we're creating temporary files INSECURELY in '$TMPDIR' using process id and 'RANDOM'"
 		
 		core_temporaryFiles_newFileToRemoveOnExit()
 		{
@@ -146,7 +146,21 @@ core_functions_register _core_functions core_temporaryFiles_initialise
 core_dependency_requires '*' rm
 _core_temporaryFiles_removeAll_callback()
 {
-	rm -r -f -- "$@" 1>/dev/null 2>/dev/null || true
+	local pathToDelete
+	for pathToDelete in "$@"
+	do
+		if [ ! -e "$pathToDelete" ]; then
+			continue
+		fi
+		
+		if rm -r -f "$pathToDelete" 1>/dev/null 2>/dev/null; then
+			continue
+		fi
+		
+		if core_compatibility_whichNoOutput sudo; then
+			sudo -p "Please enter the password for %p to forcibly rm the temporary path '$pathToDelete': " rm -r -f "$pathToDelete" || core_message WARN "Could not forcibly delete temporary path '$pathToDelete'"
+		fi
+	done
 }
 
 core_temporaryFiles_removeAll()
