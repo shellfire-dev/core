@@ -21,5 +21,5 @@ core_dependency_check_SuSE_packageManager()
 	fi
 	
 	# TODO: Probably wrong
-	sudo -p "Please enter your password for sudo to run zypper install: " zypper install "$@"
+	sudo -p "Please enter the password for %p for sudo to run zypper install: " zypper install "$@"
 }
