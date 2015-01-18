@@ -125,6 +125,7 @@ User-Definable constants are intended to be implemented in the global scope of y
 |`_program_entrypoint`|_No_|Entry point for your program|`_program_entrypoint='overdrive'`|Ensure a function `overdrive()` exists inside `_program()`|
 |`_program_namespace`|_Yes_|Namespace of your program's functions|`_program_entrypoint='overdrive'`|Defaults to `_program_name`, but needed if this contains anything other than A-Z, a-z, 0-9 and underscore (eg hyphens)|
 |`_program_arrayDelimiter`|_Yes_|Override the array delimited in use to support older shells|`_program_arrayDelimiter=','`|Defaults to `\r`. Override with `,` to support MinGW / MSYS Bash 3.1.7 and GoW. Use "$(printf '\001')" if supporting bash 4.2+, ash or dash and you need to deal with data containing `\r`.|
+|`_program_ignoreDependencies`|_Yes_|Disables the automatic dependency installation framework|`_program_ignoreDependencies=yes`|This can also be done by [fatten]ing.|
 
 ***
 
