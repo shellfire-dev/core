@@ -24,6 +24,10 @@ The framework includes functions for most common needs, difficulties and complex
 * [Variable and Value Helpers](#namespace-core_variable)
 * [Arrays, even in non-bash shells](#namespace-core_variable_array)
 
+## Compatibility
+
+* Tag [`release_2015.0117.1750-1`](https://github.com/shellfire-dev/core/releases/tag/release_2015.0117.1750-1) is compatible with [shellfire] release [`release_2015.0117.1750-1`](https://github.com/shellfire-dev/shellfire/releases/tag/release_2015.0117.1750-1).
+
 ## Overview
 
 ### Overridding a module's function(s)
