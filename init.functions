@@ -84,6 +84,10 @@ core_init_language()
 # “\e[0;33;40m” shows dark (=0) yellow (=33) characters on black (=40) background
 core_terminal_ansiSupported()
 {
+	if core_variable_isUnset TERM; then
+		return 1
+	fi
+	
 	case "$TERM" in
 		
 		# xterm-color, xterm-256color, linux-16color, etc
