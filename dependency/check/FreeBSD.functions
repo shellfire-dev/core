@@ -21,8 +21,18 @@ core_dependency_check_FreeBSD_packageManager()
 {
 	local ourCurrentId="$(id -u)"
 	
+	local pkgPath
+	if core_compatibility_whichNoOutput pkg; then
+		pkgPath='pkg'
+	elif [ ! -x /usr/sbin/pkg ]; then
+		pkgPath=/usr/sbin/pkg
+	else
+		core_message INFO "Please bootstrap FreeBSD's pkg manager by running /usr/sbin/pkg"
+		return 0
+	fi
+	
 	if [ "$ourCurrentId" = 0 ]; then
-		pkg install -q "$@"
+		"$pkgPath" install -q -y "$@"
 	else
 		local sudoCommandPath
 		if core_compatibility_whichNoOutput sudo; then
@@ -30,10 +40,10 @@ core_dependency_check_FreeBSD_packageManager()
 		elif [ -x /usr/local/bin/sudo ]; then
 			sudoCommandPath=/usr/local/bin/sudo
 		else
-			core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using pkg"
+			core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using '$pkgPath'"
 			return 0
 		fi
 		
-		"$sudoCommandPath" pkg install -q "$@"
+		"$sudoCommandPath" "$pkgPath" install -q -y "$@"
 	fi
 }
