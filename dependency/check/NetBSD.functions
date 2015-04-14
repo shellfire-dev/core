@@ -41,7 +41,7 @@ core_dependency_check_NetBSD_packageManager()
 	elif [ -x /usr/pkg/sbin/pkg_add ]; then
 		core_dependency_check_NetBSD_packageManager_pkgSrc /usr/pkg/sbin/pkg_add "$@"
 	else
-		core_message INFO "No package manager (pkgin or pkg_src) found, so not installing packages '$@'"
+		core_message INFO "No package manager (pkgin or pkg_add) found, so not installing packages '$@'"
 	fi
 }
 
@@ -100,11 +100,11 @@ core_dependency_check_NetBSD_packageManager_pkgSrc()
 			"$pathToPkgAdd" "$@"
 		else
 			if core_compatibility_whichNoOutput sudo; then
-				sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_src: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
+				sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
 			elif [ -x /usr/pkg/bin/sudo ]; then
-				/usr/pkg/bin/sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_src: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
+				/usr/pkg/bin/sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
 			else
-				core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using pkg_src"
+				core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using pkg_add"
 				return 0
 			fi
 		fi

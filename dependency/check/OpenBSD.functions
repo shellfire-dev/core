@@ -1,0 +1,62 @@
+# This file is part of shellfire core. It is subject to the licence terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT. No part of shellfire core, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2014-2015 The developers of shellfire core. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT.
+
+
+core_dependency_check_OpenBSD_checkFunction()
+{
+	if [ ! -f /etc/release ]; then
+		return 1
+	fi
+	
+	local operatingSystem
+	local versionSlashArchitecture
+	IFS=' ' read -r operatingSystem versionSlashArchitecture </etc/release
+	
+	# To work correctly, this needs to be the PATH
+	# PATH=/usr/pkg/bin:/usr/pkg/sbin:"$PATH"
+	if [ "$operatingSystem" = 'OpenBSD' ]; then
+		core_dependency_packageManager='OpenBSD'
+		return 0
+	fi
+	return 1
+}
+core_functions_register _core_dependency_check_functions core_dependency_check_OpenBSD_checkFunction
+
+core_dependency_check_OpenBSD_extractUnqualifiedPackageName()
+{
+	printf '%s' "$1"
+}
+
+core_dependency_requires OpenBSD id uname
+core_dependency_check_OpenBSD_packageManager()
+{
+	local ourCurrentId="$(id -u)"
+	
+	local pathToPkgAdd
+	if core_compatibility_whichNoOutput pkg_add; then
+		pathToPkgAdd='pkg_add'
+	elif [ -x /usr/sbin/pkg_add ]; then
+		pathToPkgAdd='/usr/sbin/pkg_add'
+	else
+		core_message INFO "No package manager (pkg_add) found, so not installing packages '$@'"
+	fi
+	
+	{
+		if core_variable_isUnset PKG_PATH; then
+			export PKG_PATH="http://mirror.bytemark.co.uk/pub/$(uname -s)/$(uname -r)/$(uname -m)/"
+		fi
+	
+		if [ "$ourCurrentId" = 0 ]; then
+			"$pathToPkgAdd" "$@"
+		else
+			if core_compatibility_whichNoOutput sudo; then
+				sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
+			elif [ -x /usr/pkg/bin/sudo ]; then
+				/usr/bin/sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
+			else
+				core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using pkg_add"
+				return 0
+			fi
+		fi
+	}
+}

@@ -14,6 +14,6 @@ core_dependency_check_releaseFile()
 	return 1
 }
 
-core_dependency_check_packageManagersWithPaths='CentOS Cygwin Debian Fedora FreeBSD Homebrew NetBSD RedHat SusSE'
+core_dependency_check_packageManagersWithPaths='CentOS Cygwin Debian Fedora FreeBSD Homebrew NetBSD OpenBSD RedHat SusSE'
 core_dependency_declares core_dependency_check_packageManagersWithPaths
-core_usesIn core/dependency/check CentOS Cygwin Debian Fedora FreeBSD Homebrew NetBSD RedHat SuSE
+core_usesIn core/dependency/check CentOS Cygwin Debian Fedora FreeBSD Homebrew NetBSD OpenBSD RedHat SuSE
