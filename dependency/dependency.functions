@@ -166,7 +166,20 @@ command_not_found_handle()
 core_dependency_setUpPathAndInstallMissing()
 {
 	# A standard path, excluding games, but including any sibling binaries to our one
-	local replacementPath='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+	# Adjusted for the weirdness that is NetBSD
+	local replacementPath
+	if core_compatibility_whichNoOutput uname; then
+		local operatingSystem="$(uname)"
+	else
+		local operatingSystem=''
+	fi
+	
+	if [ "$operatingSystem" = 'NetBSD' ]; then
+		replacementPath='/usr/pkg/gnu/sbin:/usr/pkg/gnu/bin:/usr/pkg/sbin:/usr/pkg/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+	else
+		replacementPath='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+	fi
+	
 	_core_dependency_addToReplacementPathIfRequired "$core_init_ourSymlinkPath"
 	_core_dependency_addToReplacementPathIfRequired "$core_init_ourPath"
 	
