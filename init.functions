@@ -786,6 +786,13 @@ core_init_initialiseArrayDelimiter()
 	core_dependency_declares core_variable_array_delimiter
 }
 
+core_init_makePathsAbsolute()
+{
+	cd "$_program_libPath" 1>/dev/null && _program_libPath="$(pwd)" && cd - 1>/dev/null
+	cd "$_program_etcPath" 1>/dev/null && _program_etcPath="$(pwd)" && cd - 1>/dev/null
+	cd "$_program_varPath" 1>/dev/null && _program_varPath="$(pwd)" && cd - 1>/dev/null
+}
+
 core_init_main()
 {
 	core_init_init
@@ -796,6 +803,7 @@ core_init_main()
 	core_init_determinePreferredShell
 	core_init_rexecUnderCorrectShell "$@"
 	core_init_initialiseArrayDelimiter
+	core_init_makePathsAbsolute
 	
 	core_usesIn core
 	if core_functions_exists _program; then
