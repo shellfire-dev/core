@@ -788,9 +788,11 @@ core_init_initialiseArrayDelimiter()
 
 core_init_makePathsAbsolute()
 {
-	cd "$_program_libPath" 1>/dev/null && _program_libPath="$(pwd)" && cd - 1>/dev/null
-	cd "$_program_etcPath" 1>/dev/null && _program_etcPath="$(pwd)" && cd - 1>/dev/null
-	cd "$_program_varPath" 1>/dev/null && _program_varPath="$(pwd)" && cd - 1>/dev/null
+	set +e
+	cd "$_program_libPath" 1>/dev/null 2>/dev/null && _program_libPath="$(pwd)" && cd - 1>/dev/null
+	cd "$_program_etcPath" 1>/dev/null 2>/dev/null && _program_etcPath="$(pwd)" && cd - 1>/dev/null
+	cd "$_program_varPath" 1>/dev/null 2>/dev/null && _program_varPath="$(pwd)" && cd - 1>/dev/null
+	set -e
 }
 
 core_init_main()
