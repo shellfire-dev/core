@@ -40,7 +40,7 @@ core_dependency_check_FreeBSD_packageManager()
 		elif [ -x /usr/local/bin/sudo ]; then
 			sudoCommandPath=/usr/local/bin/sudo
 		else
-			core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using '$pkgPath'"
+			core_message INFO "Not running as root and sudo not found, so not installing packages using '$pkgPath'"
 			return 0
 		fi
 		

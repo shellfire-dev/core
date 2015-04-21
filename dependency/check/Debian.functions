@@ -33,5 +33,5 @@ core_dependency_check_Debian_packageManager()
 		fi
 	fi
 	
-	sudo -p "Please enter the password for %p for sudo to install packages '$@' using apt-get: " apt-get${aptVerbosity} --no-install-recommends --yes --no-upgrade install "$@"
+	sudo -p "Please enter the password for %p for sudo to install packages using apt-get: " apt-get${aptVerbosity} --no-install-recommends --yes --no-upgrade install "$@"
 }

@@ -38,7 +38,7 @@ core_dependency_check_OpenBSD_packageManager()
 	elif [ -x /usr/sbin/pkg_add ]; then
 		pathToPkgAdd='/usr/sbin/pkg_add'
 	else
-		core_message INFO "No package manager (pkg_add) found, so not installing packages '$@'"
+		core_message INFO "No package manager (pkg_add) found, so not installing packages"
 	fi
 	
 	{
@@ -50,11 +50,11 @@ core_dependency_check_OpenBSD_packageManager()
 			"$pathToPkgAdd" "$@"
 		else
 			if core_compatibility_whichNoOutput sudo; then
-				sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
+				sudo -p "Please enter the password for %p for sudo to install packages using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
 			elif [ -x /usr/pkg/bin/sudo ]; then
-				/usr/bin/sudo -p "Please enter the password for %p for sudo to install packages '$@' using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
+				/usr/bin/sudo -p "Please enter the password for %p for sudo to install packages using pkg_add: " env PKG_PATH="$PKG_PATH" "$pathToPkgAdd" "$@"
 			else
-				core_message INFO "Not running as root and sudo not found, so not installing packages '$@' using pkg_add"
+				core_message INFO "Not running as root and sudo not found, so not installing packages using pkg_add"
 				return 0
 			fi
 		fi
