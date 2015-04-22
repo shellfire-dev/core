@@ -799,7 +799,7 @@ _core_init_makePathAbsolute()
 	
 	set +e
 		
-		cd "$core_variable_indirectValue" 1>/dev/null 2>/dev/null
+		cd "$core_variable_indirectValue_result" 1>/dev/null 2>/dev/null
 			if [ $? -ne 0 ]; then
 				set -e
 				return 0
