@@ -623,6 +623,7 @@ core_init_setSaneEnvironmentDefaults()
 	core_variable_unset MAILCHECK
 	core_variable_unset MAILPATH
 	core_variable_unset ENV
+	core_variable_unset POSIXLY_CORRECT # affects bash, file, GNU grep, etc
 	
 	# bash specific
 	core_variable_unset BASH_ENV
