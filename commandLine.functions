@@ -396,7 +396,7 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 
 core_commandLine_parse()
 {
-	if core_function_exists _program_commandLine_parse; then
+	if core_functions_exists _program_commandLine_parse; then
 		_program_commandLine_parse "$@"
 	else
 		core_commandLine_parsePosix "$@"
