@@ -394,69 +394,78 @@ core_commandLine_parseConcatenatedOptionsWithoutEquals()
 	done
 }
 
+core_commandLine_parse()
+{
+	if core_function_exists _program_commandLine_parse; then
+		_program_commandLine_parse "$@"
+	else
+		core_commandLine_parsePosix "$@"
+	fi	
+}
+
 # POSIX: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
 # We support combined options, eg -xvf TAR.tar, including those with an argument
 # We partly support concatenated arguments (ie instead -o arg, -oarg, but not -xvfTAR.tar for example)
 # We do not support XF86-style options such as '-find', although we could (but it seems a little odd)
 # An argument of '-' is treated as the first of the non-option arguments, NOT as delimiting the start of the non-options (we use -- for that)
-core_commandLine_parse()
+core_commandLine_parsePosix()
 {
 	_program_commandLine_parseInitialise
-	
+
 	local argument
 	local parsingOptionArguments=0
 	while [ $# -ne 0 ]
 	do
 		local argument="$1"
-		
+
 		if core_variable_startsWith "$argument" '--' ; then
-			
+	
 			shift 1
-		
+
 			if [ "$argument" = '--' ]; then
 				break
 			fi
-			
+	
 			# Parse GNU-style long options
 			case "$argument" in
-				
+		
 				# eg --log-level=debug (handles spaces and multiple = signs correctly)
 				--*=*)
 					local optionNameIncludingHyphens="${argument%%=*}"
 					local optionName="${optionNameIncludingHyphens##--}"
 					local optionValue="${argument#*=}"
-					
+			
 					case "$(core_commandLine_optionExists "$optionName")" in
-						
+				
 						yes-argumentless)
 							core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' does not take values (such as '$optionValue')"
 						;;
-						
+				
 						yes-argumented|yes-optionally-argumented)
 							core_commandLine_processOptionWithArgument
 						;;
-						
+				
 						no|'')
 							core_commandLine_exitBadCommandLine "The long option (with =value) '${optionNameIncludingHyphens}' does not exist"
 						;;
-						
+				
 						*)
 							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
 					esac
 				;;
-				
+		
 				# eg --help and --verbose [level]
 				--*)
 					local optionNameIncludingHyphens="$argument"
 					local optionName="${argument##--}"
-	
+
 					case "$(core_commandLine_optionExists "$optionName")" in
-						
+				
 						yes-argumentless)
 							core_commandLine_processOptionWithoutArgument
 						;;
-						
+				
 						yes-argumented)
 							if [ $# -eq 0 ]; then
 								core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
@@ -465,7 +474,7 @@ core_commandLine_parse()
 							shift 1
 							core_commandLine_processOptionWithArgument
 						;;
-						
+				
 						yes-optionally-argumented)
 							if [ $# -eq 0 ]; then
 								core_commandLine_processOptionWithoutArgument
@@ -479,36 +488,36 @@ core_commandLine_parse()
 								core_commandLine_processOptionWithArgument
 							fi
 						;;
-						
+				
 						no|'')
 							core_commandLine_exitBadCommandLine "The long option '${optionNameIncludingHyphens}' is not known"
 						;;
-						
+				
 						*)
 							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
-						
+				
 					esac
 				;;
-				
+		
 				*)
 					core_exitError $core_commandLine_exitCode_SOFTWARE "The function core_commandLine_parse failed on argument '$argument', the line was '$@'"
 				;;
 			esac
-			
+	
 		elif core_variable_startsWith "$argument" '-' ; then
-		
+
 			# In some legacy programs, this is equivalent to '--'. It can also be a valid non-option argument (eg stdin). We treat it as the latter.
 			if [ "$argument" = '-' ]; then
 				break
 			fi
-			
+	
 			shift 1
-			
+	
 			# Processing short options (-t, -v, etc)
-			
+	
 			case "$argument" in
-				
+		
 				# eg -l='debug'
 				-*=*)
 					local optionNameIncludingHyphens="${argument%%=*}"
@@ -518,29 +527,29 @@ core_commandLine_parse()
 						# When this returns, all options will have been consumed apart from the last one, and optionName/optionNameIncludingHyphens will be a single option
 						core_commandLine_parseConcatenatedOptionsWithoutEquals
 					fi
-					
+			
 					case "$(core_commandLine_optionExists "$optionName")" in
-						
+				
 						yes-argumentless)
 							core_commandLine_exitBadCommandLine "The option '$optionNameIncludingHyphens' does not take values (such as '$optionValue')"
 						;;
-						
+				
 						yes-argumented|yes-optionally-argumented)
 							core_commandLine_processOptionWithArgument
 						;;
-						
+				
 						no|'')
 							core_commandLine_exitBadCommandLine "The short option '$optionNameIncludingHyphens' is not known"
 						;;
-						
+				
 						*)
 							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
-						
-					esac
-					
-				;;
 				
+					esac
+			
+				;;
+		
 				# eg -h, -hv, -v2
 				-*)
 					local optionNameIncludingHyphens="$argument"
@@ -550,18 +559,18 @@ core_commandLine_parse()
 						# Is this is a conjoined -o<argument> option? [Note we do not support -ab2, where a is optionless but b takes an argument]
 						local possibleOptionName="$(core_variable_firstCharacter "${optionName}")"
 						local possibleOptionValue="$(core_variable_allButFirst "${optionName}")"
-						
+				
 						case "$(core_commandLine_optionExists "$possibleOptionName")" in
-							
+					
 							yes-argumented|yes-optionally-argumented)
 								optionName="$possibleOptionName"
 								optionValue="$possibleOptionValue"
 								core_commandLine_processOptionWithArgument
 								continue
 							;;
-							
+					
 						esac
-						
+				
 						# When this returns, all options will have been consumed apart from the last one, and optionName/optionNameIncludingHyphens will be a single option
 						local shouldContinueAfterParsingConcatenatedOptions=0
 						core_commandLine_parseConcatenatedOptionsWithoutEquals
@@ -569,13 +578,13 @@ core_commandLine_parse()
 							continue
 						fi
 					fi
-	
+
 					case "$(core_commandLine_optionExists "$optionName")" in
-						
+				
 						yes-argumentless)
 							core_commandLine_processOptionWithoutArgument
 						;;
-						
+				
 						yes-argumented)
 							if [ $# -eq 0 ]; then
 								core_commandLine_exitBadCommandLine "The option '${optionNameIncludingHyphens}' requires an argument which was not specified"
@@ -584,7 +593,7 @@ core_commandLine_parse()
 							shift 1
 							core_commandLine_processOptionWithArgument
 						;;
-						
+				
 						yes-optionally-argumented)
 							if [ $# -eq 0 ]; then
 								core_commandLine_processOptionWithoutArgument
@@ -598,31 +607,31 @@ core_commandLine_parse()
 								core_commandLine_processOptionWithArgument
 							fi
 						;;
-						
+				
 						no|'')
 							core_commandLine_exitBadCommandLine "The short option '${optionNameIncludingHyphens}' is not known"
 						;;
-						
+				
 						*)
 							core_exitError $core_commandLine_exitCode_SOFTWARE "Please implement yes-argumented, yes-argumentless, yes-optionally-argumented or no for option '$optionName' in _program_commandLine_optionExists()"
 						;;
-						
+				
 					esac
 				;;
-				
+		
 				*)
 					core_exitError $core_commandLine_exitCode_SOFTWARE "The function core_commandLine_parse failed on argument '$argument', the line was '$@'"
 				;;
-				
+		
 			esac
 		else
 			# start of non-options
 			break
 		fi
 	done
-	
+
 	_program_commandLine_handleNonOptions "$@"
-	
+
 	_program_commandLine_validate
 }
 

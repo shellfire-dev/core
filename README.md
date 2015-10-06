@@ -321,6 +321,88 @@ There are no public functions.
 User-Definable functions are intended to be implemented in the global scope of your [shellfire] application. You are not obligated to implement any of these functions; if you don't, a naive default is used instead.
 
 ***
+#### `_program_commandLine_parse()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`"$@"`|Zero or More|Yes|
+
+Implement this function if you want to completely bypass the POSIX compliant command line parsing. The functions `_program_commandLine_parseInitialise()`, `_program_commandLine_helpMessage()`, `_program_commandLine_optionExists()`, etc will not be called (unless your code in this function calls them).
+
+Reasons to implement this function could be:-
+
+* To support scripts that just take arguments as part of an existing API (eg [Heroku Buildpack Functions](https://devcenter.heroku.com/articles/buildpack-api#bin-compile))
+* To support scripts that take an initial command argument, like `git`
+  * In this case, you can re-use the POSIX command line parsing logic, eg
+
+```bash
+	_program_commandLine_parse()
+	{
+		mycommand="$1"
+		shift 1
+		
+		case "$mycommand" in
+			
+			update|delete)
+				:
+			;;
+			
+			*)
+				core_commandLine_exitBadCommandLine "Unknown command '$mycommand'"
+			;;
+		esac
+		
+		core_commandLine_parsePosix "$@"
+	}
+	
+	# Sample implementation
+	_program_commandLineOptionExists()
+	{
+		case "$mycommand" in
+			
+			update)
+				case "$optionName" in
+		
+					# c would be -c
+					# clean would be --clean
+					c|clean)
+						echo yes-argumentless
+					;;
+		
+					# eg -t mytunnel
+					# eg --tunnel=mytunnel
+					# eg --tunnel mytunnel
+					# If there are additional equals signs, they're handled correctly, eg
+					# eg --tunnel=mytunnel=something
+					t|tunnel)
+						echo 'yes-argumented'
+					;;
+		
+					tunnel-tls-use-der)
+						echo 'yes-optionally-argumented'
+					;;
+		
+					*)
+						echo 'no'
+					;;
+		
+				esac
+			;;
+			
+			delete)
+				case "$optionName" in
+				
+					...
+				
+				esac
+			
+			;;
+			
+		esac	
+	}
+```
+
+***
 #### `_program_commandLine_parseInitialise()`
 
 |Parameter|Value|Optional|
