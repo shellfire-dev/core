@@ -232,7 +232,7 @@ core_dependency_setUpPathAndInstallMissing()
 	IFS="$originalIFS"
 
 	if ! core_variable_array_isEmpty packagesToInstall; then
-		core_message WARN "Installing missing packages '$(core_variable_array_string packagesToInstall " ")'"
+		core_message NOTICE "Installing missing packages '$(core_variable_array_string packagesToInstall " ")'"
 		core_variable_array_passToFunctionAsArguments packagesToInstall core_dependency_check_${core_dependency_packageManager}_packageManager
 	fi
 	
