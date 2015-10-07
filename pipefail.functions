@@ -10,24 +10,18 @@
 # Run as com1 \| com2 \| com3
 core_pipefail_execute()
 {
-	# Unsets variables from previous run
-	local index=1
-	while eval "\${core_pipefail_PIPESTATUS_$index+:} false"
-	do
-		unset core_pipefail_PIPESTATUS_$index
-		index=$((index + 1))
-	done
+	_core_pipefail_execute_unsetPipestatusVariablesFromPreviousRun
 	
-	index=1
-	local pipelineCommand
+	local index=1
+	local pipelineCommand=''
 	local k=1
-	local l
-	local a
-	for a
+	local l=''
+	local a=''
+	for a in "$@"
 	do
 		if [ "$a" = '|' ]; then
 			pipelineCommand="$pipelineCommand { $l "'3>&-
-printf %s\n "core_pipefail_PIPESTATUS_'$index'=$?" >&3
+echo "core_pipefail_PIPESTATUS_'$index'=$?" >&3
 } 4>&- |'
 			index=$((index + 1))
 			l=''
@@ -37,17 +31,40 @@ printf %s\n "core_pipefail_PIPESTATUS_'$index'=$?" >&3
 		k=$((k + 1))
 	done
 	pipelineCommand="$pipelineCommand $l"' 3>&- >&4 4>&-
-printf %s\n "core_pipefail_PIPESTATUS_'$index'=$?"'
+echo "core_pipefail_PIPESTATUS_'$index'=$?"'
+	
+	core_message DEBUG "About to execute pipeline command: '$pipelineCommand'"
+	
 	exec 4>&1
 	eval "$(exec 3>&1; eval "$pipelineCommand")"
 	exec 4>&-
 	
-	# Sets variables, returns 1 if any command in the pipeline failed
-	index=1
-	while eval "\${core_pipefail_PIPESTATUS_$index+:} false"
+	local exitCode
+	_core_pipefail_execute_setPipestatusVariablesAndExitCode
+	return $exitCode
+}
+
+_core_pipefail_execute_unsetPipestatusVariablesFromPreviousRun()
+{
+	local index=1
+	while core_variable_isSet core_pipefail_PIPESTATUS_$index
 	do
-		eval "[ \$core_pipefail_PIPESTATUS_$index -eq 0 ]" || return 1
+		core_variable_unset core_pipefail_PIPESTATUS_$index
 		index=$((index + 1))
 	done
-	return 0
+}
+
+_core_pipefail_execute_setPipestatusVariablesAndExitCode()
+{
+	local index=1
+	local core_variable_indirectValue_result
+	while core_variable_isSet core_pipefail_PIPESTATUS_$index
+	do
+		core_variable_indirectValue core_pipefail_PIPESTATUS_$index
+		if [ $core_variable_indirectValue_result -ne 0 ]; then
+			exitCode=1
+			return 0
+		fi
+		index=$((index + 1))
+	done
 }
