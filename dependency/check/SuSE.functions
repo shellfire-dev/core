@@ -20,5 +20,12 @@ core_dependency_check_SuSE_packageManager()
 		return 0
 	fi
 	
-	sudo -p "Please enter the password for %p for sudo to run zypper install: " zypper install "$@"
+	local ourCurrentId="$(id -u)"
+	if [ "$ourCurrentId" = 0 ]; then
+		zypper install "$@"
+	elif core_compatibility_whichNoOutput sudo; then
+		sudo -p "Please enter the password for %p for sudo to run zypper install: " zypper install "$@"
+	else
+		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
+	fi
 }

@@ -16,5 +16,12 @@ core_dependency_check_Mageia_extractUnqualifiedPackageName()
 core_dependency_requires Mageia sudo urpmi
 core_dependency_check_Mageia_packageManager()
 {
-	sudo urpmi --auto --quiet "$@"
+	local ourCurrentId="$(id -u)"
+	if [ "$ourCurrentId" = 0 ]; then
+		urpmi --auto --quiet "$@"
+	elif core_compatibility_whichNoOutput sudo; then
+		sudo -p "Please enter the password for %p for sudo to run urpmi: " urpmi --auto --quiet "$@"
+	else
+		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
+	fi
 }

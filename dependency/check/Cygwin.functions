@@ -21,5 +21,5 @@ core_dependency_check_Cygwin_extractUnqualifiedPackageName()
 #core_dependency_requires Cygwin setup-x86
 core_dependency_check_Cygwin_packageManager()
 {
-	core_exitError $core_commandLine_exitCode_CONFIG "Please run the Cygwin setup-x86.exe to install the packages $@"
+	core_message INFO "Please run the Cygwin setup-x86.exe to install the packages '$@'"
 }

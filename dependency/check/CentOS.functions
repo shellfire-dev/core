@@ -44,7 +44,15 @@ core_dependency_check_CentOS_packageManager()
 		local yumVerbosity="--quiet"
 	fi
 
-	sudo -p "Please enter the password for %p for sudo to update yum: " yum ${yumVerbosity} makecache
+	local ourCurrentId="$(id -u)"
+	if [ "$ourCurrentId" = 0 ]; then
+		yum ${yumVerbosity} makecache
+	elif core_compatibility_whichNoOutput sudo; then
+		sudo -p "Please enter the password for %p for sudo to update yum: " yum ${yumVerbosity} makecache
+	else
+		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
+		return 0
+	fi
 		
 	local repositoryName
 	local packageName
@@ -54,7 +62,12 @@ core_dependency_check_CentOS_packageManager()
 	do
 		_core_dependency_check_CentOS_parsePackageName
 		if [ -z "$repositoryName" ]; then
-			sudo -p "Please enter the password for %p for sudo to run yum install $packageName: " yum ${yumVerbosity} -y install "$packageName"
+
+			if [ "$ourCurrentId" = 0 ]; then
+				yum ${yumVerbosity} -y install "$packageName"
+			else
+				sudo -p "Please enter the password for %p for sudo to run yum install $packageName: " yum ${yumVerbosity} -y install "$packageName"
+			fi
 		else
 			functionName=_core_dependency_check_CentOS_installRepository_${repositoryName}
 			if ! core_functions_exists "$functionName"; then
@@ -65,7 +78,12 @@ core_dependency_check_CentOS_packageManager()
 			if [ "$repositoryName" = 'repoforge' ]; then
 				repositoryName=rpmforge
 			fi
-			sudo -p "Please enter the password for %p for sudo to run yum install $packageName: " yum ${yumVerbosity} -y --disablerepo="*" --enablerepo="$repositoryName" install "$packageName"
+			
+			if [ "$ourCurrentId" = 0 ]; then
+				yum ${yumVerbosity} -y --disablerepo="*" --enablerepo="$repositoryName" install "$packageName"
+			else
+				sudo -p "Please enter the password for %p for sudo to run yum install $packageName: " yum ${yumVerbosity} -y --disablerepo="*" --enablerepo="$repositoryName" install "$packageName"
+			fi
 		fi
 	
 	done

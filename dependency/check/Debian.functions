@@ -23,15 +23,32 @@ core_dependency_check_Debian_packageManager()
 		local aptVerbosity=" --quiet"
 	fi
 
-	core_message NOTICE "Updating apt-get package manager (may take some time)"
-	sudo -p "Please enter the password for %p for sudo to apt-get update: " apt-get${aptVerbosity} update
-
+	local ourCurrentId="$(id -u)"
+	if [ "$ourCurrentId" = 0 ]; then
+		core_message NOTICE "Updating apt-get package manager (may take some time)"
+		apt-get${aptVerbosity} update
+	elif core_compatibility_whichNoOutput sudo; then
+		core_message NOTICE "Updating apt-get package manager (may take some time)"
+		sudo -p "Please enter the password for %p for sudo to apt-get update: " apt-get${aptVerbosity} update
+	else
+		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
+		return 0
+	fi
+	
 	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
 		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
 			core_message INFO "Upgrading apt-get package manager (may take some time)"
-			sudo -p "Please enter the password for %p for sudo to run apt-get dist-upgrade: " apt-get${aptVerbosity} dist-upgrade
+			if [ "$ourCurrentId" = 0 ]; then
+				apt-get${aptVerbosity} dist-upgrade
+			else
+				sudo -p "Please enter the password for %p for sudo to run apt-get dist-upgrade: " apt-get${aptVerbosity} dist-upgrade
+			fi
 		fi
 	fi
-	
-	sudo -p "Please enter the password for %p for sudo to install packages using apt-get: " apt-get${aptVerbosity} --no-install-recommends --yes --no-upgrade install "$@"
+
+	if [ "$ourCurrentId" = 0 ]; then
+		apt-get${aptVerbosity} --no-install-recommends --yes --no-upgrade install "$@"
+	else
+		sudo -p "Please enter the password for %p for sudo to install packages using apt-get: " apt-get${aptVerbosity} --no-install-recommends --yes --no-upgrade install "$@"
+	fi
 }
