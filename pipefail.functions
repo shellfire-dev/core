@@ -1,0 +1,53 @@
+# This file is part of shellfire core. It is subject to the licence terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT. No part of shellfire core, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2014-2015 The developers of shellfire core. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT.
+
+
+#   Original Copyright (c) 2003-2005, Joe Halpin <j.p.h@comcast.net>
+#   Modified from http://cfajohnson.com/shell/cus-faq-2.html#Q11
+#   Original permissively licensed
+#   Modifications Copyright © 2014-2015 The developers of shellfire core. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT.
+# Uses the file descriptors 3 and 4
+# Run as com1 \| com2 \| com3
+core_pipefail_execute()
+{
+	# Unsets variables from previous run
+	local index=1
+	while eval "\${core_pipefail_PIPESTATUS_$index+:} false"
+	do
+		unset core_pipefail_PIPESTATUS_$index
+		index=$((index + 1))
+	done
+	
+	index=1
+	local pipelineCommand
+	local k=1
+	local l
+	local a
+	for a
+	do
+		if [ "$a" = '|' ]; then
+			pipelineCommand="$pipelineCommand { $l "'3>&-
+printf %s\n "core_pipefail_PIPESTATUS_'$index'=$?" >&3
+} 4>&- |'
+			index=$((index + 1))
+			l=''
+		else
+			l="$l \"\$$k\""
+		fi
+		k=$((k + 1))
+	done
+	pipelineCommand="$pipelineCommand $l"' 3>&- >&4 4>&-
+printf %s\n "core_pipefail_PIPESTATUS_'$index'=$?"'
+	exec 4>&1
+	eval "$(exec 3>&1; eval "$pipelineCommand")"
+	exec 4>&-
+	
+	# Sets variables, returns 1 if any command in the pipeline failed
+	index=1
+	while eval "\${core_pipefail_PIPESTATUS_$index+:} false"
+	do
+		eval "[ \$core_pipefail_PIPESTATUS_$index -eq 0 ]" || return 1
+		index=$((index + 1))
+	done
+	return 0
+}

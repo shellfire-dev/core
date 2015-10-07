@@ -1116,6 +1116,48 @@ Returns an exit code of `0` if `folderPath` is a readable, searchable and writab
 
 
 
+## Namespace `core_pipefail`
+
+These functions exist to allow non-bash shells to run pipelines as if `set -o pipefail` was used, and so:-
+
+* Get an exit code of `1` if any process in the pipeline fails;
+* Find the exit codes of each command in the pipeline
+
+For example, to run three commands in a pipeline:-
+
+```bash
+set +e
+core_pipefail_execute head -n 4 /path/to/file \| tail -n 2 | grep -q 'something'
+exitCode=$?
+set -e
+
+if [ $exitCode -eq 1 ]; then
+	printf '%s\n' 'Pipeline failed"
+	printf 'Exit code for head: %s\n' $core_pipefail_PIPESTATUS_1
+	printf 'Exit code for tail: %s\n' $core_pipefail_PIPESTATUS_2
+	printf 'Exit code for grep: %s\n' $core_pipefail_PIPESTATUS_3
+fi
+```
+
+Please note that the variables `core_pipefail_PIPESTATUS_*` are _global_. Nested pipelines, etc, will not work. Additionally, this function uses file descriptors `3` and `4`.
+
+### To use in code
+
+This namespace is included by default. No additional actions are required.
+
+### Functions
+
+***
+#### `core_pipefail_execute()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`Pipeline`|Pipeline command, with pipes replaced by \\\||_Yes_|
+
+Returns an exit code of `0` if `pipeline` succeeded or `1` if it did not. Sets variables `core_pipefail_PIPESTATUS_N`, where `N` is one-based for each command in the pipeline.
+
+
+
 
 
 ## Namespace `core_snippet`

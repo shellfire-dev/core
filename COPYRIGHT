@@ -24,8 +24,7 @@ License: MIT
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
-Files: *
-Copyright: Copyright © 2014-2015, Raphael Cohn <raphael.cohn@stormmq.com>
+Comment: MIT license and copyright as applies to all files.
 License: MIT
  The MIT License (MIT)
  .
@@ -48,3 +47,30 @@ License: MIT
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+
+Files: *
+Copyright: Copyright © 2014-2015, Raphael Cohn <raphael.cohn@stormmq.com>
+License: MIT
+
+Files: pipefail.functions
+Copyright: Copyright © 2014-2015, Raphael Cohn <raphael.cohn@stormmq.com>
+           Copyright © 2003-2005, Joe Halpin <j.p.h@comcast.net>
+Comment: permissive licensed code in this file is from http://cfajohnson.com/shell/cus-faq-2.html#Q11 as documented in the file and is Copyright © 2003-2005, Joe Halpin <j.p.h@comcast.net>. This code has been modified. MIT modifications to this code, and all other contents of the file are MIT licensed and Copyright © 2014-2015, Raphael Cohn <raphael.cohn@stormmq.com>.
+License: MIT and permissive
+ It may be copied freely. Exceptions are noted in individual answers.
+ .
+ The answers given in this FAQ list are provided with the best intentions, but they may not be accurate for any particular shell/os. They may be completely wrong for any shell/os. If you don't test the answers, that's a bug in your procedures.
+ .
+ There are no guarantees for the answers or recommendations given in this document. In fact, I don't even claim to have tested any or all of them myself. Many of the answers here have been contributed by one or more regular participants in the newsgroup, who I believe to be competent (certainly more competent than I am), but THERE ARE NO GUARANTEES.
+ .
+ Did I really need to make that all uppercase? Hopefully not, but there are a lot of lawyers around with too much time on their hands, so I want to make it clear that THERE ARE NO GUARANTEES about the accuracy of answers in this FAQ list. This is, hopefully, an aid to people trying to learn shell programming, but it is NOT a supported product. You have to figure out for yourself whether or not the answers here work for what you're trying to do.
+ .
+ Under no circumstances will the maintainer of this FAQ list, or any contributors to it, be held liable for any mistakes in this document. If the answers work for you, well and good. If not, please tell me and I'll modify them appropriately so that this will be more useful.
+ .
+ If you don't agree to that, don't read any farther than this. Reading beyond this point indicates your agreement.
+ .
+ If you do test the answers and find a problem, please send email to the maintainer (see above), so it can be corrected, or (preferably) post a question to the newsgroup so it can be discussed and corrected if there's a problem.
+ .
+ A number of people have contributed to this FAQ, knowingly or unknowingly. Some of the answers were taken from previous postings in the group, and other people contributed questions and answers directly to the maintainer, which you are welcome to do as well.
+ .
+ Among the contributors is Heiner Steven, who also provided the momentum to get this FAQ list started. He maintains a web site about shell programming that has a lot of good stuff in it: http://www.shelldorado.com/
