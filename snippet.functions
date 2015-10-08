@@ -5,9 +5,11 @@
 core_usesIn core base64/decode variable temporaryFiles
 
 # Unfortunately, strips trailing LFs
+core_dependency_requires '*' cat
 core_snippet_raw_encoder()
 {
-	core_variable_setVariable _core_snippet_embeddedData_${snippetName} "$(<"$snippetFilePath")"
+	# "$(<FILE)" doesn't work in all situations
+	core_variable_setVariable _core_snippet_embeddedData_${snippetName} "$(cat "$snippetFilePath")"
 }
 
 core_snippet_raw_decoder()
