@@ -73,7 +73,7 @@ core_dependency_check_Homebrew_packageManager()
 			fi
 		fi
 		
-		brew install "$package"
+		brew install "$packageToInstall"
 	done
 	
 	# fakeroot required a  brew link

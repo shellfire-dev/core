@@ -12,6 +12,11 @@ core_variable_setVariable()
 	eval "$1"'=$2'
 }
 
+core_variable_setAndExportVariable()
+{
+	eval export "$1"'=$2'
+}
+
 core_variable_isUnsetOrEmpty()
 {
 	local variableName="$1"

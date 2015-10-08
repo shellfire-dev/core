@@ -1771,6 +1771,16 @@ Unsets (undefines) the variable pointed to by `variableName`. This method exists
 
 Sets the variable pointed to by `variableName` to `value`.
 
+***
+#### `core_variable_setAndExportVariable()`
+
+|Parameter|Value|Optional|
+|---------|-----|--------|
+|`variableName`|A variable name|_No_|
+|`value`|A value to set it to|_No_|
+
+Sets and `export`s the variable pointed to by `variableName` to `value`.
+
 
 ***
 #### `core_variable_isUnsetOrEmpty()`
