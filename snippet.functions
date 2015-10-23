@@ -79,6 +79,7 @@ core_snippet_retrieve()
 	${decoder}
 }
 
+core_dependency_requires '*' cat rm
 core_snippet_retrieveAndSourceAsHereDoc()
 {
 	local snippetName="$1"
