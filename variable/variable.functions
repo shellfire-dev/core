@@ -283,6 +283,7 @@ _core_variable_parseBoolean()
 }
 
 # eg local my_heredoc_value='$(core_variable_escapeForSingleQuotedLiteralInHeredoc "$my_value")'
+core_dependency_requires '*' sed
 core_variable_escapeForSingleQuotedLiteralInHeredoc()
 {
 	local value="$1"
@@ -295,4 +296,32 @@ core_variable_escapeForSingleQuotedLiteralInHeredoc()
 	
 	# Replaces any embedded ' symbols with '"'"'
 	printf '%s' "$value" | sed "s/${singleQuote}/${replacement}/g"
+}
+
+core_variable_escapeSingleQuotes()
+{
+	core_variable_escape "$1" "'" "'\''"
+}
+
+core_variable_escape()
+{
+	local value="$1"
+	local separator="$2"
+	local replacement="$3"
+	local result=''
+	
+	local split
+	local remainder="$value"
+	while [ ${#remainder} -ne 0 ]
+	do
+		IFS="$separator" read -r split remainder <<-EOF
+			${remainder}
+		EOF
+		if [ -n "$result" ]; then
+			result="${result}${replacement}"
+		fi
+		result="${result}${split}"
+	done
+	
+	printf '%s' "$result"
 }
