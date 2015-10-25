@@ -298,6 +298,26 @@ core_variable_escapeForSingleQuotedLiteralInHeredoc()
 	printf '%s' "$value" | sed "s/${singleQuote}/${replacement}/g"
 }
 
+core_variable_escapedCommandLine()
+{
+	{
+		local afterFirst=false
+		local argument
+		for argument in "$@"
+		do
+			if $afterFirst; then
+				printf ' '
+			else
+				afterFirst=true
+			fi
+			printf "'"
+			core_variable_escapeSingleQuotes "$argument"
+			printf "'"
+		done
+		printf '\n'
+	}
+}
+
 core_variable_escapeSingleQuotes()
 {
 	core_variable_escape "$1" "'" "'\''"
