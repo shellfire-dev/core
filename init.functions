@@ -821,6 +821,16 @@ core_init_makePathsAbsolute()
 	_core_init_makePathAbsolute _program_varPath
 }
 
+core_init_workAroundBugInHomeFolderTildeHandlingAndEnsureHOMEIsAlwaysSet()
+{
+	# Weirdly, it seems ~ expansion doesn't work in some contexts in some shells
+	set +f
+	cd ~ 1>/dev/null
+		export HOME="$(pwd -P)"
+	cd - 1>/dev/null
+	set -f
+}
+
 core_init_main()
 {
 	core_init_init
@@ -832,6 +842,7 @@ core_init_main()
 	core_init_rexecUnderCorrectShell "$@"
 	core_init_initialiseArrayDelimiter
 	core_init_makePathsAbsolute
+	core_init_workAroundBugInHomeFolderTildeHandlingAndEnsureHOMEIsAlwaysSet
 	
 	core_usesIn core
 	if core_functions_exists _program; then
