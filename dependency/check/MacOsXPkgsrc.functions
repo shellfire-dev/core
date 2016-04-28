@@ -1,0 +1,168 @@
+# This file is part of shellfire core. It is subject to the licence terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT. No part of shellfire core, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2014-2015 The developers of shellfire core. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT.
+
+
+core_dependency_check_MacOsXPkgsrc_checkFunction()
+{
+	if ! core_compatibility_whichNoOutput uname; then
+		return 0
+	fi
+	
+	if [ "$(uname -s)" = 'Darwin' ]; then
+		
+		core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevision='2015Q3'
+		core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevisionSha1='c150c0db1daddb4ec49592a7563c2838760bfb8b'
+		core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevisionGpgKey='0xDE817B8E'
+		core_dependency_check_MacOsXPkgsrc_DefaultPathPkgin=/opt/pkg/bin/pkgin
+		core_dependency_check_MacOsXPkgsrc_DefaultPathPkg_add=/opt/pkg/bin/pkg_src
+		core_dependency_check_MacOsXPkgsrc_DefaultPathSudo=/usr/bin/sudo
+		
+		core_dependency_packageManager='MacOsXPkgsrc'
+		if [ -d /opt/pkg ]; then
+			# To work correctly, PATH=/opt/pkg/sbin:/opt/pkg/bin:"$PATH"
+			return 0
+		else
+			core_dependency_check_MacOsXPkgsrc_installPackageManagerIfRequired
+		fi
+	fi
+	return 1
+}
+core_functions_register _core_dependency_check_functions core_dependency_check_MacOsXPkgsrc_checkFunction
+
+core_dependency_check_MacOsXPkgsrc_extractUnqualifiedPackageName()
+{
+	printf '%s' "$1"
+}
+
+# https://pkgsrc.joyent.com/install-on-osx/
+# https://www.netbsd.org/docs/pkgsrc/
+core_dependency_requires MacOsXPkgsrc uname curl shasum gpg sudo tar rm
+core_dependency_check_MacOsXPkgsrc_installPackageManagerIfRequired()
+{
+	if core_compatibility_whichNoOutput pkgin; then
+		return 0
+	fi
+
+	local os="$(uname -s)"
+	local architecture="$(uname -m)"
+	
+	local TMP_FILE
+	
+	core_temporaryFiles_newFolderToRemoveOnExit
+	local downloadedFilePath="$TMP_FILE"
+	
+	core_temporaryFiles_newFolderToRemoveOnExit
+	local downloadedSignatureFilePath="$TMP_FILE"
+
+	core_message NOTICE "Downloading pkgsrc package manager"
+	curl --location --silent "https://pkgsrc.joyent.com/packages/${os}/bootstrap/bootstrap-${core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevision}-${architecture}.tar.gz" >"$downloadedFilePath"
+
+	core_message NOTICE "Verifying SHA-1 hash for pkgsrc"
+	local sha="$(shasum "$downloadedFilePath")"
+	if [ "${sha%% *}" != "$core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevisionSha1" ]; then
+		core_exitError $core_commandLine_exitCode_DATAERR "Downloaded pkgsrc bootstrap has incorrect SHA-1 hash"
+	fi
+
+	core_message NOTICE "Downloading pkgsrc package manager signature"
+	curl --location --silent "https://pkgsrc.joyent.com/packages/${os}/bootstrap/bootstrap-${core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevision}-${architecture}.tar.gz.asc" >"$downloadedSignatureFilePath"
+
+	core_message NOTICE "Downloading GPG key $core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevisionGpgKey"
+	gpg --quiet --recv-keys "$core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevisionGpgKey" 2>/dev/null
+
+	core_message NOTICE "Verifying GPG signature for pkgsrc"
+	if ! gpg --verify "$downloadedSignatureFilePath" "$downloadedFilePath"; then
+		core_exitError $core_commandLine_exitCode_DATAERR "Downloaded pkgsrc bootstrap has invalid signature!"
+	fi
+	
+	# Do not wait until exit, as these are big files in the temp file system
+	rm -f "$downloadedSignatureFilePath" "$downloadedFilePath"
+
+	core_message NOTICE "Installing pkgsrc package manager"
+	core_dependency_checkMacOsxPkgsrc_packageManager_sudo tar -zxpf "$downloadedFilePath" -C /
+	core_dependency_checkMacOsxPkgsrc_packageManager_sudo rm -rf /var/db/pkgin
+	core_dependency_checkMacOsxPkgsrc_packageManager_sudo "$core_dependency_check_MacOsXPkgsrc_DefaultPathPkgin" -y update
+}
+
+core_dependency_requires MacOsXPkgsrc id
+core_dependency_check_MacOsXPkgsrc_packageManager()
+{
+	local ourCurrentId="$(id -u)"
+	local pkginDefaultPath=
+	local pkg_addDefaultPath=/opt/pkg/sbin/pkg_add
+
+	if core_compatibility_whichNoOutput pkgin; then
+		core_dependency_check_MacOsXPkgsrc_packageManager_pkgin pkgin "$@"
+	elif [ -x "$core_dependency_check_MacOsXPkgsrc_DefaultPathPkgin" ]; then
+		core_dependency_check_MacOsXPkgsrc_packageManager_pkgin "$core_dependency_check_MacOsXPkgsrc_DefaultPathPkgin" "$@"
+	elif core_compatibility_whichNoOutput pkg_add; then
+		core_dependency_check_MacOsXPkgsrc_packageManager_pkg_add pkg_add "$@"
+	elif [ -x "$core_dependency_check_MacOsXPkgsrc_DefaultPathPkg_add" ]; then
+		core_dependency_check_MacOsXPkgsrc_packageManager_pkg_add "$core_dependency_check_MacOsXPkgsrc_DefaultPathPkg_add" "$@"
+	else
+		core_message INFO "No package manager (pkgin or pkg_add) found, so not installing packages"
+	fi
+}
+
+core_dependency_checkMacOsxPkgsrc_packageManager_sudo()
+{
+	local sudoCommandPath
+	if core_compatibility_whichNoOutput sudo; then
+		sudoCommandPath=sudo
+	elif [ -x "$core_dependency_check_MacOsXPkgsrc_DefaultPathSudo" ]; then
+		sudoCommandPath="$core_dependency_check_MacOsXPkgsrc_DefaultPathSudo"
+	else
+		core_message INFO "Not running as root and sudo not found, so not installing packages using pkgin"
+		return 0
+	fi
+	
+	"$sudoCommandPath" "$@"
+}
+
+
+core_dependency_requires MacOsXPkgsrc uname sudo pkgin
+core_dependency_check_MacOsXPkgsrc_packageManager_pkgin()
+{
+	local pathToPkgin="$1"
+	shift 1
+	
+	{
+		if [ ! -s /opt/pkg/etc/pkgin/repositories.conf ]; then
+			if core_variable_isUnset PKG_REPOS; then
+				local os="$(uname -s)"
+				local architecture="$(uname -m)"
+				export PKG_REPOS="http://pkgsrc.joyent.com/packages/${os}/${core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevision}/${architecture}/All"
+			fi
+		fi
+	
+		if [ "$ourCurrentId" = 0 ]; then
+			"$pathToPkgin" -y update
+			"$pathToPkgin" -y install "$@"
+		else
+			core_dependency_checkMacOsxPkgsrc_packageManager_sudo -p "Please enter the password for %p for sudo to update the package list using pkgin: " "$pathToPkgin" -y update
+			core_dependency_checkMacOsxPkgsrc_packageManager_sudo -p "Please enter the password for %p for sudo to install packages using pkgin: " "$pathToPkgin" -y install "$@"
+		fi
+	}
+}
+
+core_dependency_requires MacOsXPkgsrc uname cut sudo pkg_add env
+core_dependency_check_MacOsXPkgsrc_packageManager_pkg_add()
+{
+	local pathToPkgAdd="$1"
+	shift 1
+	
+	{
+		if core_variable_isUnset PKG_PATH; then
+
+			local os="$(uname -s)"
+			local architecture="$(uname -m)"
+			
+			export PKG_PATH="https://pub.allbsd.org/pub/pkgsrc/packages/${os}/${core_dependency_check_MacOsXPkgsrc_JoyentMacOsXRevision}/${architecture}/All"
+		fi
+	
+		if [ "$ourCurrentId" = 0 ]; then
+			"$pathToPkgAdd" "$@"
+		else
+			core_dependency_checkMacOsxPkgsrc_packageManager_sudo -p "Please enter the password for %p for sudo to install packages using pkg_add: " "$pathToPkgAdd" "$@"
+		fi
+	}
+}
