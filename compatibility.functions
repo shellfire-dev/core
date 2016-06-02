@@ -101,10 +101,13 @@ core_compability_installSource()
 	# bash, zsh are known to support this
 	if _core_compatibility_builtInDoesNotExist source; then
 		
-		source()
-		{
-			. "$@"
-		}
+		# Done using as eval to workaround a bug in BusyBox's ash shell when the 'source' directive is compiled in
+		# BusyBox's ash parser evaluates this code not at 'if-time' but at evaluation of the surrounding code
+		# Yuck
+		eval 'source()
+{
+. "$@"
+}'
 		
 	fi
 }
