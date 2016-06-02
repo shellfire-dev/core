@@ -601,7 +601,6 @@ core_init_enableShellTweaks()
 core_init_setSaneEnvironmentDefaults()
 {
 	set +o allexport
-	set +o emacs
 	set -o errexit
 	set +o ignoreeof
 	set +o monitor
