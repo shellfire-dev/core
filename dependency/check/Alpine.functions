@@ -60,7 +60,7 @@ core_dependency_check_Alpine_packageManager()
 		apk${apkVerbosity} update
 	elif core_compatibility_whichNoOutput sudo; then
 		core_message NOTICE "Updating apk package manager (may take some time)"
-		sudo -p "Please enter the password for %p for sudo to apk update: " apk${apkVerbosity} update
+		sudo -p "Please enter the password for %p for sudo to apk update: " apk ${apkVerbosity} update
 	else
 		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
 		return 0
@@ -72,7 +72,7 @@ core_dependency_check_Alpine_packageManager()
 			if [ "$ourCurrentId" = 0 ]; then
 				apk${apkVerbosity} upgrade
 			else
-				sudo -p "Please enter the password for %p for sudo to run apk upgrade: " apk${apkVerbosity} upgrade
+				sudo -p "Please enter the password for %p for sudo to run apk upgrade: " apk ${apkVerbosity} upgrade
 			fi
 		fi
 	fi
@@ -89,9 +89,9 @@ core_dependency_check_Alpine_packageManager()
 		fi
 		
 		if [ "$ourCurrentId" = 0 ]; then
-			apk${apkVerbosity} add "$@"
+			apk $apkOptions add "$@"
 		else
-			sudo -p "Please enter the password for %p for sudo to install packages using apk: " apk${apkVerbosity} add "$@"
+			sudo -p "Please enter the password for %p for sudo to install packages using apk: " apk $apkOptions add "$@"
 		fi
 	done
 }
