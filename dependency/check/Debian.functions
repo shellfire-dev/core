@@ -14,7 +14,7 @@ core_dependency_check_Debian_extractUnqualifiedPackageName()
 	printf '%s' "$fullyQualifiedPackageName"
 }
 
-core_dependency_requires Debian sudo apt-get
+core_dependency_requires Debian sudo apt-get id
 core_dependency_check_Debian_packageManager()
 {
 	if [ $(core_init_verbosity) -gt 0 ]; then

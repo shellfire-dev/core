@@ -17,8 +17,8 @@ _core_dependency_check_CentOS_parsePackageName()
 	EOF
 	
 	if [ -z "$packageName" ]; then
-		packageName="$repositoryName"
 		repositoryName=''
+		packageName="$repositoryName"
 	fi
 }
 
@@ -53,7 +53,7 @@ core_dependency_check_CentOS_packageManager()
 		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
 		return 0
 	fi
-		
+	
 	local repositoryName
 	local packageName
 	local fullyQualifiedPackageName

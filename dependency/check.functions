@@ -14,6 +14,6 @@ core_dependency_check_releaseFile()
 	return 1
 }
 
-core_dependency_check_packageManagersWithPaths='CentOS Cygwin Debian Fedora FreeBSD MacOsXPkgsrc Mageia NetBSD OpenBSD RedHat SuSE Homebrew'
+core_dependency_check_packageManagersWithPaths='Alpine CentOS Cygwin Debian Fedora FreeBSD MacOsXPkgsrc Mageia NetBSD OpenBSD RedHat SuSE Homebrew'
 core_dependency_declares core_dependency_check_packageManagersWithPaths
-core_usesIn core/dependency/check CentOS Cygwin Debian Fedora FreeBSD MacOsXPkgsrc Mageia NetBSD OpenBSD RedHat SuSE Homebrew
+core_usesIn core/dependency/check Alpine CentOS Cygwin Debian Fedora FreeBSD MacOsXPkgsrc Mageia NetBSD OpenBSD RedHat SuSE Homebrew

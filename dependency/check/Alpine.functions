@@ -1,0 +1,97 @@
+# This file is part of shellfire core. It is subject to the licence terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT. No part of shellfire core, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2014-2015 The developers of shellfire core. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/shellfire-dev/core/master/COPYRIGHT.
+
+
+core_dependency_check_Alpine_checkFunction()
+{
+	core_dependency_check_releaseFile alpine-release Alpine
+}
+core_functions_register _core_dependency_check_functions core_dependency_check_Alpine_checkFunction
+
+core_dependency_check_Alpine_extractUnqualifiedPackageName()
+{
+	local fullyQualifiedPackageName="$1"
+
+	local repositoryName
+	local packageName
+	_core_dependency_check_Alpine_parsePackageName
+	
+	printf '%s' "$packageName"
+}
+
+_core_dependency_check_Alpine_parsePackageName()
+{
+	repositoryName=''
+	packageName=''
+	IFS='/' read -r repositoryName packageName <<-EOF
+		${fullyQualifiedPackageName}
+	EOF
+	
+	if [ -z "$packageName" ]; then
+		repositoryName=''
+		packageName="$repositoryName"
+	fi
+}
+
+core_dependency_requires Alpine sudo apk id cat
+core_dependency_check_Alpine_packageManager()
+{
+	local apkVerbosity="--no-progress"
+	
+	case $(core_init_verbosity) in
+		
+		0)
+			apkVerbosity="$apkVerbosity --quiet"
+		;;
+		
+		1)
+			:
+		;;
+		
+		*)
+			apkVerbosity="$apkVerbosity --verbose"
+		;;
+		
+	esac
+
+	local ourCurrentId="$(id -u)"
+	if [ "$ourCurrentId" = 0 ]; then
+		core_message NOTICE "Updating apk package manager (may take some time)"
+		apk${apkVerbosity} update
+	elif core_compatibility_whichNoOutput sudo; then
+		core_message NOTICE "Updating apk package manager (may take some time)"
+		sudo -p "Please enter the password for %p for sudo to apk update: " apk${apkVerbosity} update
+	else
+		core_message INFO "Not running as root and sudo not found, so not installing packages '$@'"
+		return 0
+	fi
+	
+	if core_variable_isSet core_dependency_check_forcePackageManagerUpgradeDuringInstall; then
+		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
+			core_message INFO "Upgrading apk package manager (may take some time)"
+			if [ "$ourCurrentId" = 0 ]; then
+				apk${apkVerbosity} upgrade
+			else
+				sudo -p "Please enter the password for %p for sudo to run apk upgrade: " apk${apkVerbosity} upgrade
+			fi
+		fi
+	fi
+	
+	local fullyQualifiedPackageName
+	local repositoryName
+	local packageName
+	for fullyQualifiedPackageName in "$@"
+	do
+		local apkOptions="$apkVerbosity"
+		_core_dependency_check_Alpine_parsePackageName
+		if [ -n "$repositoryName" ]; then
+			apkOptions="$apkOptions --repository '$repositoryName'"
+		fi
+		
+		if [ "$ourCurrentId" = 0 ]; then
+			apk${apkVerbosity} add "$@"
+		else
+			sudo -p "Please enter the password for %p for sudo to install packages using apk: " apk${apkVerbosity} add "$@"
+		fi
+	done
+}
