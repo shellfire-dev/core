@@ -91,7 +91,6 @@ core_variable_array_append()
 	done
 }
 
-
 core_variable_array_appendUniquely()
 {
 	local variableName="$1"
