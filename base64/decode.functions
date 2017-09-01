@@ -408,7 +408,7 @@ _core_base64_decode_file()
 			;;
 			
 			'=')
-				if [ $valueSift -eq 18 ]; then
+				if [ $valueShift -eq 18 ]; then
 					core_exitError $core_commandLine_exitCode_DATAERR "'=' can start a triple in base64-encoded data"
 				fi
 				equalsCount=$((equalsCount+1))
