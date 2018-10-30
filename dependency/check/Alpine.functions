@@ -57,7 +57,7 @@ core_dependency_check_Alpine_packageManager()
 	local ourCurrentId="$(id -u)"
 	if [ "$ourCurrentId" = 0 ]; then
 		core_message NOTICE "Updating apk package manager (may take some time)"
-		apk${apkVerbosity} update
+		apk ${apkVerbosity} update
 	elif core_compatibility_whichNoOutput sudo; then
 		core_message NOTICE "Updating apk package manager (may take some time)"
 		sudo -p "Please enter the password for %p for sudo to apk update: " apk ${apkVerbosity} update
