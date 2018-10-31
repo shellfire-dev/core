@@ -33,7 +33,7 @@ _core_dependency_check_Alpine_parsePackageName()
 	fi
 }
 
-core_dependency_requires Alpine sudo apk id cat
+core_dependency_requires Alpine apk id cat
 core_dependency_check_Alpine_packageManager()
 {
 	local apkVerbosity="--no-progress"
@@ -70,7 +70,7 @@ core_dependency_check_Alpine_packageManager()
 		if [ $core_dependency_check_forcePackageManagerUpgradeDuringInstall -eq 1 ]; then
 			core_message INFO "Upgrading apk package manager (may take some time)"
 			if [ "$ourCurrentId" = 0 ]; then
-				apk${apkVerbosity} upgrade
+				apk ${apkVerbosity} upgrade
 			else
 				sudo -p "Please enter the password for %p for sudo to run apk upgrade: " apk ${apkVerbosity} upgrade
 			fi
