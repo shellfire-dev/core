@@ -160,7 +160,7 @@ command_not_found_handle()
 {
 	local programNotFound="$1"
 	shift 1
-	core_exitError $core_commandLine_exitCode_OSFILE "Essential dependency '$programNotFound' not found on the PATH (with arguments '$@')"
+	core_exitError $core_commandLine_exitCode_OSFILE "command_not_found_handle:Essential dependency '$programNotFound' not found on the PATH (with arguments '$@')"
 }
 
 core_dependency_setUpPathAndInstallMissing()
