@@ -45,6 +45,10 @@ _core_dependency_addToReplacementPathIfRequired()
 {
 	local filePath="$1"
 	local folderPath="$(core_compatibility_dirname "$filePath")"
+	if [ -z "$folderPath" ]; then
+		return 0
+	fi
+
 	local replacementPathFragment
 	local IFS=':'
 	for replacementPathFragment in $replacementPath
@@ -53,6 +57,7 @@ _core_dependency_addToReplacementPathIfRequired()
 			return 0
 		fi
 	done
+	
 	replacementPath="$folderPath:$replacementPath"
 }
 
