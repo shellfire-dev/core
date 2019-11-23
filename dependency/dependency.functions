@@ -142,7 +142,9 @@ core_dependency_add()
 		_core_dependency_addFromExternalDataSources
 	fi
 	if [ $foundInternally -eq 0 ]; then
-		core_message INFO "Dependency '$programName' for packageManager '$packageManager' not in any known .path file (or internally)"
+		if [ "$packageManager" != 'Unknown' ]; then
+			core_message INFO "Dependency '$programName' for packageManager '$packageManager' not in any known .path file (or internally)"
+		fi
 		return 0
 	fi
 	
@@ -187,10 +189,6 @@ core_dependency_setUpPathAndInstallMissing()
 	
 	_core_dependency_addToReplacementPathIfRequired "$core_init_ourSymlinkPath"
 	_core_dependency_addToReplacementPathIfRequired "$core_init_ourPath"
-	
-	if [ "$core_dependency_packageManager" = 'Unknown' ]; then
-		core_message INFO 'Could not determine package manager for your system, located binaries may be incorrect'
-	fi
 	
 	local alreadyHandledProgramNames
 	local alreadyHandledProgramNames_initialised
