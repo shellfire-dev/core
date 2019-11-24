@@ -63,7 +63,7 @@ core_init_language()
 		core_variable_indirectValue ${_program_namespace}_language
 		printf '%s' $core_variable_indirectValue_result
 	else
-		printf '%s' 'en_US.UTF-8'
+		printf '%s' 'C.UTF-8'
 	fi
 }
 
